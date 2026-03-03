@@ -1,0 +1,239 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import TagList from "../../components/TagList.astro";
+import { brandDisplayName } from "../../config/site";
+import { getResourceOutboundPath, resourceByKey } from "../../lib/resources";
+import { parseChapterTimeToSeconds } from "../../lib/videos";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const videos = await getCollection("videos", ({ data }) => data.lang === "fr");
+  return videos.map((video) => ({
+    params: { slug: video.slug },
+    props: { video }
+  }));
+}
+
+interface Props {
+  video: CollectionEntry<"videos">;
+}
+
+const { video } = Astro.props;
+const { Content } = await render(video);
+const publicationDateIso = video.data.date.toISOString();
+const publicationDateDisplay = video.data.date.toLocaleDateString("fr-FR", {
+  day: "2-digit",
+  month: "long",
+  year: "numeric"
+});
+
+const chapterWithSeconds = video.data.chapters.map((chapter) => ({
+  ...chapter,
+  seconds: parseChapterTimeToSeconds(chapter.time)
+}));
+
+const featuredResources = video.data.featuredResourceKeys.map((key) => {
+  const resource = resourceByKey.get(key);
+  if (!resource) {
+    throw new Error(`Unknown featuredResourceKey in video ${video.slug}: ${key}`);
+  }
+  return resource;
+});
+
+const videoStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "VideoObject",
+  name: video.data.title,
+  description: video.data.summary,
+  uploadDate: publicationDateIso,
+  duration: `PT${Math.round(video.data.durationMin)}M`,
+  thumbnailUrl: `https://i.ytimg.com/vi/${video.data.youtubeId}/maxresdefault.jpg`,
+  embedUrl: `https://www.youtube-nocookie.com/embed/${video.data.youtubeId}`,
+  contentUrl: `https://www.youtube.com/watch?v=${video.data.youtubeId}`,
+  inLanguage: video.data.lang,
+  publisher: {
+    "@type": "Organization",
+    name: brandDisplayName
+  }
+};
+---
+
+<BaseLayout
+  canonicalPath={`/videos/${video.slug}/`}
+  title={`${video.data.title} | ${brandDisplayName}`}
+  description={video.data.summary}
+  type="article"
+  image={`https://i.ytimg.com/vi/${video.data.youtubeId}/maxresdefault.jpg`}
+  jsonLd={videoStructuredData}
+>
+  <section class="section">
+    <div class="container">
+      <Breadcrumbs
+        items={[
+          { label: "Accueil", href: "/" },
+          { label: "Vidéos", href: "/videos/" },
+          { label: video.data.title }
+        ]}
+      />
+      <p class="eyebrow">Fiche vidéo</p>
+      <h1>{video.data.title}</h1>
+      <p class="small muted">Publié le {publicationDateDisplay} · {video.data.durationMin} min</p>
+      <p class="prose">{video.data.summary}</p>
+      <TagList tags={video.data.tags} />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="video-frame surface">
+        <iframe
+          src={`https://www.youtube-nocookie.com/embed/${video.data.youtubeId}`}
+          title={video.data.title}
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid two-columns">
+      <article class="surface block prose">
+        <h2>Résumé détaillé</h2>
+        <Content />
+      </article>
+
+      <aside class="surface block">
+        <h2>Chapitres</h2>
+        <ol class="chapters">
+          {
+            chapterWithSeconds.map((chapter) => (
+              <li>
+                <a href={`https://www.youtube.com/watch?v=${video.data.youtubeId}&t=${chapter.seconds}s`} rel="nofollow noopener">
+                  <span>{chapter.time}</span>
+                  <span>{chapter.label}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid two-columns">
+      <article class="surface block">
+        <h2>Ressources mises en avant</h2>
+        <ul class="resource-list">
+          {
+            featuredResources.map((resource) => (
+              <li>
+                <p><strong>{resource.name}</strong> · {resource.pricingNote}</p>
+                <ul>
+                  {resource.whyRecommended.map((reason) => <li>{reason}</li>)}
+                </ul>
+                <a
+                  class="button button-secondary"
+                  href={getResourceOutboundPath(resource.key)}
+                  rel="nofollow sponsored"
+                >
+                  Ouvrir la ressource
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </article>
+
+      <article class="surface block">
+        <h2>FAQ</h2>
+        <div class="faq-grid">
+          {
+            video.data.faq.map((item) => (
+              <details>
+                <summary>{item.q}</summary>
+                <p>{item.a}</p>
+              </details>
+            ))
+          }
+        </div>
+      </article>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .video-frame {
+    padding: 0.4rem;
+  }
+
+  .video-frame iframe {
+    width: 100%;
+    min-height: clamp(220px, 45vw, 560px);
+    border: 0;
+    border-radius: 10px;
+  }
+
+  .two-columns {
+    grid-template-columns: 1.3fr 1fr;
+  }
+
+  .block {
+    padding: 1.2rem;
+  }
+
+  .chapters {
+    margin: 0;
+    padding-left: 1.1rem;
+  }
+
+  .chapters a {
+    display: grid;
+    grid-template-columns: 58px 1fr;
+    gap: 0.45rem;
+    color: var(--text-soft);
+    text-decoration: none;
+  }
+
+  .chapters a:hover {
+    color: var(--accent);
+  }
+
+  .resource-list {
+    margin: 0;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .resource-list ul {
+    margin: 0.3rem 0 0.65rem;
+    color: var(--text-soft);
+  }
+
+  .faq-grid {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .faq-grid details {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+    background: #fff;
+  }
+
+  .faq-grid summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  @media (max-width: 980px) {
+    .two-columns {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

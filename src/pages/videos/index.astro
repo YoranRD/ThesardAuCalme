@@ -1,0 +1,43 @@
+---
+import { getCollection } from "astro:content";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import VideoCard from "../../components/VideoCard.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const videos = (await getCollection("videos", ({ data }) => data.lang === "fr")).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+---
+
+<BaseLayout
+  canonicalPath="/videos/"
+  title="Vidéos doctorat | Thésard Au Calme"
+  description="Index des vidéos: méthodes doctorales, erreurs fréquentes, outils et gestion administrative du doctorat en France."
+>
+  <section class="section">
+    <div class="container">
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Vidéos" }]} />
+      <p class="eyebrow">Bibliothèque vidéo</p>
+      <h1>Vidéos</h1>
+      <p class="prose">Chaque vidéo est accompagnée d'un résumé, des chapitres, d'une FAQ et des ressources liées.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid cards">
+      {videos.map((video) => <VideoCard video={video} />)}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @media (max-width: 980px) {
+    .cards {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

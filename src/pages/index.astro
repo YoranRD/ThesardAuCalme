@@ -1,11 +1,186 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import { getCollection } from "astro:content";
+import mascot from "../assets/brand/mascot.svg";
+import CtaBlock from "../components/CtaBlock.astro";
+import GuideCard from "../components/GuideCard.astro";
+import VideoCard from "../components/VideoCard.astro";
+import { brandDisplayName, brandTagline, getCanonicalUrl } from "../config/site";
+import { resourcesCatalog } from "../lib/resources";
+import BaseLayout from "../layouts/BaseLayout.astro";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const videos = (await getCollection("videos", ({ data }) => data.lang === "fr")).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+
+const guides = (await getCollection("guides", ({ data }) => data.lang === "fr")).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+
+const featuredVideos = videos.slice(0, 3);
+const featuredGuides = guides.slice(0, 2);
+const featuredResources = resourcesCatalog.slice(0, 4);
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      name: brandDisplayName,
+      url: getCanonicalUrl("/"),
+      logo: getCanonicalUrl("/favicon.svg"),
+      description: brandTagline
+    },
+    {
+      "@type": "WebSite",
+      name: brandDisplayName,
+      url: getCanonicalUrl("/"),
+      inLanguage: "fr",
+      potentialAction: {
+        "@type": "SearchAction",
+        target: `${getCanonicalUrl("/")}guides/?q={search_term_string}`,
+        "query-input": "required name=search_term_string"
+      }
+    }
+  ]
+};
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<BaseLayout
+  canonicalPath="/"
+  title="Thésard Au Calme | Méthodes doctorat en France"
+  description="Chaîne no-face et bibliothèque de guides pour réussir son doctorat en France: méthode, outils et rigueur sans bruit marketing."
+  jsonLd={structuredData}
+>
+  <section class="section">
+    <div class="container hero surface">
+      <div>
+        <p class="eyebrow">Doctorat en France</p>
+        <h1>Un cadre clair pour terminer sa thèse avec plus de calme.</h1>
+        <p>
+          {brandDisplayName} publie des vidéos et des guides orientés exécution: organisation hebdomadaire,
+          rédaction, bibliographie et préparation de soutenance.
+        </p>
+        <p>{brandTagline}</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="/start/">Commencer ici</a>
+          <a class="button button-secondary" href="/videos/">Voir les vidéos</a>
+        </div>
+      </div>
+      <div class="hero-art">
+        <img src={mascot.src} alt="Mascotte Thésard Au Calme" width="220" height="220" />
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Vidéos récentes</p>
+      <div class="grid cards-3">
+        {featuredVideos.map((video) => <VideoCard video={video} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Guides approfondis</p>
+      <div class="grid cards-2">
+        {featuredGuides.map((guide) => <GuideCard guide={guide} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container resources-preview surface">
+      <div>
+        <p class="eyebrow">Ressources sélectionnées</p>
+        <h2>Des recommandations expliquées, pas des liens jetés.</h2>
+      </div>
+      <ul>
+        {featuredResources.map((resource) => <li><a href={`/ressources/#${resource.key}`}>{resource.name}</a></li>)}
+      </ul>
+      <a class="button button-secondary" href="/ressources/">Explorer toutes les ressources</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container disclosure">
+      <strong>Note affiliation:</strong>
+      Certains liens de la page ressources passent par des redirections internes `/out/` pour mesurer les clics.
+      Le critère prioritaire reste l'utilité académique, avec alternatives gratuites quand elles existent.
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <CtaBlock
+        title="Démarrage guidé"
+        body="La page Commencer ici propose trois parcours rapides: début de thèse, phase de rédaction, préparation de soutenance."
+        href="/start/"
+        label="Ouvrir Commencer ici"
+      />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: 1.35fr minmax(180px, 280px);
+    gap: 1.2rem;
+    padding: clamp(1.2rem, 3vw, 2rem);
+    align-items: center;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-top: 1.15rem;
+  }
+
+  .hero-art {
+    justify-self: center;
+    width: min(100%, 260px);
+  }
+
+  .cards-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cards-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .resources-preview {
+    display: grid;
+    gap: 0.7rem;
+    padding: 1.4rem;
+  }
+
+  .resources-preview ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--text-soft);
+    columns: 2;
+  }
+
+  .resources-preview a {
+    text-decoration: none;
+  }
+
+  .resources-preview a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 980px) {
+    .cards-3,
+    .cards-2 {
+      grid-template-columns: 1fr;
+    }
+
+    .hero {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

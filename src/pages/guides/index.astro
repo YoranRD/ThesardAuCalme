@@ -1,0 +1,43 @@
+---
+import { getCollection } from "astro:content";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import GuideCard from "../../components/GuideCard.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const guides = (await getCollection("guides", ({ data }) => data.lang === "fr")).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+---
+
+<BaseLayout
+  canonicalPath="/guides/"
+  title="Guides doctorat | Thésard Au Calme"
+  description="Guides longs et structurés pour workflow de bibliographie, rédaction académique et organisation doctorale en France."
+>
+  <section class="section">
+    <div class="container">
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Guides" }]} />
+      <p class="eyebrow">Articles de fond</p>
+      <h1>Guides</h1>
+      <p class="prose">Des formats longs pour installer des systèmes robustes et reproductibles au quotidien.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid cards">
+      {guides.map((guide) => <GuideCard guide={guide} />)}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: 980px) {
+    .cards {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

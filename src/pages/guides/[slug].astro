@@ -1,0 +1,64 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import TagList from "../../components/TagList.astro";
+import { brandDisplayName } from "../../config/site";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const guides = await getCollection("guides", ({ data }) => data.lang === "fr");
+  return guides.map((guide) => ({
+    params: { slug: guide.slug },
+    props: { guide }
+  }));
+}
+
+interface Props {
+  guide: CollectionEntry<"guides">;
+}
+
+const { guide } = Astro.props;
+const { Content } = await render(guide);
+
+const publicationDate = guide.data.date.toLocaleDateString("fr-FR", {
+  day: "2-digit",
+  month: "long",
+  year: "numeric"
+});
+---
+
+<BaseLayout
+  canonicalPath={`/guides/${guide.slug}/`}
+  title={`${guide.data.title} | ${brandDisplayName}`}
+  description={guide.data.summary}
+  type="article"
+>
+  <section class="section">
+    <div class="container">
+      <Breadcrumbs
+        items={[
+          { label: "Accueil", href: "/" },
+          { label: "Guides", href: "/guides/" },
+          { label: guide.data.title }
+        ]}
+      />
+      <p class="eyebrow">Guide</p>
+      <h1>{guide.data.title}</h1>
+      <p class="small muted">Publié le {publicationDate}</p>
+      <p class="prose">{guide.data.summary}</p>
+      <TagList tags={guide.data.tags} />
+    </div>
+  </section>
+
+  <section class="section">
+    <article class="container surface guide-body prose">
+      <Content />
+    </article>
+  </section>
+</BaseLayout>
+
+<style>
+  .guide-body {
+    padding: clamp(1.2rem, 3vw, 2.1rem);
+  }
+</style>

@@ -1,0 +1,178 @@
+- key: zotero
+  name: Zotero
+  category: bibliographie
+  description: Gestionnaire de references open source, robuste pour centraliser articles, PDF et citations.
+  whyRecommended:
+    - Export BibTeX, CSL et bibliographies en un clic.
+    - Synchronisation multi-postes fiable avec bibliotheque partagee.
+    - Ecosysteme mature pour Word, LibreOffice et navigateur.
+  criteriaUsed:
+    - Interoperabilite des formats de citation.
+    - Qualite de la synchronisation bibliographique.
+    - Durabilite du projet open source.
+  pricingNote: free
+  url: https://www.zotero.org/
+  freeAlternativeKeys:
+    - jabref
+
+- key: jabref
+  name: JabRef
+  category: bibliographie
+  description: Alternative ouverte orientee BibTeX, utile pour workflows LaTeX et theses STEM.
+  whyRecommended:
+    - Integration native BibTeX/BibLaTeX.
+    - Recherche de metadonnees rapide depuis DOI.
+  criteriaUsed:
+    - Compatibilite LaTeX.
+    - Stabilite du format exporte.
+  pricingNote: free
+  url: https://www.jabref.org/
+
+- key: overleaf
+  name: Overleaf
+  category: ecriture
+  description: Edition collaborative LaTeX dans le navigateur, pratique pour co-auteur et encadrement.
+  whyRecommended:
+    - Historique de versions clair pour les revisions.
+    - Compilation continue et partage simple.
+    - Templates de these facilement adaptables.
+  criteriaUsed:
+    - Collaboration en temps reel.
+    - Portabilite des projets LaTeX.
+    - Qualite de l'historique des modifications.
+  pricingNote: freemium
+  url: https://www.overleaf.com/
+  affiliateUrl: https://www.overleaf.com/?utm_source=thesardaucalme
+  freeAlternativeKeys:
+    - obsidian
+
+- key: obsidian
+  name: Obsidian
+  category: ecriture
+  description: Base de connaissances en Markdown pour structurer notes de lecture et chapitres.
+  whyRecommended:
+    - Fichiers locaux simples a sauvegarder et exporter.
+    - Liens internes puissants pour cartographier la litterature.
+    - Extensions optionnelles sans verrou proprietaire.
+  criteriaUsed:
+    - Portabilite des notes.
+    - Capacite d'export.
+    - Performance sur gros volumes de notes.
+  pricingNote: freemium
+  url: https://obsidian.md/
+
+- key: antidote
+  name: Antidote
+  category: ecriture
+  description: Correcteur linguistique francophone utile pour clarte, ponctuation et style academique.
+  whyRecommended:
+    - Precision elevee sur textes longs en francais.
+    - Dictionnaires et guides de style integres.
+  criteriaUsed:
+    - Qualite du francais scientifique.
+    - Integrations logicielles.
+  pricingNote: paid
+  url: https://www.antidote.info/
+  affiliateUrl: https://www.antidote.info/fr/boutique?utm_source=thesardaucalme
+  freeAlternativeKeys:
+    - language-tool
+
+- key: language-tool
+  name: LanguageTool
+  category: ecriture
+  description: Correcteur multiplateforme freemium pour fautes frequentes et reformulations de base.
+  whyRecommended:
+    - Facile a activer dans navigateur et traitement de texte.
+    - Mode gratuit suffisant pour premieres passes de correction.
+  criteriaUsed:
+    - Couverture linguistique.
+    - Cout d'entree.
+  pricingNote: freemium
+  url: https://languagetool.org/
+
+- key: backblaze
+  name: Backblaze
+  category: sauvegarde
+  description: Sauvegarde cloud continue pour limiter le risque de perte de donnees de these.
+  whyRecommended:
+    - Sauvegarde automatique transparente.
+    - Versioning utile apres suppression accidentelle.
+    - Restauration externalisee en cas de panne machine.
+  criteriaUsed:
+    - Frequence de sauvegarde.
+    - Fiabilite de restauration.
+    - Simplicite d'usage quotidien.
+  pricingNote: paid
+  url: https://www.backblaze.com/
+  affiliateUrl: https://www.backblaze.com/cloud-backup/personal?utm_source=thesardaucalme
+  freeAlternativeKeys:
+    - syncthing
+
+- key: syncthing
+  name: Syncthing
+  category: sauvegarde
+  description: Synchronisation chiffrable pair-a-pair pour dupliquer dossiers critiques entre appareils.
+  whyRecommended:
+    - Open source et sans abonnement.
+    - Controle local des dossiers et permissions.
+  criteriaUsed:
+    - Souverainete des donnees.
+    - Cout total.
+  pricingNote: free
+  url: https://syncthing.net/
+
+- key: focus-to-do
+  name: Focus To-Do
+  category: focus
+  description: Timer Pomodoro + gestion de taches pour sessions de redaction cadrees.
+  whyRecommended:
+    - Cycles de travail/rest efficaces sur longues journees.
+    - Statistiques hebdomadaires simples a relire.
+  criteriaUsed:
+    - Simplicite de parametrage.
+    - Qualite du suivi de sessions.
+  pricingNote: freemium
+  url: https://www.focustodo.cn/
+  freeAlternativeKeys:
+    - pomofocus
+
+- key: pomofocus
+  name: Pomofocus
+  category: focus
+  description: Pomodoro web minimaliste pour demarrer rapidement sans installation.
+  whyRecommended:
+    - Interface claire, sans friction.
+    - Suffisant pour blocs de redaction courts.
+  criteriaUsed:
+    - Rapidite de mise en route.
+    - Absence de distraction.
+  pricingNote: free
+  url: https://pomofocus.io/
+
+- key: casque-anc
+  name: Casque a reduction de bruit
+  category: equipement
+  description: Casque ANC confortable pour neutraliser le bruit de bureau partage.
+  whyRecommended:
+    - Baisse sensible du bruit ambiant en open space.
+    - Meilleure endurance cognitive pendant les blocs d'ecriture.
+  criteriaUsed:
+    - Confort sur sessions longues.
+    - Efficacite de reduction de bruit.
+    - Rapport cout-utilite.
+  pricingNote: paid
+  url: https://www.sony.fr/electronics/casque-bandeau/wh-1000xm5
+  affiliateUrl: https://www.amazon.fr/s?k=WH-1000XM5&utm_source=thesardaucalme
+
+- key: campus-france
+  name: Campus France
+  category: administratif
+  description: Point de depart administratif pour candidats internationaux et sejour doctoral.
+  whyRecommended:
+    - Informations officielles centralisees sur visa et procedures.
+    - Orientation vers demarches locales selon pays.
+  criteriaUsed:
+    - Fiabilite institutionnelle.
+    - Clarte des etapes administratives.
+  pricingNote: free
+  url: https://www.campusfrance.org/fr

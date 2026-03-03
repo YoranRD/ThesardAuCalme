@@ -1,0 +1,11 @@
+<svg width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="mascotTitle mascotDesc">
+  <title id="mascotTitle">Mascotte minimaliste</title>
+  <desc id="mascotDesc">Ligne claire d'un mortarboard, d'un livre et d'une tasse de cafe</desc>
+  <rect x="20" y="38" width="180" height="148" rx="18" fill="#FFFCF6" stroke="#D8D0C3" stroke-width="2"/>
+  <path d="M110 58L56 82L110 106L164 82L110 58Z" stroke="#2F5D5A" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M74 92V118C74 126 89 134 110 134C131 134 146 126 146 118V92" stroke="#2F5D5A" stroke-width="3" stroke-linecap="round"/>
+  <path d="M58 156H162" stroke="#C7BCAB" stroke-width="2" stroke-linecap="round"/>
+  <rect x="64" y="146" width="72" height="10" rx="3" fill="#DCE7E6" stroke="#2F5D5A" stroke-width="2"/>
+  <path d="M148 139H166C171 139 174 143 174 148C174 153 171 157 166 157H150" stroke="#2F5D5A" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M159 132C163 129 164 124 160 120" stroke="#2F5D5A" stroke-width="2" stroke-linecap="round"/>
+</svg>

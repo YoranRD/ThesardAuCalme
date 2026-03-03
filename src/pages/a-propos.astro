@@ -1,0 +1,38 @@
+---
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  canonicalPath="/a-propos/"
+  title="À propos | Thésard Au Calme"
+  description="Positionnement éditorial de Thésard Au Calme: méthode doctorale, sobriété, transparence et reproductibilité."
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "À propos" }]} />
+      <p class="eyebrow">Positionnement</p>
+      <h1>À propos</h1>
+      <p>
+        Thésard Au Calme est une marque no-face dédiée à la vie doctorale en France. L'objectif est de proposer des
+        méthodes applicables, en évitant les recettes spectaculaires qui créent de la charge mentale sans résultat.
+      </p>
+      <p>
+        Les contenus sont structurés autour de trois principes: preuve, simplicité et traçabilité. Chaque recommandation
+        indique les critères utilisés et, lorsque possible, une alternative gratuite.
+      </p>
+      <h2>Ce que la marque publie</h2>
+      <ul>
+        <li>Des vidéos courtes avec chapitrage et FAQ.</li>
+        <li>Des guides longs orientés workflow.</li>
+        <li>Un catalogue ressources maintenu avec logique d'affiliation transparente.</li>
+      </ul>
+      <h2>Ce que la marque ne promet pas</h2>
+      <ul>
+        <li>Pas de promesse de "thèse facile".</li>
+        <li>Pas de classement sensationnaliste d'outils.</li>
+        <li>Pas de collecte de données non nécessaire.</li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

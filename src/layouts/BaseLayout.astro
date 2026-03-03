@@ -1,0 +1,89 @@
+---
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import {
+  brandDisplayName,
+  cloudflareWebAnalyticsToken,
+  getAbsoluteAssetUrl,
+  getCanonicalUrl,
+  siteDefaultDescription,
+  siteDefaultTitle
+} from "../config/site";
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonicalPath: string;
+  image?: string;
+  lang?: "fr" | "en";
+  noindex?: boolean;
+  type?: "website" | "article";
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const {
+  title = siteDefaultTitle,
+  description = siteDefaultDescription,
+  canonicalPath,
+  image = "/og-default.svg",
+  lang = "fr",
+  noindex = false,
+  type = "website",
+  jsonLd
+} = Astro.props;
+
+const canonicalUrl = getCanonicalUrl(canonicalPath);
+const openGraphImage = image.startsWith("http") ? image : getAbsoluteAssetUrl(image);
+const twitterCard = "summary_large_image";
+const robotsValue = noindex ? "noindex, nofollow" : "index, follow";
+const cloudflareBeaconValue = cloudflareWebAnalyticsToken
+  ? JSON.stringify({ token: cloudflareWebAnalyticsToken })
+  : "";
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content={robotsValue} />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta property="og:locale" content={lang === "fr" ? "fr_FR" : "en_US"} />
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={brandDisplayName} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={openGraphImage} />
+    <meta name="twitter:card" content={twitterCard} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={openGraphImage} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {
+      jsonLd && (
+        <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+      )
+    }
+    {
+      cloudflareWebAnalyticsToken && (
+        <script
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon={cloudflareBeaconValue}
+        />
+      )
+    }
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Aller au contenu principal</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

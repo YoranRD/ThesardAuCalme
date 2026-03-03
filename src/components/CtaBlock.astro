@@ -1,0 +1,33 @@
+---
+interface Props {
+  title: string;
+  body: string;
+  href: string;
+  label: string;
+}
+
+const { title, body, href, label } = Astro.props;
+---
+
+<section class="cta surface" aria-label="Call to action">
+  <h2>{title}</h2>
+  <p>{body}</p>
+  <a class="button button-primary" href={href}>{label}</a>
+</section>
+
+<style>
+  .cta {
+    padding: 1.4rem;
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .cta h2 {
+    margin: 0;
+    font-size: 1.4rem;
+  }
+
+  .cta p {
+    margin: 0;
+  }
+</style>

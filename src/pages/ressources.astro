@@ -1,0 +1,121 @@
+---
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+import ResourceCard from "../components/ResourceCard.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { resourceCategories, resourcesCatalog } from "../lib/resources";
+
+const resourcesByCategory = resourceCategories.map((category) => ({
+  ...category,
+  items: resourcesCatalog.filter((resource) => resource.category === category.key)
+}));
+
+const comparisonRows = resourcesCatalog
+  .filter((resource) => ["zotero", "obsidian", "backblaze", "focus-to-do"].includes(resource.key))
+  .map((resource) => ({
+    name: resource.name,
+    category: resource.category,
+    pricing: resource.pricingNote,
+    criteria: resource.criteriaUsed.slice(0, 2).join(" · ")
+  }));
+---
+
+<BaseLayout
+  canonicalPath="/ressources/"
+  title="Ressources doctorat | Thésard Au Calme"
+  description="Ressources sélectionnées pour doctorant·es: critères explicites, alternatives gratuites et transparence affiliation."
+>
+  <section class="section">
+    <div class="container">
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Ressources" }]} />
+      <p class="eyebrow">Hub ressources</p>
+      <h1>Ressources</h1>
+      <p class="prose">
+        Le catalogue se base sur des critères explicites: qualité du workflow, export des données, confidentialité,
+        collaboration et coût total. Les liens sortants passent par `/out/[key]/` pour mesurer les clics de manière
+        simple et gratuite.
+      </p>
+      <div class="disclosure small">
+        <strong>Transparence affiliation :</strong>
+        une partie des liens peut être affiliée. La recommandation reste conditionnée à une utilité documentée,
+        et une alternative gratuite est proposée dès que possible.
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container table-wrapper">
+      <h2>Comparaison rapide</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Ressource</th>
+            <th>Catégorie</th>
+            <th>Tarification</th>
+            <th>Critères dominants</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            comparisonRows.map((row) => (
+              <tr>
+                <td>{row.name}</td>
+                <td>{row.category}</td>
+                <td>{row.pricing}</td>
+                <td>{row.criteria}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid category-grid">
+      {
+        resourcesByCategory.map((category) => (
+          <section class="category-block">
+            <p class="eyebrow">{category.label}</p>
+            <div class="grid">
+              {category.items.map((resource) => <ResourceCard resource={resource} />)}
+            </div>
+          </section>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section" id="checklist">
+    <div class="container surface checklist">
+      <h2>Checklist minimale (30 minutes)</h2>
+      <ol>
+        <li>Installer un outil de bibliographie et importer 20 références clés.</li>
+        <li>Mettre en place une sauvegarde automatique locale + distante.</li>
+        <li>Créer un espace de rédaction unique (Markdown ou LaTeX).</li>
+        <li>Planifier 3 blocs de focus hebdomadaires dans le calendrier.</li>
+        <li>Vérifier les exigences administratives et échéances de l'école doctorale.</li>
+      </ol>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .category-grid {
+    gap: 1.7rem;
+  }
+
+  .category-block {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .checklist {
+    padding: 1.25rem;
+  }
+
+  .checklist ol {
+    margin: 0;
+    padding-left: 1.25rem;
+    color: var(--text-soft);
+  }
+</style>

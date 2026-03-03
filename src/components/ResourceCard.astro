@@ -1,0 +1,76 @@
+---
+import type { ResourceEntry } from "../lib/resources";
+import { getResourceOutboundPath } from "../lib/resources";
+
+interface Props {
+  resource: ResourceEntry;
+}
+
+const { resource } = Astro.props;
+
+const pricingLabelMap: Record<ResourceEntry["pricingNote"], string> = {
+  free: "Gratuit",
+  paid: "Payant",
+  freemium: "Freemium"
+};
+---
+
+<article class="card resource-card" id={resource.key}>
+  <div class="resource-head">
+    <h3>{resource.name}</h3>
+    <span class="meta-pill">{pricingLabelMap[resource.pricingNote]}</span>
+  </div>
+
+  <p>{resource.description}</p>
+
+  <p class="small"><strong>Pourquoi recommandé :</strong></p>
+  <ul>
+    {resource.whyRecommended.map((reason) => <li>{reason}</li>)}
+  </ul>
+
+  <p class="small"><strong>Critères utilisés :</strong></p>
+  <ul>
+    {resource.criteriaUsed.map((criterion) => <li>{criterion}</li>)}
+  </ul>
+
+  {
+    resource.freeAlternativeKeys.length > 0 && (
+      <p class="small muted">
+        Alternatives gratuites: {resource.freeAlternativeKeys.map((key) => <a href={`/ressources/#${key}`}>{key}</a>)}
+      </p>
+    )
+  }
+
+  <a class="button button-primary" href={getResourceOutboundPath(resource.key)} rel="nofollow sponsored">
+    Accéder à la ressource
+  </a>
+</article>
+
+<style>
+  .resource-card {
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .resource-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .resource-card h3 {
+    margin: 0;
+  }
+
+  .resource-card ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--text-soft);
+  }
+
+  .resource-card a {
+    width: fit-content;
+    text-decoration: none;
+  }
+</style>

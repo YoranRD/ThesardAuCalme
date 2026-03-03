@@ -1,0 +1,58 @@
+---
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const contactEmail = "contact@thesardaucalme.com";
+---
+
+<BaseLayout
+  canonicalPath="/contact/"
+  title="Contact | Thésard Au Calme"
+  description="Contact éditorial de Thésard Au Calme via email, sans formulaire ni backend."
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Contact" }]} />
+      <p class="eyebrow">Contact</p>
+      <h1>Contact</h1>
+      <p>Pour une question éditoriale ou un retour sur les guides, un contact email unique est disponible.</p>
+
+      <p>
+        <a class="button button-primary" href={`mailto:${contactEmail}`}>Écrire par email</a>
+      </p>
+
+      <div class="surface contact-box">
+        <p><strong>Email :</strong> <span id="contact-email">{contactEmail}</span></p>
+        <button id="copy-email" class="button button-secondary" type="button">Copier l'adresse</button>
+        <p id="copy-feedback" class="small muted" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    const copyButton = document.getElementById("copy-email");
+    const emailText = document.getElementById("contact-email")?.textContent || "";
+    const feedback = document.getElementById("copy-feedback");
+
+    copyButton?.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(emailText);
+        if (feedback) feedback.textContent = "Adresse copiée.";
+      } catch {
+        if (feedback) feedback.textContent = "Copie non disponible sur ce navigateur.";
+      }
+    });
+  </script>
+</BaseLayout>
+
+<style>
+  .contact-box {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .contact-box p {
+    margin: 0;
+  }
+</style>

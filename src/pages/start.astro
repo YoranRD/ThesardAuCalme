@@ -1,0 +1,163 @@
+---
+import { getCollection } from "astro:content";
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+import CtaBlock from "../components/CtaBlock.astro";
+import { resourceByKey } from "../lib/resources";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const videos = await getCollection("videos", ({ data }) => data.lang === "fr");
+const guides = await getCollection("guides", ({ data }) => data.lang === "fr");
+
+const videosBySlug = new Map(videos.map((video) => [video.slug, video]));
+const guidesBySlug = new Map(guides.map((guide) => [guide.slug, guide]));
+
+const requireVideo = (slug: string) => {
+  const entry = videosBySlug.get(slug);
+  if (!entry) {
+    throw new Error(`Missing video for /start profile: ${slug}`);
+  }
+  return entry;
+};
+
+const requireGuide = (slug: string) => {
+  const entry = guidesBySlug.get(slug);
+  if (!entry) {
+    throw new Error(`Missing guide for /start profile: ${slug}`);
+  }
+  return entry;
+};
+
+const requireResource = (key: string) => {
+  const entry = resourceByKey.get(key);
+  if (!entry) {
+    throw new Error(`Missing resource for /start profile: ${key}`);
+  }
+  return entry;
+};
+
+const profiles = [
+  {
+    title: "Je débute la thèse",
+    description:
+      "Objectif: construire une base administrative et méthodologique solide pendant les 8 premières semaines.",
+    videos: [
+      requireVideo("doctorat-france-kit-administratif"),
+      requireVideo("top-5-outils-these"),
+      requireVideo("top-5-erreurs-these")
+    ],
+    guides: [
+      requireGuide("workflow-bibliographie-zotero"),
+      requireGuide("systeme-ecriture-lecture-notes-chapitre")
+    ],
+    shortlist: [requireResource("campus-france"), requireResource("zotero"), requireResource("syncthing")]
+  },
+  {
+    title: "Je rédige",
+    description: "Objectif: maintenir un flux d'écriture stable et réduire les itérations de correction.",
+    videos: [
+      requireVideo("top-5-outils-these"),
+      requireVideo("top-5-erreurs-these"),
+      requireVideo("doctorat-france-kit-administratif")
+    ],
+    guides: [
+      requireGuide("systeme-ecriture-lecture-notes-chapitre"),
+      requireGuide("workflow-bibliographie-zotero")
+    ],
+    shortlist: [requireResource("obsidian"), requireResource("antidote"), requireResource("focus-to-do")]
+  },
+  {
+    title: "Je prépare la soutenance",
+    description: "Objectif: fiabiliser les preuves, les annexes et les éléments de communication finale.",
+    videos: [
+      requireVideo("top-5-erreurs-these"),
+      requireVideo("doctorat-france-kit-administratif"),
+      requireVideo("top-5-outils-these")
+    ],
+    guides: [
+      requireGuide("workflow-bibliographie-zotero"),
+      requireGuide("systeme-ecriture-lecture-notes-chapitre")
+    ],
+    shortlist: [requireResource("backblaze"), requireResource("zotero"), requireResource("casque-anc")]
+  }
+];
+---
+
+<BaseLayout
+  canonicalPath="/start/"
+  title="Commencer ici | Thésard Au Calme"
+  description="Parcours guidé pour doctorants: débuts, rédaction et préparation de soutenance avec vidéos, guides et shortlist ressources."
+>
+  <section class="section">
+    <div class="container">
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Commencer ici" }]} />
+      <p class="eyebrow">Onboarding</p>
+      <h1>Commencer ici</h1>
+      <p class="prose">
+        Cette page propose un chemin court selon la phase actuelle du doctorat. Chaque profil rassemble
+        3 vidéos, 2 guides et 1 shortlist de ressources pour démarrer sans surcharge.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid">
+      {
+        profiles.map((profile) => (
+          <article class="surface profile-card">
+            <h2>{profile.title}</h2>
+            <p>{profile.description}</p>
+
+            <h3>3 vidéos recommandées</h3>
+            <ul>
+              {profile.videos.map((video) => <li><a href={`/videos/${video.slug}/`}>{video.data.title}</a></li>)}
+            </ul>
+
+            <h3>2 guides à lire</h3>
+            <ul>
+              {profile.guides.map((guide) => <li><a href={`/guides/${guide.slug}/`}>{guide.data.title}</a></li>)}
+            </ul>
+
+            <h3>Shortlist ressources</h3>
+            <ul>
+              {profile.shortlist.map((resource) => <li><a href={`/ressources/#${resource.key}`}>{resource.name}</a></li>)}
+            </ul>
+            <a class="button button-secondary" href="/ressources/">Voir la shortlist dans Ressources</a>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <CtaBlock
+        title="Va voir la page ressources + checklist"
+        body="La checklist opérationnelle est en bas de la page Ressources pour démarrer sur un système minimal viable en 30 minutes."
+        href="/ressources/#checklist"
+        label="Ouvrir Ressources + checklist"
+      />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .profile-card {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .profile-card ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--text-soft);
+  }
+
+  .profile-card a {
+    text-decoration: none;
+  }
+
+  .profile-card a:hover {
+    text-decoration: underline;
+  }
+</style>

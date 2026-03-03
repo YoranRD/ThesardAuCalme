@@ -1,0 +1,43 @@
+---
+import { getResourceDestination, resourcesCatalog } from "../../lib/resources";
+
+export async function getStaticPaths() {
+  return resourcesCatalog.map((resource) => ({
+    params: { key: resource.key },
+    props: {
+      destination: getResourceDestination(resource),
+      keyName: resource.key,
+      resourceName: resource.name
+    }
+  }));
+}
+
+interface Props {
+  destination: string;
+  keyName: string;
+  resourceName: string;
+}
+
+const { destination, keyName, resourceName } = Astro.props;
+const redirectScript = `window.location.replace(${JSON.stringify(destination)});`;
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Redirection ressource: {resourceName}</title>
+    <meta http-equiv="refresh" content={`0;url=${destination}`} />
+    <script is:inline set:html={redirectScript} />
+  </head>
+  <body>
+    <main style="font-family: 'Avenir Next', 'Segoe UI', sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem;">
+      <p>Redirection en cours vers la ressource <strong>{resourceName}</strong>.</p>
+      <p>
+        Si la redirection ne fonctionne pas, suivre ce lien: <a rel="nofollow sponsored" href={destination}>{keyName}</a>
+      </p>
+    </main>
+  </body>
+</html>
