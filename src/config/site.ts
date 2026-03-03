@@ -9,7 +9,7 @@ export const stagingBaseUrl = "https://yoranrd.github.io/ThesardAuCalme/";
 export const productionDomain = "thesardaucalme.com";
 export const useProductionDomain = false;
 
-export const cloudflareWebAnalyticsToken = "";
+export const cloudflareWebAnalyticsToken = "540c4eeb005548d4b8c4a14efdbff590";
 
 const fallbackStagingBaseUrl = "https://yoranrd.github.io/ThesardAuCalme/";
 const normalizedStagingBaseUrl = placeholderPattern.test(stagingBaseUrl)
