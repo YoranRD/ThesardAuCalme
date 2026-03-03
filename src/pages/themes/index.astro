@@ -1,0 +1,166 @@
+---
+import { getCollection } from "astro:content";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import LanguageSwitch from "../../components/LanguageSwitch.astro";
+import { withBase } from "../../lib/links";
+import { buildTagCounts } from "../../lib/tags";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const videos = await getCollection("videos", ({ data }) => data.lang === "fr");
+const guides = await getCollection("guides", ({ data }) => data.lang === "fr");
+const tags = buildTagCounts(videos, guides);
+
+const videoMap = new Map(videos.map((video) => [video.slug, video]));
+const guideMap = new Map(guides.map((guide) => [guide.slug, guide]));
+
+const recommendedVideos = [
+  videoMap.get("top-5-habitudes-qui-sauvent-these"),
+  videoMap.get("top-5-erreurs-zotero-et-solutions"),
+  videoMap.get("doctorat-france-comprendre-ecole-doctorale-labo-inscription")
+].filter(Boolean);
+
+const recommendedGuides = [
+  guideMap.get("routine-hebdo-doctorant-simple-tenable"),
+  guideMap.get("doctorat-france-international-checklist-30-jours")
+].filter(Boolean);
+---
+
+<BaseLayout
+  canonicalPath="/themes/"
+  title="Thèmes doctorat | Thésard Au Calme"
+  description="Index des thèmes: tags consolidés des vidéos et guides doctorat, avec accès rapide par sujet prioritaire."
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Thèmes" }]} />
+      <LanguageSwitch frHref="/themes/" enHref="/en/topics/" current="fr" />
+      <p class="eyebrow">Topics index</p>
+      <h1>Thèmes</h1>
+      <p>
+        Cette page indexe les contenus par thème. L'objectif est de trouver rapidement un bloc cohérent de vidéos et guides
+        selon la phase actuelle de thèse.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>Start here en 3 étapes</h2>
+      <ol>
+        <li>Choisir un thème dominant pour la semaine (écriture, bibliographie, administratif, etc.).</li>
+        <li>Lire 1 guide de fond puis regarder 1 vidéo complémentaire sur le même thème.</li>
+        <li>Convertir le contenu en plan d'action concret de 7 jours.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid two-cols">
+      <article class="surface hub-block">
+        <h2>3 vidéos recommandées</h2>
+        <ul>
+          {recommendedVideos.map((video) => <li><a href={withBase(`/videos/${video!.slug}/`)}>{video!.data.title}</a></li>)}
+        </ul>
+      </article>
+      <article class="surface hub-block">
+        <h2>2 guides à lire</h2>
+        <ul>
+          {recommendedGuides.map((guide) => <li><a href={withBase(`/guides/${guide!.slug}/`)}>{guide!.data.title}</a></li>)}
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>Shortlist ressources</h2>
+      <ul>
+        <li><a href={withBase("/ressources/#ecrire")}>Écrire</a> pour transformer les notes en sections.</li>
+        <li><a href={withBase("/ressources/#citer-bibliographie")}>Citer</a> pour stabiliser les références.</li>
+        <li><a href={withBase("/ressources/#administratif")}>Administratif</a> pour gérer les échéances institutionnelles.</li>
+      </ul>
+      <a class="button button-secondary" href={withBase("/ressources/#checklist")}>Voir checklist ressources</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container tags-grid">
+      {tags.map((tag) => (
+        <a class="card tag-card" href={withBase(`/themes/${tag.slug}/`)}>
+          <h3>{tag.tag}</h3>
+          <p class="small muted">{tag.total} contenus · {tag.videos} vidéos · {tag.guides} guides</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>FAQ</h2>
+      <details>
+        <summary>Comment choisir un thème quand tout semble urgent?</summary>
+        <p>Choisir le thème qui supprime le principal blocage de la semaine: administratif, bibliographie ou rédaction.</p>
+      </details>
+      <details>
+        <summary>Faut-il rester sur un seul thème longtemps?</summary>
+        <p>Non. Un thème dominant par semaine est souvent suffisant, avec revue le vendredi pour ajuster.</p>
+      </details>
+      <details>
+        <summary>Les tags sont-ils figés?</summary>
+        <p>Non, ils évoluent avec les nouveaux contenus. Les pages thème sont générées automatiquement à partir des tags actifs.</p>
+      </details>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hub-block {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .hub-block ul,
+  .hub-block ol {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text-soft);
+  }
+
+  .tags-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.9rem;
+  }
+
+  .tag-card {
+    text-decoration: none;
+  }
+
+  .tag-card h3 {
+    margin-bottom: 0.3rem;
+  }
+
+  .two-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  details {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    padding: 0.7rem;
+  }
+
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  @media (max-width: 960px) {
+    .tags-grid,
+    .two-cols {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

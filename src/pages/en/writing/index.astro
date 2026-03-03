@@ -1,0 +1,136 @@
+---
+import { getCollection } from "astro:content";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import LanguageSwitch from "../../../components/LanguageSwitch.astro";
+import { withBase } from "../../../lib/links";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+
+const videos = await getCollection("videos");
+const guides = await getCollection("guides");
+
+const videoMap = new Map(videos.map((video) => [video.slug, video]));
+const guideMap = new Map(guides.map((guide) => [guide.slug, guide]));
+
+const recommendedVideos = [
+  videoMap.get("build-weekly-phd-routine-france"),
+  videoMap.get("doctorate-france-first-month-priorities"),
+  videoMap.get("top-5-methodes-ecrire-quand-manque-temps")
+].filter(Boolean);
+
+const recommendedGuides = [
+  guideMap.get("writing-pipeline-notes-to-chapter"),
+  guideMap.get("routine-hebdo-doctorant-simple-tenable")
+].filter(Boolean);
+---
+
+<BaseLayout
+  canonicalPath="/en/writing/"
+  title="PhD writing workflow | Hub"
+  description="Writing hub for doctoral work in France: routine design, notes-to-chapter pipeline and focused execution patterns."
+  lang="en"
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Home", href: "/en/" }, { label: "Writing" }]} />
+      <LanguageSwitch frHref="/ecriture/" enHref="/en/writing/" current="en" />
+      <p class="eyebrow">Writing hub</p>
+      <h1>Writing</h1>
+      <p>Build a durable writing system: predictable sessions, argument blocks and clean chapter integration.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>Start here in 3 steps</h2>
+      <ol>
+        <li>Define one observable writing output per session.</li>
+        <li>Prepare references and note blocks before starting the writing block.</li>
+        <li>Close each session with a next-action line.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid two-cols">
+      <article class="surface hub-block">
+        <h2>3 recommended videos</h2>
+        <ul>
+          {recommendedVideos.map((video) => <li><a href={withBase(`/videos/${video!.slug}/`)}>{video!.data.title}</a></li>)}
+        </ul>
+      </article>
+      <article class="surface hub-block">
+        <h2>2 recommended guides</h2>
+        <ul>
+          {recommendedGuides.map((guide) => <li><a href={withBase(`/guides/${guide!.slug}/`)}>{guide!.data.title}</a></li>)}
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>Resources shortlist</h2>
+      <ul>
+        <li><a href={withBase("/ressources/#ecrire")}>Writing objective</a> — notes, drafting and language quality.</li>
+        <li><a href={withBase("/ressources/#focus-routine")}>Focus objective</a> — time blocking and execution rhythm.</li>
+        <li><a href={withBase("/ressources/#citer-bibliographie")}>Citation objective</a> — bibliography stability.</li>
+      </ul>
+      <a class="button button-secondary" href={withBase("/ressources/#checklist")}>Open setup checklist</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>FAQ</h2>
+      <details>
+        <summary>How many writing sessions are enough?</summary>
+        <p>Three good sessions per week can be enough if each has a concrete output and proper closure.</p>
+      </details>
+      <details>
+        <summary>Should editing happen during drafting?</summary>
+        <p>Run a logic pass first, then a language pass. Mixing both often increases friction.</p>
+      </details>
+      <details>
+        <summary>How to recover after disruption?</summary>
+        <p>Restart with one short session and rebuild rhythm over two weeks.</p>
+      </details>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hub-block {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .hub-block ul,
+  .hub-block ol {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text-soft);
+  }
+
+  .two-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  details {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    padding: 0.7rem;
+  }
+
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  @media (max-width: 960px) {
+    .two-cols {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

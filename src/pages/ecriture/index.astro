@@ -1,0 +1,139 @@
+---
+import { getCollection } from "astro:content";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import LanguageSwitch from "../../components/LanguageSwitch.astro";
+import { withBase } from "../../lib/links";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const videos = await getCollection("videos", ({ data }) => data.lang === "fr");
+const guides = await getCollection("guides", ({ data }) => data.lang === "fr");
+
+const videoMap = new Map(videos.map((video) => [video.slug, video]));
+const guideMap = new Map(guides.map((guide) => [guide.slug, guide]));
+
+const recommendedVideos = [
+  videoMap.get("top-5-methodes-ecrire-quand-manque-temps"),
+  videoMap.get("top-5-habitudes-qui-sauvent-these"),
+  videoMap.get("relecture-directeur-sans-blocage")
+].filter(Boolean);
+
+const recommendedGuides = [
+  guideMap.get("pipeline-notes-section-chapitre-template"),
+  guideMap.get("routine-hebdo-doctorant-simple-tenable")
+].filter(Boolean);
+---
+
+<BaseLayout
+  canonicalPath="/ecriture/"
+  title="Écriture de thèse | Hub workflow"
+  description="Hub écriture doctorale: routine, pipeline notes-vers-chapitre, méthodes courtes et ressources logicielles pour rédiger régulièrement."
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Écriture" }]} />
+      <LanguageSwitch frHref="/ecriture/" enHref="/en/writing/" current="fr" />
+      <p class="eyebrow">Hub workflow</p>
+      <h1>Écriture de thèse</h1>
+      <p>
+        Ici, l'objectif n'est pas d'écrire "quand l'inspiration vient". L'objectif est d'installer un système de production
+        tenable: notes exploitables, sections argumentées, révision structurée.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>Start here en 3 étapes</h2>
+      <ol>
+        <li>Définir une sortie d'écriture observable pour chaque session (paragraphe, section, transition).</li>
+        <li>Précharger la session avec sources, plan court et objectif unique.</li>
+        <li>Fermer chaque session avec la prochaine action déjà formulée.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid two-cols">
+      <article class="surface hub-block">
+        <h2>3 vidéos recommandées</h2>
+        <ul>
+          {recommendedVideos.map((video) => <li><a href={withBase(`/videos/${video!.slug}/`)}>{video!.data.title}</a></li>)}
+        </ul>
+      </article>
+
+      <article class="surface hub-block">
+        <h2>2 guides à lire</h2>
+        <ul>
+          {recommendedGuides.map((guide) => <li><a href={withBase(`/guides/${guide!.slug}/`)}>{guide!.data.title}</a></li>)}
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>Ressources shortlist par objectif</h2>
+      <ul>
+        <li><a href={withBase("/ressources/#ecrire")}>Écrire</a> — Obsidian, Notion, LanguageTool, Overleaf.</li>
+        <li><a href={withBase("/ressources/#focus-routine")}>Focus & routine</a> — Pomodoro, tâches, calendrier.</li>
+        <li><a href={withBase("/ressources/#citer-bibliographie")}>Bibliographie</a> — Zotero pour citer proprement dès le brouillon.</li>
+      </ul>
+      <a class="button button-secondary" href={withBase("/ressources/#checklist")}>Voir checklist 30 minutes</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>FAQ</h2>
+      <details>
+        <summary>Combien de mots viser par session?</summary>
+        <p>Le volume dépend du type de section. Une cible stable de qualité vaut mieux qu'un objectif volumique variable et stressant.</p>
+      </details>
+      <details>
+        <summary>Faut-il corriger pendant qu'on rédige?</summary>
+        <p>Corriger l'essentiel de logique tout de suite, puis séparer la passe stylistique pour éviter le blocage.</p>
+      </details>
+      <details>
+        <summary>Comment relancer après une semaine vide?</summary>
+        <p>Redémarrer avec un micro-livrable de 30 minutes, puis réinstaller progressivement les blocs hebdomadaires.</p>
+      </details>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hub-block {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .hub-block ul,
+  .hub-block ol {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text-soft);
+  }
+
+  .two-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  details {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    padding: 0.7rem;
+  }
+
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  @media (max-width: 960px) {
+    .two-cols {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,40 @@
+---
+import { withBase } from "../lib/links";
+
+interface Props {
+  frHref: string;
+  enHref: string;
+  current: "fr" | "en";
+}
+
+const { frHref, enHref, current } = Astro.props;
+---
+
+<nav class="lang-switch" aria-label="Language switcher">
+  <a href={withBase(frHref)} class={current === "fr" ? "active" : undefined} lang="fr">Français</a>
+  <a href={withBase(enHref)} class={current === "en" ? "active" : undefined} lang="en">English</a>
+</nav>
+
+<style>
+  .lang-switch {
+    display: inline-flex;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    background: #fff;
+  }
+
+  .lang-switch a {
+    text-decoration: none;
+    padding: 0.35rem 0.8rem;
+    font-size: 0.88rem;
+    color: var(--text-soft);
+  }
+
+  .lang-switch a.active {
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+  }
+</style>

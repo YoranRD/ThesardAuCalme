@@ -1,0 +1,139 @@
+---
+import { getCollection } from "astro:content";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import LanguageSwitch from "../../components/LanguageSwitch.astro";
+import { withBase } from "../../lib/links";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const videos = await getCollection("videos", ({ data }) => data.lang === "fr");
+const guides = await getCollection("guides", ({ data }) => data.lang === "fr");
+
+const videoMap = new Map(videos.map((video) => [video.slug, video]));
+const guideMap = new Map(guides.map((guide) => [guide.slug, guide]));
+
+const recommendedVideos = [
+  videoMap.get("top-5-erreurs-zotero-et-solutions"),
+  videoMap.get("routine-lecture-45-minutes"),
+  videoMap.get("top-5-outils-these")
+].filter(Boolean);
+
+const recommendedGuides = [
+  guideMap.get("zotero-conventions-nommage-sanity-checks"),
+  guideMap.get("lire-papier-methode-3-passes")
+].filter(Boolean);
+---
+
+<BaseLayout
+  canonicalPath="/bibliographie/"
+  title="Bibliographie doctorale | Hub Zotero et citations"
+  description="Hub bibliographie: conventions de nommage, qualité Zotero, méthode de lecture et intégration des citations dans le chapitre."
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Bibliographie" }]} />
+      <LanguageSwitch frHref="/bibliographie/" enHref="/en/bibliography/" current="fr" />
+      <p class="eyebrow">Hub bibliographie</p>
+      <h1>Citer & bibliographie</h1>
+      <p>
+        Un bon système bibliographique réduit les frictions de rédaction et diminue le risque d'erreur de citation.
+        Cette page rassemble les fondamentaux pour un workflow Zotero fiable et maintenable.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>Start here en 3 étapes</h2>
+      <ol>
+        <li>Créer une convention de tags limitée (`a-lire`, `lu`, `a-citer`, `cite`).</li>
+        <li>Nettoyer métadonnées et doublons une fois par semaine.</li>
+        <li>Faire un export test mensuel avant les phases de rédaction intensive.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid two-cols">
+      <article class="surface hub-block">
+        <h2>3 vidéos recommandées</h2>
+        <ul>
+          {recommendedVideos.map((video) => <li><a href={withBase(`/videos/${video!.slug}/`)}>{video!.data.title}</a></li>)}
+        </ul>
+      </article>
+
+      <article class="surface hub-block">
+        <h2>2 guides à lire</h2>
+        <ul>
+          {recommendedGuides.map((guide) => <li><a href={withBase(`/guides/${guide!.slug}/`)}>{guide!.data.title}</a></li>)}
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>Ressources shortlist par objectif</h2>
+      <ul>
+        <li><a href={withBase("/ressources/#citer-bibliographie")}>Citer & bibliographie</a> — Zotero, JabRef, Paperpile, Mendeley.</li>
+        <li><a href={withBase("/ressources/#lire-pdf-annoter")}>Lire PDF & annoter</a> — Hypothes.is, Readwise Reader, Okular.</li>
+        <li><a href={withBase("/ressources/#ecrire")}>Écrire</a> — intégration directe des notes dans la rédaction.</li>
+      </ul>
+      <a class="button button-secondary" href={withBase("/ressources/#checklist")}>Voir checklist 30 minutes</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>FAQ</h2>
+      <details>
+        <summary>Quand nettoyer Zotero?</summary>
+        <p>Un nettoyage court chaque semaine évite les dettes techniques bibliographiques en fin de thèse.</p>
+      </details>
+      <details>
+        <summary>Faut-il un seul outil bibliographique?</summary>
+        <p>Oui, en général. Un outil principal réduit les incohérences d'export et les doublons de workflow.</p>
+      </details>
+      <details>
+        <summary>Comment relier lecture et rédaction?</summary>
+        <p>Chaque note de lecture doit contenir une idée réutilisable et une section cible du manuscrit.</p>
+      </details>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hub-block {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .hub-block ul,
+  .hub-block ol {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text-soft);
+  }
+
+  .two-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  details {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    padding: 0.7rem;
+  }
+
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  @media (max-width: 960px) {
+    .two-cols {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

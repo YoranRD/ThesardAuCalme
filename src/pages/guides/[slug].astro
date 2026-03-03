@@ -6,7 +6,7 @@ import { brandDisplayName } from "../../config/site";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
 export async function getStaticPaths() {
-  const guides = await getCollection("guides", ({ data }) => data.lang === "fr");
+  const guides = await getCollection("guides");
   return guides.map((guide) => ({
     params: { slug: guide.slug },
     props: { guide }
@@ -20,7 +20,11 @@ interface Props {
 const { guide } = Astro.props;
 const { Content } = await render(guide);
 
-const publicationDate = guide.data.date.toLocaleDateString("fr-FR", {
+const isFrench = guide.data.lang === "fr";
+const pageLang = isFrench ? "fr" : "en";
+const locale = isFrench ? "fr-FR" : "en-US";
+
+const publicationDate = guide.data.date.toLocaleDateString(locale, {
   day: "2-digit",
   month: "long",
   year: "numeric"
@@ -32,19 +36,20 @@ const publicationDate = guide.data.date.toLocaleDateString("fr-FR", {
   title={`${guide.data.title} | ${brandDisplayName}`}
   description={guide.data.summary}
   type="article"
+  lang={pageLang}
 >
   <section class="section">
     <div class="container">
       <Breadcrumbs
         items={[
-          { label: "Accueil", href: "/" },
-          { label: "Guides", href: "/guides/" },
+          { label: isFrench ? "Accueil" : "Home", href: isFrench ? "/" : "/en/" },
+          { label: isFrench ? "Guides" : "Guides", href: "/guides/" },
           { label: guide.data.title }
         ]}
       />
-      <p class="eyebrow">Guide</p>
+      <p class="eyebrow">{isFrench ? "Guide" : "Guide"}</p>
       <h1>{guide.data.title}</h1>
-      <p class="small muted">Publié le {publicationDate}</p>
+      <p class="small muted">{isFrench ? "Publié le" : "Published on"} {publicationDate}</p>
       <p class="prose">{guide.data.summary}</p>
       <TagList tags={guide.data.tags} />
     </div>

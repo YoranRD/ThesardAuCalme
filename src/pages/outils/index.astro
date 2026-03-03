@@ -1,0 +1,140 @@
+---
+import { getCollection } from "astro:content";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import LanguageSwitch from "../../components/LanguageSwitch.astro";
+import { withBase } from "../../lib/links";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const videos = await getCollection("videos", ({ data }) => data.lang === "fr");
+const guides = await getCollection("guides", ({ data }) => data.lang === "fr");
+
+const videoMap = new Map(videos.map((video) => [video.slug, video]));
+const guideMap = new Map(guides.map((guide) => [guide.slug, guide]));
+
+const recommendedVideos = [
+  videoMap.get("top-5-outils-these"),
+  videoMap.get("top-5-erreurs-zotero-et-solutions"),
+  videoMap.get("top-5-methodes-ecrire-quand-manque-temps")
+].filter(Boolean);
+
+const recommendedGuides = [
+  guideMap.get("workflow-bibliographie-zotero"),
+  guideMap.get("sauvegarde-regle-3-2-1-these")
+].filter(Boolean);
+---
+
+<BaseLayout
+  canonicalPath="/outils/"
+  title="Outils doctorat | Index logiciel"
+  description="Index léger des outils logiciels pour doctorat. Les fiches détaillées arrivent ensuite; la structure actuelle oriente par objectifs de travail."
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Outils" }]} />
+      <LanguageSwitch frHref="/outils/" enHref="/en/writing/" current="fr" />
+      <p class="eyebrow">Index léger</p>
+      <h1>Outils</h1>
+      <p>
+        Cette page reste volontairement légère: les sous-pages outil par outil seront publiées plus tard.
+        Pour l'instant, la logique de recommandation est orientée objectif de travail, pas catalogue commercial.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>Start here en 3 étapes</h2>
+      <ol>
+        <li>Choisir un outil principal pour chaque objectif (écrire, citer, sauvegarder, focus).</li>
+        <li>Vérifier export des données et alternatives gratuites.</li>
+        <li>Bloquer une revue mensuelle pour garder un stack simple.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid two-cols">
+      <article class="surface hub-block">
+        <h2>3 vidéos recommandées</h2>
+        <ul>
+          {recommendedVideos.map((video) => <li><a href={withBase(`/videos/${video!.slug}/`)}>{video!.data.title}</a></li>)}
+        </ul>
+      </article>
+
+      <article class="surface hub-block">
+        <h2>2 guides à lire</h2>
+        <ul>
+          {recommendedGuides.map((guide) => <li><a href={withBase(`/guides/${guide!.slug}/`)}>{guide!.data.title}</a></li>)}
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>Ressources shortlist par objectif</h2>
+      <ul>
+        <li><a href={withBase("/ressources/#ecrire")}>Écrire</a> — espace notes et rédaction.</li>
+        <li><a href={withBase("/ressources/#citer-bibliographie")}>Citer</a> — bibliographie traçable.</li>
+        <li><a href={withBase("/ressources/#sauvegarder-synchroniser")}>Sauvegarder</a> — continuité et restauration.</li>
+        <li><a href={withBase("/ressources/#focus-routine")}>Focus</a> — routine tenable.</li>
+      </ul>
+      <a class="button button-secondary" href={withBase("/ressources/")}>Aller à la page ressources</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>FAQ</h2>
+      <details>
+        <summary>Pourquoi ne pas publier une page par outil tout de suite?</summary>
+        <p>Le choix est volontaire: prioriser d'abord le cadre méthodologique avant d'élargir le catalogue.</p>
+      </details>
+      <details>
+        <summary>Faut-il payer plusieurs outils au début?</summary>
+        <p>Non. Une base gratuite bien configurée suffit largement pour les premiers mois de doctorat.</p>
+      </details>
+      <details>
+        <summary>Quand changer de stack?</summary>
+        <p>Seulement si un critère opérationnel échoue durablement: export, collaboration, fiabilité ou coût.</p>
+      </details>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hub-block {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .hub-block ul,
+  .hub-block ol {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text-soft);
+  }
+
+  .two-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  details {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    padding: 0.7rem;
+  }
+
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  @media (max-width: 960px) {
+    .two-cols {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

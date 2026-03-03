@@ -6,18 +6,25 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 <BaseLayout
   canonicalPath="/en/"
   title="Thesard Au Calme | English"
-  description="English section scaffolding for Thesard Au Calme. Full translation is not published yet."
+  description="English section for international doctoral workflows in France, with focused hubs for onboarding, writing and bibliography."
   lang="en"
 >
   <section class="section">
     <div class="container prose">
       <p class="eyebrow">English</p>
-      <h1>English section (scaffolding)</h1>
+      <h1>International doctoral workflow in France</h1>
       <p>
-        This section is intentionally lightweight. French remains the primary publishing language.
+        French is the primary publication language. This English section covers practical onboarding and execution content,
+        especially for international PhD candidates.
       </p>
+      <ul>
+        <li><a href={withBase("/en/doctorate-in-france/")}>Doctorate in France hub</a></li>
+        <li><a href={withBase("/en/writing/")}>Writing hub</a></li>
+        <li><a href={withBase("/en/bibliography/")}>Bibliography hub</a></li>
+        <li><a href={withBase("/en/topics/")}>Topics index</a></li>
+      </ul>
       <p>
-        Start in French: <a href={withBase("/start/")}>Commencer ici</a> · Browse videos: <a href={withBase("/videos/")}>Vidéos</a>.
+        French onboarding: <a href={withBase("/start/")}>Commencer ici</a>.
       </p>
     </div>
   </section>

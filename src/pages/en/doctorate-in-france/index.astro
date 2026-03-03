@@ -1,0 +1,146 @@
+---
+import { getCollection } from "astro:content";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import LanguageSwitch from "../../../components/LanguageSwitch.astro";
+import { withBase } from "../../../lib/links";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+
+const videos = await getCollection("videos", ({ data }) => data.lang === "en");
+const guides = await getCollection("guides", ({ data }) => data.lang === "en");
+
+const videoMap = new Map(videos.map((video) => [video.slug, video]));
+const guideMap = new Map(guides.map((guide) => [guide.slug, guide]));
+
+const recommendedVideos = [
+  videoMap.get("doctorate-france-first-month-priorities"),
+  videoMap.get("international-phd-france-admin-sequence"),
+  videoMap.get("build-weekly-phd-routine-france")
+].filter(Boolean);
+
+const recommendedGuides = [
+  guideMap.get("doctorate-france-first-30-days-checklist"),
+  guideMap.get("doctorate-france-residence-admin-flow")
+].filter(Boolean);
+---
+
+<BaseLayout
+  canonicalPath="/en/doctorate-in-france/"
+  title="Doctorate in France | International Hub"
+  description="International hub for starting a doctorate in France with first-30-days checklist, admin sequencing and practical workflow guidance."
+  lang="en"
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Home", href: "/en/" }, { label: "Doctorate in France" }]} />
+      <LanguageSwitch frHref="/doctorat-en-france/" enHref="/en/doctorate-in-france/" current="en" />
+      <p class="eyebrow">International hub</p>
+      <h1>Doctorate in France</h1>
+      <p>
+        This page helps international candidates sequence enrollment, residence-related steps and health onboarding while
+        preserving academic momentum in the first month.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>Start here in 3 steps</h2>
+      <ol>
+        <li>Map actors and terminology: doctoral school, laboratory, enrollment office, residence process.</li>
+        <li>Create one deadline register for legal, admin and scientific milestones.</li>
+        <li>Protect weekly deep-work blocks from being consumed by admin tasks.</li>
+      </ol>
+      <h3>First 30 days essentials</h3>
+      <ul>
+        <li>Doctoral contract or funding document available.</li>
+        <li>Enrollment process tracked with evidence.</li>
+        <li>Residence permit/visa timeline documented.</li>
+        <li>Health insurance onboarding initiated.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid two-cols">
+      <article class="surface hub-block">
+        <h2>3 recommended videos</h2>
+        <ul>
+          {recommendedVideos.map((video) => <li><a href={withBase(`/videos/${video!.slug}/`)}>{video!.data.title}</a></li>)}
+        </ul>
+      </article>
+      <article class="surface hub-block">
+        <h2>2 recommended guides</h2>
+        <ul>
+          {recommendedGuides.map((guide) => <li><a href={withBase(`/guides/${guide!.slug}/`)}>{guide!.data.title}</a></li>)}
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>Resources shortlist</h2>
+      <ul>
+        <li><a href={withBase("/ressources/#administratif")}>Administrative objective</a> — official sources first.</li>
+        <li><a href={withBase("/ressources/#sauvegarder-synchroniser")}>Backup objective</a> — document continuity.</li>
+        <li><a href={withBase("/ressources/#focus-routine")}>Routine objective</a> — weekly execution discipline.</li>
+      </ul>
+      <a class="button button-secondary" href={withBase("/ressources/#checklist")}>Open 30-minute setup checklist</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>FAQ</h2>
+      <details>
+        <summary>Is this legal advice?</summary>
+        <p>No. This is operational guidance. Official and local rules remain the source of truth.</p>
+      </details>
+      <details>
+        <summary>What should be done in the first week?</summary>
+        <p>Secure identity/status documents, activate institutional access and build one shared deadline tracker.</p>
+      </details>
+      <details>
+        <summary>How to avoid admin overload?</summary>
+        <p>Use fixed admin slots and keep protected writing/reading sessions every week.</p>
+      </details>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hub-block {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .hub-block ul,
+  .hub-block ol {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text-soft);
+  }
+
+  .two-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  details {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    padding: 0.7rem;
+  }
+
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  @media (max-width: 960px) {
+    .two-cols {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

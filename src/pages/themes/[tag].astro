@@ -1,0 +1,115 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import GuideCard from "../../components/GuideCard.astro";
+import VideoCard from "../../components/VideoCard.astro";
+import { filterGuidesByTagSlug, filterVideosByTagSlug, resolveTagNameFromSlug, slugifyTag } from "../../lib/tags";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const videos = await getCollection("videos", ({ data }) => data.lang === "fr");
+  const guides = await getCollection("guides", ({ data }) => data.lang === "fr");
+
+  const tags = new Set<string>([
+    ...videos.flatMap((video) => video.data.tags.map(slugifyTag)),
+    ...guides.flatMap((guide) => guide.data.tags.map(slugifyTag))
+  ]);
+
+  return [...tags]
+    .filter(Boolean)
+    .map((tag) => ({
+      params: { tag },
+      props: { tagSlug: tag }
+    }));
+}
+
+interface Props {
+  tagSlug: string;
+}
+
+const { tagSlug } = Astro.props;
+
+const videos = (await getCollection("videos", ({ data }) => data.lang === "fr")).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+const guides = (await getCollection("guides", ({ data }) => data.lang === "fr")).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+
+const filteredVideos = filterVideosByTagSlug(videos, tagSlug);
+const filteredGuides = filterGuidesByTagSlug(guides, tagSlug);
+const displayTag = resolveTagNameFromSlug(tagSlug, videos, guides);
+const hasResults = filteredVideos.length > 0 || filteredGuides.length > 0;
+---
+
+<BaseLayout
+  canonicalPath={`/themes/${tagSlug}/`}
+  title={`Thème ${displayTag} | Thésard Au Calme`}
+  description={`Contenus vidéos et guides liés au thème ${displayTag} pour avancer en doctorat avec un parcours ciblé.`}
+>
+  <section class="section">
+    <div class="container">
+      <Breadcrumbs
+        items={[
+          { label: "Accueil", href: "/" },
+          { label: "Thèmes", href: "/themes/" },
+          { label: displayTag }
+        ]}
+      />
+      <p class="eyebrow">Thème</p>
+      <h1>{displayTag}</h1>
+      <p class="prose">Sélection croisée vidéos + guides pour travailler ce sujet de manière cohérente.</p>
+    </div>
+  </section>
+
+  {
+    hasResults ? (
+      <>
+        <section class="section">
+          <div class="container">
+            <h2>Vidéos liées</h2>
+            <div class="grid cards-3">
+              {filteredVideos.map((video: CollectionEntry<"videos">) => <VideoCard video={video} />)}
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="container">
+            <h2>Guides liés</h2>
+            <div class="grid cards-2">
+              {filteredGuides.map((guide: CollectionEntry<"guides">) => <GuideCard guide={guide} />)}
+            </div>
+          </div>
+        </section>
+      </>
+    ) : (
+      <section class="section">
+        <div class="container surface empty-state">
+          <p>Aucun contenu disponible pour ce thème pour le moment.</p>
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .cards-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cards-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .empty-state {
+    padding: 1.2rem;
+  }
+
+  @media (max-width: 980px) {
+    .cards-3,
+    .cards-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

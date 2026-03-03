@@ -136,3 +136,25 @@ Cela permet de suivre les clics sortants dans n'importe quel outil analytics san
 - `src/data/resources.yaml` catalogue ressources
 - `src/config/site.ts` config domaine + canonical + analytics
 - `.github/workflows/deploy.yml` déploiement automatique Pages
+
+## Remplacer les youtubeId
+
+Les entrées vidéo dans `src/content/videos/` utilisent des IDs YouTube valides (11 caractères) pour que le build passe.
+
+Pour remplacer par les IDs définitifs:
+
+1. Ouvrir le fichier Markdown de la vidéo concernée.
+2. Mettre à jour `youtubeId:` avec l'ID réel (exactement 11 caractères).
+3. Lancer `npm run build` pour valider le schéma de collection.
+
+## Ajouter du contenu ensuite
+
+- Nouvelles vidéos: `src/content/videos/*.md`
+- Nouveaux guides: `src/content/guides/*.md`
+- Nouvelles ressources software: `src/data/resources.yaml`
+
+À chaque ajout, vérifier:
+
+- tags cohérents pour les pages `/themes` et `/en/topics`
+- clés de ressources valides dans `featuredResourceKeys`
+- build vert avec `npm run build`

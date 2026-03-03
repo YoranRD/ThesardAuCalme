@@ -1,0 +1,136 @@
+---
+import { getCollection } from "astro:content";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import LanguageSwitch from "../../../components/LanguageSwitch.astro";
+import { withBase } from "../../../lib/links";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+
+const videos = await getCollection("videos");
+const guides = await getCollection("guides");
+
+const videoMap = new Map(videos.map((video) => [video.slug, video]));
+const guideMap = new Map(guides.map((guide) => [guide.slug, guide]));
+
+const recommendedVideos = [
+  videoMap.get("top-5-erreurs-zotero-et-solutions"),
+  videoMap.get("routine-lecture-45-minutes"),
+  videoMap.get("international-phd-france-admin-sequence")
+].filter(Boolean);
+
+const recommendedGuides = [
+  guideMap.get("zotero-naming-and-sanity-checks"),
+  guideMap.get("lire-papier-methode-3-passes")
+].filter(Boolean);
+---
+
+<BaseLayout
+  canonicalPath="/en/bibliography/"
+  title="Bibliography workflow | Hub"
+  description="Bibliography hub for doctoral writing: Zotero standards, reading workflow and citation quality controls."
+  lang="en"
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Home", href: "/en/" }, { label: "Bibliography" }]} />
+      <LanguageSwitch frHref="/bibliographie/" enHref="/en/bibliography/" current="en" />
+      <p class="eyebrow">Bibliography hub</p>
+      <h1>Bibliography</h1>
+      <p>Set reliable standards for references, annotation and citation output before high-volume writing starts.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>Start here in 3 steps</h2>
+      <ol>
+        <li>Define a constrained tag and naming convention.</li>
+        <li>Run weekly duplicate and metadata checks.</li>
+        <li>Perform monthly export tests with the writing environment.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid two-cols">
+      <article class="surface hub-block">
+        <h2>3 recommended videos</h2>
+        <ul>
+          {recommendedVideos.map((video) => <li><a href={withBase(`/videos/${video!.slug}/`)}>{video!.data.title}</a></li>)}
+        </ul>
+      </article>
+      <article class="surface hub-block">
+        <h2>2 recommended guides</h2>
+        <ul>
+          {recommendedGuides.map((guide) => <li><a href={withBase(`/guides/${guide!.slug}/`)}>{guide!.data.title}</a></li>)}
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>Resources shortlist</h2>
+      <ul>
+        <li><a href={withBase("/ressources/#citer-bibliographie")}>Citation objective</a> — Zotero, JabRef, Paperpile.</li>
+        <li><a href={withBase("/ressources/#lire-pdf-annoter")}>PDF annotation objective</a> — Hypothes.is, Okular, PDF-XChange.</li>
+        <li><a href={withBase("/ressources/#ecrire")}>Writing objective</a> — convert highlights into argument blocks.</li>
+      </ul>
+      <a class="button button-secondary" href={withBase("/ressources/#checklist")}>Open setup checklist</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>FAQ</h2>
+      <details>
+        <summary>What breaks bibliography quality most often?</summary>
+        <p>Unchecked imports and inconsistent tags. Small weekly controls prevent large end-stage cleanup costs.</p>
+      </details>
+      <details>
+        <summary>How many tools should be used?</summary>
+        <p>Usually one primary bibliography tool plus one optional annotation tool is enough.</p>
+      </details>
+      <details>
+        <summary>When should references become chapter-ready?</summary>
+        <p>As soon as a source receives a clear note, status tag and section-level use case.</p>
+      </details>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hub-block {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .hub-block ul,
+  .hub-block ol {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text-soft);
+  }
+
+  .two-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  details {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    padding: 0.7rem;
+  }
+
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  @media (max-width: 960px) {
+    .two-cols {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

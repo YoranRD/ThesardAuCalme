@@ -1,0 +1,174 @@
+---
+import { getCollection } from "astro:content";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import LanguageSwitch from "../../components/LanguageSwitch.astro";
+import { withBase } from "../../lib/links";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const videos = await getCollection("videos", ({ data }) => data.lang === "fr");
+const guides = await getCollection("guides", ({ data }) => data.lang === "fr");
+
+const videoMap = new Map(videos.map((video) => [video.slug, video]));
+const guideMap = new Map(guides.map((guide) => [guide.slug, guide]));
+
+const requireVideo = (slug: string) => {
+  const video = videoMap.get(slug);
+  if (!video) {
+    throw new Error(`Missing video for doctorat-en-france hub: ${slug}`);
+  }
+  return video;
+};
+
+const requireGuide = (slug: string) => {
+  const guide = guideMap.get(slug);
+  if (!guide) {
+    throw new Error(`Missing guide for doctorat-en-france hub: ${slug}`);
+  }
+  return guide;
+};
+
+const recommendedVideos = [
+  requireVideo("doctorat-france-kit-administratif"),
+  requireVideo("doctorat-france-comprendre-ecole-doctorale-labo-inscription"),
+  requireVideo("international-logement-banque-secu-ordre-demarches")
+];
+
+const recommendedGuides = [
+  requireGuide("doctorat-france-international-checklist-30-jours"),
+  requireGuide("gestion-directeur-mails-jalons-reunions")
+];
+---
+
+<BaseLayout
+  canonicalPath="/doctorat-en-france/"
+  title="Doctorat en France | Hub international"
+  description="Hub administratif et opérationnel pour doctorat en France: vocabulaire institutionnel, checklist 30 jours, vidéos et guides prioritaires."
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Doctorat en France" }]} />
+      <LanguageSwitch frHref="/doctorat-en-france/" enHref="/en/doctorate-in-france/" current="fr" />
+      <p class="eyebrow">Hub international</p>
+      <h1>Doctorat en France</h1>
+      <p>
+        Ce hub regroupe les bases pour démarrer proprement un doctorat en France quand l'administratif et le scientifique
+        se superposent. Objectif: réduire les erreurs d'ordre de démarche et retrouver rapidement une cadence de travail.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>Start here en 3 étapes</h2>
+      <ol>
+        <li>Clarifier les interlocuteurs: école doctorale, laboratoire, service administratif principal.</li>
+        <li>Mettre en place un registre unique des échéances (séjour, inscription, santé, livrables de recherche).</li>
+        <li>Sécuriser une routine hebdo avec 2 créneaux admin + 3 créneaux scientifiques.</li>
+      </ol>
+      <h3>Checklist "first 30 days"</h3>
+      <ul>
+        <li>Contrat doctoral ou financement documenté.</li>
+        <li>Inscription administrative validée et preuves archivées.</li>
+        <li>Processus titre de séjour/visa suivi sur source officielle.</li>
+        <li>Couverture santé en cours d'activation.</li>
+        <li>Plan de travail scientifique sur 90 jours confirmé.</li>
+      </ul>
+      <p class="small muted">
+        Terminologie utile: doctorat contract, enrollment, residence permit, health insurance, doctoral school.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid two-cols">
+      <article class="surface hub-block">
+        <h2>3 vidéos recommandées</h2>
+        <ul>
+          {recommendedVideos.map((video) => <li><a href={withBase(`/videos/${video.slug}/`)}>{video.data.title}</a></li>)}
+        </ul>
+      </article>
+
+      <article class="surface hub-block">
+        <h2>2 guides à lire</h2>
+        <ul>
+          {recommendedGuides.map((guide) => <li><a href={withBase(`/guides/${guide.slug}/`)}>{guide.data.title}</a></li>)}
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>Ressources shortlist par objectif</h2>
+      <ul>
+        <li><a href={withBase("/ressources/#administratif")}>Administratif</a> — Campus France, France-Visas, Service-Public.fr.</li>
+        <li><a href={withBase("/ressources/#sauvegarder-synchroniser")}>Sauvegarder</a> — Syncthing + sauvegarde distante.</li>
+        <li><a href={withBase("/ressources/#focus-routine")}>Focus & routine</a> — calendrier + tâches hebdo.</li>
+      </ul>
+      <a class="button button-secondary" href={withBase("/ressources/#checklist")}>Ouvrir la checklist ressources</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>FAQ</h2>
+      <details>
+        <summary>Quelle est la première priorité en arrivant en France?</summary>
+        <p>Stabiliser l'identité administrative et les accès institutionnels, puis enchaîner sur inscription et santé sans casser la cadence scientifique.</p>
+      </details>
+      <details>
+        <summary>Ce hub remplace-t-il les consignes officielles?</summary>
+        <p>Non. Ce hub donne un ordre de travail général. Les sources officielles locales restent prioritaires pour chaque dossier.</p>
+      </details>
+      <details>
+        <summary>Comment éviter l'effet "tout administratif" pendant un mois?</summary>
+        <p>Bloquer explicitement des créneaux de lecture/rédaction chaque semaine, même courts, pour garder la traction scientifique.</p>
+      </details>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hub-block {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .hub-block ul,
+  .hub-block ol {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text-soft);
+  }
+
+  .hub-block a {
+    text-decoration: none;
+  }
+
+  .hub-block a:hover {
+    text-decoration: underline;
+  }
+
+  .two-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  details {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    padding: 0.7rem;
+  }
+
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  @media (max-width: 960px) {
+    .two-cols {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

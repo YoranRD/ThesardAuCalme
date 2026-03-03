@@ -11,6 +11,13 @@ export type ResourceCategory =
   | "administratif";
 
 export type PricingNote = "free" | "paid" | "freemium";
+export type ResourceObjectiveKey =
+  | "ecrire"
+  | "citer-bibliographie"
+  | "lire-pdf-annoter"
+  | "sauvegarder-synchroniser"
+  | "focus-routine"
+  | "administratif";
 
 export interface ResourceEntry {
   key: string;
@@ -23,6 +30,12 @@ export interface ResourceEntry {
   url: string;
   affiliateUrl?: string;
   freeAlternativeKeys: string[];
+}
+
+export interface ResourceObjectiveDefinition {
+  key: ResourceObjectiveKey;
+  label: string;
+  description: string;
 }
 
 const allowedCategories = new Set<ResourceCategory>([
@@ -193,6 +206,77 @@ export const resourceCategories: { key: ResourceCategory; label: string }[] = [
   { key: "focus", label: "Focus" },
   { key: "administratif", label: "Administratif" }
 ];
+
+export const resourceObjectives: ResourceObjectiveDefinition[] = [
+  {
+    key: "ecrire",
+    label: "Ecrire",
+    description: "Structurer ses notes, produire du texte et améliorer la qualité linguistique."
+  },
+  {
+    key: "citer-bibliographie",
+    label: "Citer & bibliographie",
+    description: "Gérer les références, les styles de citation et la traçabilité des sources."
+  },
+  {
+    key: "lire-pdf-annoter",
+    label: "Lire des PDF & annoter",
+    description: "Lire efficacement, annoter et réinjecter les idées dans le système de notes."
+  },
+  {
+    key: "sauvegarder-synchroniser",
+    label: "Sauvegarder & synchroniser",
+    description: "Sécuriser les fichiers de thèse et conserver des versions exploitables."
+  },
+  {
+    key: "focus-routine",
+    label: "Focus & routine",
+    description: "Installer des séquences de travail régulières et pilotables."
+  },
+  {
+    key: "administratif",
+    label: "Administratif (France/international)",
+    description: "Suivre les démarches institutionnelles avec des sources officielles."
+  }
+];
+
+const pdfAndAnnotationKeys = new Set<ResourceEntry["key"]>([
+  "readwise-reader",
+  "hypothesis",
+  "okular",
+  "pdf-xchange"
+]);
+
+export const getResourceObjectiveKey = (resource: ResourceEntry): ResourceObjectiveKey => {
+  if (pdfAndAnnotationKeys.has(resource.key)) {
+    return "lire-pdf-annoter";
+  }
+
+  switch (resource.category) {
+    case "bibliographie":
+      return "citer-bibliographie";
+    case "sauvegarde":
+      return "sauvegarder-synchroniser";
+    case "focus":
+      return "focus-routine";
+    case "administratif":
+      return "administratif";
+    case "ecriture":
+    case "equipement":
+      return "ecrire";
+    default:
+      return "ecrire";
+  }
+};
+
+export const getResourcesByObjective = (): Array<{
+  objective: ResourceObjectiveDefinition;
+  items: ResourceEntry[];
+}> =>
+  resourceObjectives.map((objective) => ({
+    objective,
+    items: resourcesCatalog.filter((resource) => getResourceObjectiveKey(resource) === objective.key)
+  }));
 
 export const getResourceOutboundPath = (key: string): string => withBase(`/out/${key}/`);
 

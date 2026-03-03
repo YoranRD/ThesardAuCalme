@@ -1,14 +1,14 @@
 - key: zotero
   name: Zotero
   category: bibliographie
-  description: Gestionnaire de references open source, robuste pour centraliser articles, PDF et citations.
+  description: Gestionnaire de references open source pour centraliser citations, PDF et notes de lecture.
   whyRecommended:
-    - Export BibTeX, CSL et bibliographies en un clic.
-    - Synchronisation multi-postes fiable avec bibliotheque partagee.
-    - Ecosysteme mature pour Word, LibreOffice et navigateur.
+    - Export stable vers BibTeX, CSL et bibliographies formattees.
+    - Synchronisation robuste entre ordinateur principal et portable.
+    - Bonne interoperation avec Word, LibreOffice et plugins web.
   criteriaUsed:
-    - Interoperabilite des formats de citation.
-    - Qualite de la synchronisation bibliographique.
+    - Interoperabilite des formats.
+    - Stabilite de synchronisation.
     - Durabilite du projet open source.
   pricingNote: free
   url: https://www.zotero.org/
@@ -18,119 +18,358 @@
 - key: jabref
   name: JabRef
   category: bibliographie
-  description: Alternative ouverte orientee BibTeX, utile pour workflows LaTeX et theses STEM.
+  description: Gestionnaire BibTeX oriente LaTeX, utile pour filieres STEM et flux academiques techniques.
   whyRecommended:
-    - Integration native BibTeX/BibLaTeX.
-    - Recherche de metadonnees rapide depuis DOI.
+    - Integration native BibTeX et BibLaTeX.
+    - Recuperation rapide des metadonnees via DOI.
   criteriaUsed:
     - Compatibilite LaTeX.
-    - Stabilite du format exporte.
+    - Qualite des imports de references.
   pricingNote: free
   url: https://www.jabref.org/
+
+- key: paperpile
+  name: Paperpile
+  category: bibliographie
+  description: Gestionnaire de references cloud avec accent sur flux Google Docs et collaboration rapide.
+  whyRecommended:
+    - Insertion de citations fluide dans Google Docs.
+    - Import de PDF et detection des metadonnees efficace.
+  criteriaUsed:
+    - Vitesse de prise en main.
+    - Collaboration editoriale.
+  pricingNote: paid
+  url: https://paperpile.com/
+  freeAlternativeKeys:
+    - zotero
+
+- key: mendeley
+  name: Mendeley Reference Manager
+  category: bibliographie
+  description: Outil de references avec lecteur PDF integre, pratique pour equipes deja equipees Elsevier.
+  whyRecommended:
+    - Annotations PDF integrees dans un seul environnement.
+    - Integration historique dans certains labos et workflows existants.
+  criteriaUsed:
+    - Qualite des annotations.
+    - Compatibilite d'equipe.
+  pricingNote: freemium
+  url: https://www.mendeley.com/
+  freeAlternativeKeys:
+    - zotero
 
 - key: overleaf
   name: Overleaf
   category: ecriture
-  description: Edition collaborative LaTeX dans le navigateur, pratique pour co-auteur et encadrement.
+  description: Edition LaTeX collaborative en ligne pour memoires, articles et chapitres co-rediges.
   whyRecommended:
-    - Historique de versions clair pour les revisions.
-    - Compilation continue et partage simple.
-    - Templates de these facilement adaptables.
+    - Historique de versions clair pour revisions superviseur.
+    - Compilation continue et partage de projet simple.
+    - Bibliotheque de templates academiques mature.
   criteriaUsed:
     - Collaboration en temps reel.
-    - Portabilite des projets LaTeX.
-    - Qualite de l'historique des modifications.
+    - Portabilite des projets.
+    - Robustesse du versioning.
   pricingNote: freemium
   url: https://www.overleaf.com/
-  affiliateUrl: https://www.overleaf.com/?utm_source=thesardaucalme
   freeAlternativeKeys:
-    - obsidian
+    - typst
+
+- key: typst
+  name: Typst
+  category: ecriture
+  description: Alternative moderne a LaTeX, compile rapidement et garde une syntaxe lisible.
+  whyRecommended:
+    - Courbe d'apprentissage souvent plus douce que LaTeX.
+    - Compilation tres rapide pour iteration d'ecriture.
+  criteriaUsed:
+    - Lisibilite de syntaxe.
+    - Vitesse de compilation.
+  pricingNote: free
+  url: https://typst.app/
+  freeAlternativeKeys:
+    - overleaf
 
 - key: obsidian
   name: Obsidian
   category: ecriture
-  description: Base de connaissances en Markdown pour structurer notes de lecture et chapitres.
+  description: Base de connaissances markdown locale pour transformer notes en sections de chapitre.
   whyRecommended:
-    - Fichiers locaux simples a sauvegarder et exporter.
-    - Liens internes puissants pour cartographier la litterature.
-    - Extensions optionnelles sans verrou proprietaire.
+    - Fichiers locaux faciles a sauvegarder et migrer.
+    - Liens bidirectionnels utiles pour cartographier la litterature.
+    - Ecosysteme de plugins adaptable sans verrou fort.
   criteriaUsed:
     - Portabilite des notes.
-    - Capacite d'export.
-    - Performance sur gros volumes de notes.
+    - Capacite de structuration.
+    - Performance sur corpus large.
   pricingNote: freemium
   url: https://obsidian.md/
+  freeAlternativeKeys:
+    - logseq
+
+- key: notion
+  name: Notion
+  category: ecriture
+  description: Workspace collaboratif pour centraliser planning, notes de projet et tableaux de suivi doctoral.
+  whyRecommended:
+    - Partage simple avec co-auteurs et direction.
+    - Base de donnees modulaires pour suivi des livrables.
+  criteriaUsed:
+    - Qualite collaboration.
+    - Souplesse de structuration.
+  pricingNote: freemium
+  url: https://www.notion.so/
+  freeAlternativeKeys:
+    - anytype
+
+- key: anytype
+  name: Anytype
+  category: ecriture
+  description: Alternative locale a Notion, orientee souverainete des donnees et organisation personnelle.
+  whyRecommended:
+    - Donnees locales et orientation offline.
+    - Mode objet utile pour relier concepts et references.
+  criteriaUsed:
+    - Souverainete des donnees.
+    - Capacite de relation entre notes.
+  pricingNote: freemium
+  url: https://anytype.io/
+  freeAlternativeKeys:
+    - obsidian
+
+- key: logseq
+  name: Logseq
+  category: ecriture
+  description: Outil de notes open source centree sur les blocs, utile pour prise de notes quotidienne.
+  whyRecommended:
+    - Journal quotidien performant pour suivi doctoral.
+    - Formats ouverts markdown et org-mode.
+  criteriaUsed:
+    - Interoperabilite des donnees.
+    - Rapidite de capture.
+  pricingNote: free
+  url: https://logseq.com/
+  freeAlternativeKeys:
+    - obsidian
+
+- key: scrivener
+  name: Scrivener
+  category: ecriture
+  description: Editeur long format avec gestion de sections, utile pour livres et theses longues.
+  whyRecommended:
+    - Vue structure en dossiers pour piloter chapitres.
+    - Exports multiples vers Word, PDF et formats manuscrit.
+  criteriaUsed:
+    - Gestion de textes longs.
+    - Qualite des exports.
+  pricingNote: paid
+  url: https://www.literatureandlatte.com/scrivener/overview
+  freeAlternativeKeys:
+    - obsidian
 
 - key: antidote
   name: Antidote
   category: ecriture
-  description: Correcteur linguistique francophone utile pour clarte, ponctuation et style academique.
+  description: Correcteur linguistique francophone pour clarifier style academique et ponctuation.
   whyRecommended:
     - Precision elevee sur textes longs en francais.
-    - Dictionnaires et guides de style integres.
+    - Dictionnaires integres adaptes a l'ecriture soutenue.
   criteriaUsed:
-    - Qualite du francais scientifique.
-    - Integrations logicielles.
+    - Qualite linguistique FR.
+    - Integrations editeurs.
   pricingNote: paid
   url: https://www.antidote.info/
-  affiliateUrl: https://www.antidote.info/fr/boutique?utm_source=thesardaucalme
   freeAlternativeKeys:
     - language-tool
 
 - key: language-tool
   name: LanguageTool
   category: ecriture
-  description: Correcteur multiplateforme freemium pour fautes frequentes et reformulations de base.
+  description: Correcteur freemium multilingue, efficace en premiere passe de correction.
   whyRecommended:
-    - Facile a activer dans navigateur et traitement de texte.
-    - Mode gratuit suffisant pour premieres passes de correction.
+    - Integration navigateur et editeurs courants.
+    - Version gratuite suffisante pour depistage initial.
   criteriaUsed:
     - Couverture linguistique.
     - Cout d'entree.
   pricingNote: freemium
   url: https://languagetool.org/
+  freeAlternativeKeys:
+    - deepl-write
+
+- key: grammarly
+  name: Grammarly
+  category: ecriture
+  description: Correcteur orientee anglais academique et professionnel, utile pour abstracts et papers EN.
+  whyRecommended:
+    - Suggestions de clarte pour textes anglais longs.
+    - Bonne integration dans navigateur et suites bureautiques.
+  criteriaUsed:
+    - Qualite corrections EN.
+    - Integration workflow.
+  pricingNote: freemium
+  url: https://www.grammarly.com/
+  freeAlternativeKeys:
+    - language-tool
+
+- key: deepl-write
+  name: DeepL Write
+  category: ecriture
+  description: Outil de reformulation multi-langues, utile pour clarifier phraseologie academique.
+  whyRecommended:
+    - Reformulations rapides en FR et EN.
+    - Interface legere pour passe de relecture courte.
+  criteriaUsed:
+    - Qualite reformulation.
+    - Simplicite d'usage.
+  pricingNote: freemium
+  url: https://www.deepl.com/write
+  freeAlternativeKeys:
+    - language-tool
+
+- key: readwise-reader
+  name: Readwise Reader
+  category: ecriture
+  description: Lecteur centralise pour web et PDF avec extraction de highlights vers espace de notes.
+  whyRecommended:
+    - Consolidation des surlignages dans un flux unique.
+    - Export vers outils de notes pour revision active.
+  criteriaUsed:
+    - Qualite export highlights.
+    - Productivite de lecture.
+  pricingNote: paid
+  url: https://readwise.io/read
+  freeAlternativeKeys:
+    - hypothesis
+
+- key: hypothesis
+  name: Hypothes.is
+  category: ecriture
+  description: Annotation web collaborative et gratuite pour lecture critique d'articles en ligne.
+  whyRecommended:
+    - Annotation partageable avec groupe de recherche.
+    - Fonctionne directement dans navigateur.
+  criteriaUsed:
+    - Collaboration annotation.
+    - Cout total.
+  pricingNote: free
+  url: https://web.hypothes.is/
+
+- key: okular
+  name: Okular
+  category: ecriture
+  description: Lecteur PDF open source avec outils d'annotation adaptes aux lectures academiques.
+  whyRecommended:
+    - Annotateur solide sur Linux et autres plateformes KDE.
+    - Bonne gestion de commentaires et surlignages.
+  criteriaUsed:
+    - Qualite annotation PDF.
+    - Stabilite logicielle.
+  pricingNote: free
+  url: https://okular.kde.org/
+  freeAlternativeKeys:
+    - hypothesis
+
+- key: pdf-xchange
+  name: PDF-XChange Editor
+  category: ecriture
+  description: Editeur PDF avance pour Windows avec annotation detaillee et export des commentaires.
+  whyRecommended:
+    - Outils d'annotation fins pour relecture intensive.
+    - Export des notes vers workflow de synthese.
+  criteriaUsed:
+    - Precision annotation.
+    - Productivite sur gros PDF.
+  pricingNote: freemium
+  url: https://pdf-xchange.eu/pdf-xchange-editor/
+  freeAlternativeKeys:
+    - okular
 
 - key: backblaze
   name: Backblaze
   category: sauvegarde
-  description: Sauvegarde cloud continue pour limiter le risque de perte de donnees de these.
+  description: Sauvegarde cloud continue pour reduire le risque de perte de donnees de these.
   whyRecommended:
-    - Sauvegarde automatique transparente.
-    - Versioning utile apres suppression accidentelle.
-    - Restauration externalisee en cas de panne machine.
+    - Sauvegarde automatique sans intervention quotidienne.
+    - Historique de versions utile apres erreur humaine.
+    - Restauration distante en cas de panne materielle.
   criteriaUsed:
     - Frequence de sauvegarde.
     - Fiabilite de restauration.
-    - Simplicite d'usage quotidien.
+    - Simplicite d'usage.
   pricingNote: paid
   url: https://www.backblaze.com/
-  affiliateUrl: https://www.backblaze.com/cloud-backup/personal?utm_source=thesardaucalme
   freeAlternativeKeys:
     - syncthing
 
 - key: syncthing
   name: Syncthing
   category: sauvegarde
-  description: Synchronisation chiffrable pair-a-pair pour dupliquer dossiers critiques entre appareils.
+  description: Synchronisation pair-a-pair open source pour dupliquer dossiers critiques entre machines.
   whyRecommended:
-    - Open source et sans abonnement.
-    - Controle local des dossiers et permissions.
+    - Sans abonnement et controle local complet.
+    - Chiffrement et regles fines par dossier.
   criteriaUsed:
     - Souverainete des donnees.
     - Cout total.
   pricingNote: free
   url: https://syncthing.net/
 
+- key: google-drive
+  name: Google Drive
+  category: sauvegarde
+  description: Stockage cloud generaliste pour sauvegarde documentaire et partage rapide d'archives.
+  whyRecommended:
+    - Integrations natives avec ecosysteme Google.
+    - Version gratuite suffisante pour demarrage.
+  criteriaUsed:
+    - Facilite de partage.
+    - Continuite multi-appareils.
+  pricingNote: freemium
+  url: https://www.google.com/drive/
+  freeAlternativeKeys:
+    - syncthing
+
+- key: dropbox
+  name: Dropbox
+  category: sauvegarde
+  description: Synchronisation cloud mature avec versioning, utile pour dossiers these et co-auteurs externes.
+  whyRecommended:
+    - Synchronisation stable sur grandes bases de fichiers.
+    - Historique de fichiers solide.
+  criteriaUsed:
+    - Fiabilite synchro.
+    - Gestion des versions.
+  pricingNote: freemium
+  url: https://www.dropbox.com/
+  freeAlternativeKeys:
+    - google-drive
+
+- key: rclone
+  name: Rclone
+  category: sauvegarde
+  description: Outil ligne de commande pour synchroniser et chiffrer des sauvegardes multi-cloud.
+  whyRecommended:
+    - Scriptable pour routine automatique reproductible.
+    - Compatible avec de nombreux fournisseurs cloud.
+  criteriaUsed:
+    - Automatisation.
+    - Portabilite des sauvegardes.
+  pricingNote: free
+  url: https://rclone.org/
+  freeAlternativeKeys:
+    - syncthing
+
 - key: focus-to-do
   name: Focus To-Do
   category: focus
-  description: Timer Pomodoro + gestion de taches pour sessions de redaction cadrees.
+  description: Timer Pomodoro combine a une to-do list pour sequences d'ecriture calibrees.
   whyRecommended:
-    - Cycles de travail/rest efficaces sur longues journees.
-    - Statistiques hebdomadaires simples a relire.
+    - Cycles travail repos simples a suivre.
+    - Statistiques quotidiennes lisibles.
   criteriaUsed:
     - Simplicite de parametrage.
-    - Qualite du suivi de sessions.
+    - Qualite suivi sessions.
   pricingNote: freemium
   url: https://www.focustodo.cn/
   freeAlternativeKeys:
@@ -139,40 +378,122 @@
 - key: pomofocus
   name: Pomofocus
   category: focus
-  description: Pomodoro web minimaliste pour demarrer rapidement sans installation.
+  description: Timer web minimaliste pour lancer un bloc de concentration en quelques secondes.
   whyRecommended:
-    - Interface claire, sans friction.
-    - Suffisant pour blocs de redaction courts.
+    - Interface legere sans distractions.
+    - Aucune installation necessaire.
   criteriaUsed:
-    - Rapidite de mise en route.
-    - Absence de distraction.
+    - Rapidite mise en route.
+    - Simplicite interface.
   pricingNote: free
   url: https://pomofocus.io/
 
-- key: casque-anc
-  name: Casque a reduction de bruit
-  category: equipement
-  description: Casque ANC confortable pour neutraliser le bruit de bureau partage.
+- key: todoist
+  name: Todoist
+  category: focus
+  description: Gestionnaire de taches multi-plateformes pour piloter jalons hebdomadaires de these.
   whyRecommended:
-    - Baisse sensible du bruit ambiant en open space.
-    - Meilleure endurance cognitive pendant les blocs d'ecriture.
+    - Bon equilibre entre simplicite et planification.
+    - Rappels utiles pour livrables recurrents.
   criteriaUsed:
-    - Confort sur sessions longues.
-    - Efficacite de reduction de bruit.
-    - Rapport cout-utilite.
+    - Fiabilite rappels.
+    - Ergonomie quotidienne.
+  pricingNote: freemium
+  url: https://todoist.com/
+  freeAlternativeKeys:
+    - google-tasks
+
+- key: google-tasks
+  name: Google Tasks
+  category: focus
+  description: Liste de taches simple integree a Gmail et Google Calendar.
+  whyRecommended:
+    - Gratuit et suffisant pour backlog personnel.
+    - Integration naturelle avec agenda Google.
+  criteriaUsed:
+    - Cout.
+    - Integration ecosysteme.
+  pricingNote: free
+  url: https://tasks.google.com/
+
+- key: google-calendar
+  name: Google Calendar
+  category: focus
+  description: Agenda pour time-blocking des sessions d'ecriture, reunions et jalons administratifs.
+  whyRecommended:
+    - Blocage de temps rapide et partage simple.
+    - Rappels multicanaux utiles pour echeances.
+  criteriaUsed:
+    - Fiabilite des rappels.
+    - Collaboration agenda.
+  pricingNote: free
+  url: https://calendar.google.com/
+
+- key: forest
+  name: Forest
+  category: focus
+  description: Application de focus avec sessions minutees et mecanisme de renforcement comportemental.
+  whyRecommended:
+    - Rend les sessions de concentration plus engageantes.
+    - Bon support mobile pour travail hors bureau.
+  criteriaUsed:
+    - Adherence comportementale.
+    - Simplicite mobile.
   pricingNote: paid
-  url: https://www.sony.fr/electronics/casque-bandeau/wh-1000xm5
-  affiliateUrl: https://www.amazon.fr/s?k=WH-1000XM5&utm_source=thesardaucalme
+  url: https://www.forestapp.cc/
+  freeAlternativeKeys:
+    - pomofocus
+
+- key: freedom
+  name: Freedom
+  category: focus
+  description: Bloqueur de distractions multi-appareils pour proteger les blocs de redaction profonde.
+  whyRecommended:
+    - Blocage de sites et apps synchronise.
+    - Programmation recurrente des plages de travail.
+  criteriaUsed:
+    - Efficacite anti-distraction.
+    - Couverture multi-appareils.
+  pricingNote: paid
+  url: https://freedom.to/
+  freeAlternativeKeys:
+    - pomofocus
 
 - key: campus-france
   name: Campus France
   category: administratif
-  description: Point de depart administratif pour candidats internationaux et sejour doctoral.
+  description: Point de depart institutionnel pour candidatures et informations mobilite internationale.
   whyRecommended:
-    - Informations officielles centralisees sur visa et procedures.
-    - Orientation vers demarches locales selon pays.
+    - Informations centralisees pour parcours doctoral international.
+    - Orientation par pays et type de demarche.
   criteriaUsed:
     - Fiabilite institutionnelle.
-    - Clarte des etapes administratives.
+    - Clarte des etapes.
   pricingNote: free
   url: https://www.campusfrance.org/fr
+
+- key: france-visas
+  name: France-Visas
+  category: administratif
+  description: Portail officiel pour verifier procedures de visa et documents demandes.
+  whyRecommended:
+    - Source officielle pour exigences de visa.
+    - Checklists formalisees par profil de demandeur.
+  criteriaUsed:
+    - Fiabilite reglementaire.
+    - Detail des demarches.
+  pricingNote: free
+  url: https://france-visas.gouv.fr/
+
+- key: service-public-fr
+  name: Service-Public.fr
+  category: administratif
+  description: Portail administratif officiel pour references sur droits, sante, logement et formalites.
+  whyRecommended:
+    - Reference publique sur demarches en France.
+    - Mise a jour reguliere des procedures.
+  criteriaUsed:
+    - Fiabilite juridique generale.
+    - Qualite d'orientation vers services competents.
+  pricingNote: free
+  url: https://www.service-public.fr/

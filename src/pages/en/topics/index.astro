@@ -1,0 +1,164 @@
+---
+import { getCollection } from "astro:content";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import LanguageSwitch from "../../../components/LanguageSwitch.astro";
+import { withBase } from "../../../lib/links";
+import { buildTagCounts } from "../../../lib/tags";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+
+const videos = await getCollection("videos", ({ data }) => data.lang === "en");
+const guides = await getCollection("guides", ({ data }) => data.lang === "en");
+const tags = buildTagCounts(videos, guides);
+
+const videoMap = new Map(videos.map((video) => [video.slug, video]));
+const guideMap = new Map(guides.map((guide) => [guide.slug, guide]));
+
+const recommendedVideos = [
+  videoMap.get("doctorate-france-first-month-priorities"),
+  videoMap.get("international-phd-france-admin-sequence"),
+  videoMap.get("build-weekly-phd-routine-france")
+].filter(Boolean);
+
+const recommendedGuides = [
+  guideMap.get("doctorate-france-first-30-days-checklist"),
+  guideMap.get("doctorate-france-residence-admin-flow")
+].filter(Boolean);
+---
+
+<BaseLayout
+  canonicalPath="/en/topics/"
+  title="Topics | Doctorate in France"
+  description="Tag index for English content: videos and guides grouped by operational topics for doctoral work in France."
+  lang="en"
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Home", href: "/en/" }, { label: "Topics" }]} />
+      <LanguageSwitch frHref="/themes/" enHref="/en/topics/" current="en" />
+      <p class="eyebrow">Topics index</p>
+      <h1>Topics</h1>
+      <p>Browse content by topic to create focused weekly study and execution plans.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>Start here in 3 steps</h2>
+      <ol>
+        <li>Select one dominant topic for the week.</li>
+        <li>Combine one video and one guide from the same topic.</li>
+        <li>Translate insights into one seven-day action plan.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid two-cols">
+      <article class="surface hub-block">
+        <h2>3 recommended videos</h2>
+        <ul>
+          {recommendedVideos.map((video) => <li><a href={withBase(`/videos/${video!.slug}/`)}>{video!.data.title}</a></li>)}
+        </ul>
+      </article>
+      <article class="surface hub-block">
+        <h2>2 recommended guides</h2>
+        <ul>
+          {recommendedGuides.map((guide) => <li><a href={withBase(`/guides/${guide!.slug}/`)}>{guide!.data.title}</a></li>)}
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>Resources shortlist</h2>
+      <ul>
+        <li><a href={withBase("/ressources/#administratif")}>Administrative objective</a></li>
+        <li><a href={withBase("/ressources/#ecrire")}>Writing objective</a></li>
+        <li><a href={withBase("/ressources/#focus-routine")}>Focus objective</a></li>
+      </ul>
+      <a class="button button-secondary" href={withBase("/ressources/#checklist")}>Open setup checklist</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container tags-grid">
+      {tags.map((tag) => (
+        <a class="card tag-card" href={withBase(`/en/topics/${tag.slug}/`)}>
+          <h3>{tag.tag}</h3>
+          <p class="small muted">{tag.total} items · {tag.videos} videos · {tag.guides} guides</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface hub-block">
+      <h2>FAQ</h2>
+      <details>
+        <summary>Are topics static?</summary>
+        <p>No. Topic pages are generated from active tags in the content collections.</p>
+      </details>
+      <details>
+        <summary>How should topics be used weekly?</summary>
+        <p>Use one dominant topic per week and evaluate outcomes during a short Friday review.</p>
+      </details>
+      <details>
+        <summary>Can topics be combined?</summary>
+        <p>Yes, but start with one core topic to avoid context switching overhead.</p>
+      </details>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hub-block {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .hub-block ul,
+  .hub-block ol {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text-soft);
+  }
+
+  .tags-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.9rem;
+  }
+
+  .tag-card {
+    text-decoration: none;
+  }
+
+  .tag-card h3 {
+    margin-bottom: 0.3rem;
+  }
+
+  .two-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  details {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    padding: 0.7rem;
+  }
+
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  @media (max-width: 960px) {
+    .tags-grid,
+    .two-cols {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
