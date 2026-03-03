@@ -1,5 +1,6 @@
 import { parse } from "yaml";
 import resourcesYaml from "../data/resources.yaml?raw";
+import { withBase } from "./links";
 
 export type ResourceCategory =
   | "ecriture"
@@ -193,6 +194,6 @@ export const resourceCategories: { key: ResourceCategory; label: string }[] = [
   { key: "administratif", label: "Administratif" }
 ];
 
-export const getResourceOutboundPath = (key: string): string => `/out/${key}/`;
+export const getResourceOutboundPath = (key: string): string => withBase(`/out/${key}/`);
 
 export const getResourceDestination = (resource: ResourceEntry): string => resource.affiliateUrl ?? resource.url;

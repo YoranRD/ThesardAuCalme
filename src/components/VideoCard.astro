@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from "astro:content";
+import { withBase } from "../lib/links";
 import TagList from "./TagList.astro";
 
 interface Props {
@@ -16,10 +17,10 @@ const publicationDate = video.data.date.toLocaleDateString("fr-FR", {
 
 <article class="card video-card">
   <p class="small muted">{publicationDate} • {video.data.durationMin} min</p>
-  <h3><a href={`/videos/${video.slug}/`}>{video.data.title}</a></h3>
+  <h3><a href={withBase(`/videos/${video.slug}/`)}>{video.data.title}</a></h3>
   <p>{video.data.summary}</p>
   <TagList tags={video.data.tags} />
-  <a class="button button-secondary" href={`/videos/${video.slug}/`}>Voir la fiche vidéo</a>
+  <a class="button button-secondary" href={withBase(`/videos/${video.slug}/`)}>Voir la fiche vidéo</a>
 </article>
 
 <style>

@@ -1,4 +1,6 @@
 ---
+import { withBase } from "../lib/links";
+
 const year = new Date().getFullYear();
 ---
 
@@ -12,19 +14,19 @@ const year = new Date().getFullYear();
     <div>
       <p class="footer-title">Navigation</p>
       <ul>
-        <li><a href="/start/">Commencer ici</a></li>
-        <li><a href="/videos/">Vidéos</a></li>
-        <li><a href="/guides/">Guides</a></li>
-        <li><a href="/ressources/">Ressources</a></li>
+        <li><a href={withBase("/start/")}>Commencer ici</a></li>
+        <li><a href={withBase("/videos/")}>Vidéos</a></li>
+        <li><a href={withBase("/guides/")}>Guides</a></li>
+        <li><a href={withBase("/ressources/")}>Ressources</a></li>
       </ul>
     </div>
 
     <div>
       <p class="footer-title">Cadre légal</p>
       <ul>
-        <li><a href="/legal/mentions-legales/">Mentions légales</a></li>
-        <li><a href="/legal/confidentialite/">Confidentialité</a></li>
-        <li><a href="/legal/affiliation/">Affiliation</a></li>
+        <li><a href={withBase("/legal/mentions-legales/")}>Mentions légales</a></li>
+        <li><a href={withBase("/legal/confidentialite/")}>Confidentialité</a></li>
+        <li><a href={withBase("/legal/affiliation/")}>Affiliation</a></li>
       </ul>
     </div>
   </div>

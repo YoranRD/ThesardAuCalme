@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import Breadcrumbs from "../components/Breadcrumbs.astro";
 import CtaBlock from "../components/CtaBlock.astro";
+import { withBase } from "../lib/links";
 import { resourceByKey } from "../lib/resources";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
@@ -109,19 +110,19 @@ const profiles = [
 
             <h3>3 vidéos recommandées</h3>
             <ul>
-              {profile.videos.map((video) => <li><a href={`/videos/${video.slug}/`}>{video.data.title}</a></li>)}
+              {profile.videos.map((video) => <li><a href={withBase(`/videos/${video.slug}/`)}>{video.data.title}</a></li>)}
             </ul>
 
             <h3>2 guides à lire</h3>
             <ul>
-              {profile.guides.map((guide) => <li><a href={`/guides/${guide.slug}/`}>{guide.data.title}</a></li>)}
+              {profile.guides.map((guide) => <li><a href={withBase(`/guides/${guide.slug}/`)}>{guide.data.title}</a></li>)}
             </ul>
 
             <h3>Shortlist ressources</h3>
             <ul>
-              {profile.shortlist.map((resource) => <li><a href={`/ressources/#${resource.key}`}>{resource.name}</a></li>)}
+              {profile.shortlist.map((resource) => <li><a href={withBase(`/ressources/#${resource.key}`)}>{resource.name}</a></li>)}
             </ul>
-            <a class="button button-secondary" href="/ressources/">Voir la shortlist dans Ressources</a>
+            <a class="button button-secondary" href={withBase("/ressources/")}>Voir la shortlist dans Ressources</a>
           </article>
         ))
       }
@@ -133,7 +134,7 @@ const profiles = [
       <CtaBlock
         title="Va voir la page ressources + checklist"
         body="La checklist opérationnelle est en bas de la page Ressources pour démarrer sur un système minimal viable en 30 minutes."
-        href="/ressources/#checklist"
+        href={withBase("/ressources/#checklist")}
         label="Ouvrir Ressources + checklist"
       />
     </div>

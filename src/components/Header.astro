@@ -2,6 +2,7 @@
 import wordmark from "../assets/brand/wordmark.svg";
 import mascot from "../assets/brand/mascot.svg";
 import { activeBasePath } from "../config/site";
+import { withBase } from "../lib/links";
 
 const navItems = [
   { href: "/", label: "Accueil" },
@@ -30,7 +31,7 @@ const isActive = (href: string): boolean => {
 
 <header class="site-header">
   <div class="container header-inner">
-    <a class="brand-link" href="/" aria-label="Retour à l'accueil">
+    <a class="brand-link" href={withBase("/")} aria-label="Retour à l'accueil">
       <img src={mascot.src} alt="Mascotte Thésard Au Calme" width="44" height="44" loading="eager" />
       <img src={wordmark.src} alt="Thésard Au Calme" width="250" height="46" loading="eager" />
     </a>
@@ -40,7 +41,7 @@ const isActive = (href: string): boolean => {
         {
           navItems.map((item) => (
             <li>
-              <a class={isActive(item.href) ? "active" : undefined} href={item.href}>
+              <a class={isActive(item.href) ? "active" : undefined} href={withBase(item.href)}>
                 {item.label}
               </a>
             </li>

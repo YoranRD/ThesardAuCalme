@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from "astro:content";
+import { withBase } from "../lib/links";
 import TagList from "./TagList.astro";
 
 interface Props {
@@ -16,10 +17,10 @@ const publicationDate = guide.data.date.toLocaleDateString("fr-FR", {
 
 <article class="card guide-card">
   <p class="small muted">{publicationDate}</p>
-  <h3><a href={`/guides/${guide.slug}/`}>{guide.data.title}</a></h3>
+  <h3><a href={withBase(`/guides/${guide.slug}/`)}>{guide.data.title}</a></h3>
   <p>{guide.data.summary}</p>
   <TagList tags={guide.data.tags} />
-  <a class="button button-secondary" href={`/guides/${guide.slug}/`}>Lire le guide</a>
+  <a class="button button-secondary" href={withBase(`/guides/${guide.slug}/`)}>Lire le guide</a>
 </article>
 
 <style>

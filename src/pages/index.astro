@@ -5,6 +5,7 @@ import CtaBlock from "../components/CtaBlock.astro";
 import GuideCard from "../components/GuideCard.astro";
 import VideoCard from "../components/VideoCard.astro";
 import { brandDisplayName, brandTagline, getCanonicalUrl } from "../config/site";
+import { withBase } from "../lib/links";
 import { resourcesCatalog } from "../lib/resources";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
@@ -62,8 +63,8 @@ const structuredData = {
         </p>
         <p>{brandTagline}</p>
         <div class="hero-actions">
-          <a class="button button-primary" href="/start/">Commencer ici</a>
-          <a class="button button-secondary" href="/videos/">Voir les vidéos</a>
+          <a class="button button-primary" href={withBase("/start/")}>Commencer ici</a>
+          <a class="button button-secondary" href={withBase("/videos/")}>Voir les vidéos</a>
         </div>
       </div>
       <div class="hero-art">
@@ -97,9 +98,9 @@ const structuredData = {
         <h2>Des recommandations expliquées, pas des liens jetés.</h2>
       </div>
       <ul>
-        {featuredResources.map((resource) => <li><a href={`/ressources/#${resource.key}`}>{resource.name}</a></li>)}
+        {featuredResources.map((resource) => <li><a href={withBase(`/ressources/#${resource.key}`)}>{resource.name}</a></li>)}
       </ul>
-      <a class="button button-secondary" href="/ressources/">Explorer toutes les ressources</a>
+      <a class="button button-secondary" href={withBase("/ressources/")}>Explorer toutes les ressources</a>
     </div>
   </section>
 
@@ -116,7 +117,7 @@ const structuredData = {
       <CtaBlock
         title="Démarrage guidé"
         body="La page Commencer ici propose trois parcours rapides: début de thèse, phase de rédaction, préparation de soutenance."
-        href="/start/"
+        href={withBase("/start/")}
         label="Ouvrir Commencer ici"
       />
     </div>

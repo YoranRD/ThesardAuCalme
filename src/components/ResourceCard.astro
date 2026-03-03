@@ -1,4 +1,5 @@
 ---
+import { withBase } from "../lib/links";
 import type { ResourceEntry } from "../lib/resources";
 import { getResourceOutboundPath } from "../lib/resources";
 
@@ -36,7 +37,7 @@ const pricingLabelMap: Record<ResourceEntry["pricingNote"], string> = {
   {
     resource.freeAlternativeKeys.length > 0 && (
       <p class="small muted">
-        Alternatives gratuites: {resource.freeAlternativeKeys.map((key) => <a href={`/ressources/#${key}`}>{key}</a>)}
+        Alternatives gratuites: {resource.freeAlternativeKeys.map((key) => <a href={withBase(`/ressources/#${key}`)}>{key}</a>)}
       </p>
     )
   }
