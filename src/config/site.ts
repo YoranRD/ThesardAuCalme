@@ -1,6 +1,6 @@
 const placeholderPattern = /<[^>]+>/;
 
-export const brandName = "Thesard Au Calme";
+export const brandName = "Thésard Au Calme";
 export const brandDisplayName = "Thésard Au Calme";
 export const brandTagline = "Des méthodes fiables pour avancer en doctorat en France, sans bruit.";
 
@@ -11,7 +11,7 @@ export const useProductionDomain = false;
 
 export const cloudflareWebAnalyticsToken = "";
 
-const fallbackStagingBaseUrl = "https://example.github.io/affiliation-these/";
+const fallbackStagingBaseUrl = "https://yoranrd.github.io/ThesardAuCalme/";
 const normalizedStagingBaseUrl = placeholderPattern.test(stagingBaseUrl)
   ? fallbackStagingBaseUrl
   : stagingBaseUrl;
