@@ -1,0 +1,93 @@
+---
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import { communityUrl, isConfiguredExternalUrl } from "../../../config/identity";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { withBase } from "../../../lib/links";
+
+const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : withBase("/contact/");
+const communityTarget = isConfiguredExternalUrl(communityUrl) ? "_blank" : undefined;
+const communityRel = isConfiguredExternalUrl(communityUrl) ? "noopener nofollow" : undefined;
+---
+
+<BaseLayout
+  canonicalPath="/communaute/rejoindre/"
+  title="Rejoindre la communauté | Thésard Au Calme"
+  description="Mode d'emploi pour rejoindre la communauté Thésard Au Calme: fonctionnement, attentes, premier message et cadence recommandée."
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs
+        items={[
+          { label: "Accueil", href: "/" },
+          { label: "Communauté", href: "/communaute/" },
+          { label: "Rejoindre" }
+        ]}
+      />
+      <p class="eyebrow">Communauté</p>
+      <h1>Rejoindre: simple, concret, orienté action</h1>
+      <p>
+        L'objectif de ce canal n'est pas d'ajouter une notification de plus. L'objectif est de créer une boucle utile:
+        engagement court, retour précis, ajustement, progression visible. La qualité d'un espace de travail se mesure à la
+        clarté des sorties produites, pas au volume de messages.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface block">
+      <h2>Comment ça fonctionne</h2>
+      <ol>
+        <li>Arrivée: lecture du canal règles et présentation en 5 lignes.</li>
+        <li>Semaine 1: publication d'un objectif réaliste + un livrable attendu.</li>
+        <li>Suivi: check-in en milieu de semaine, bilan en fin de semaine.</li>
+        <li>Itération: ajustement du plan selon ce qui bloque réellement.</li>
+      </ol>
+
+      <h2>Message de départ recommandé</h2>
+      <ul>
+        <li>Contexte: année de thèse, discipline, phase actuelle.</li>
+        <li>Objectif 7 jours: une sortie mesurable.</li>
+        <li>Blocage principal: une question claire.</li>
+        <li>Besoin de la semaine: relecture, méthode, admin, routine, etc.</li>
+      </ul>
+
+      <h2>Ce qui maximise l'utilité</h2>
+      <ul>
+        <li>Poster peu mais avec un objectif explicite.</li>
+        <li>Demander un retour ciblé plutôt qu'un avis général.</li>
+        <li>Partager ce qui a été testé, y compris ce qui n'a pas marché.</li>
+        <li>Rester sur des cycles courts et répétables.</li>
+      </ul>
+
+      <a class="button button-primary" href={communityCta} target={communityTarget} rel={communityRel}>Accéder à la communauté</a>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container surface block">
+      <h2>Checklist d'intégration en 20 minutes</h2>
+      <p>Cette checklist évite les inscriptions passives. L'idée est d'entrer dans la communauté avec un objectif et une méthode de suivi. Un membre qui publie un objectif clair dès l'arrivée reçoit généralement des retours plus utiles qu'un message général sans contexte.</p>
+      <ul>
+        <li>Rédiger une présentation en 5 lignes maximum.</li>
+        <li>Choisir un défi concret pour la semaine.</li>
+        <li>Préparer un modèle de bilan hebdo.</li>
+        <li>Planifier une revue personnelle le dimanche.</li>
+      </ul>
+      <a class="button button-secondary" href={withBase("/communaute/defis/")}>Voir les défis</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .block {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .block ul,
+  .block ol {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text-soft);
+  }
+</style>

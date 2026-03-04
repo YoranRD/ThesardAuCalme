@@ -54,7 +54,7 @@ Les données de consultation sont gérées par les services techniques utilisés
 
 Pour signaler une question de confidentialité, demander une correction ou une suppression d'information personnelle transmise par erreur:
 
-- écrire à **yoranrd@gmail.com**,
+- ouvrir la page [Contact](../../contact/),
 - préciser l'objet de la demande,
 - joindre les éléments nécessaires pour identifier la page concernée.
 

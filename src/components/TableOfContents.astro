@@ -1,0 +1,77 @@
+---
+interface TocHeading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: TocHeading[];
+  title?: string;
+  minDepth?: number;
+  maxDepth?: number;
+}
+
+const {
+  headings,
+  title = "Sommaire",
+  minDepth = 2,
+  maxDepth = 3
+} = Astro.props;
+
+const visibleHeadings = headings.filter((heading) => heading.depth >= minDepth && heading.depth <= maxDepth);
+---
+
+{
+  visibleHeadings.length > 0 && (
+    <aside class="surface toc-block" aria-label={title}>
+      <p class="toc-title">{title}</p>
+      <ol>
+        {
+          visibleHeadings.map((heading) => (
+            <li class={`depth-${heading.depth}`}>
+              <a href={`#${heading.slug}`}>{heading.text}</a>
+            </li>
+          ))
+        }
+      </ol>
+    </aside>
+  )
+}
+
+<style>
+  .toc-block {
+    padding: 1rem 1.1rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .toc-title {
+    margin: 0 0 0.65rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .toc-block ol {
+    margin: 0;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.34rem;
+  }
+
+  .toc-block li {
+    color: var(--text-soft);
+  }
+
+  .toc-block li.depth-3 {
+    margin-left: 0.55rem;
+  }
+
+  .toc-block a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .toc-block a:hover {
+    text-decoration: underline;
+  }
+</style>

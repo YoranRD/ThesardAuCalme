@@ -17,7 +17,7 @@ Cette page donne les informations de référence sur l'éditeur du site et le ca
 - Nom éditorial: **Thésard Au Calme**.
 - Responsable de publication: **[Nom à compléter]**.
 - Statut: média éditorial indépendant dédié aux doctorants en France.
-- Contact: **yoranrd@gmail.com**.
+- Contact: page [Contact](../../contact/).
 
 Le champ "Nom à compléter" est volontairement explicite pour faciliter la mise à jour lors du passage en domaine de production.
 
@@ -51,7 +51,7 @@ Des efforts raisonnables sont appliqués pour maintenir des contenus exacts et u
 
 En cas d'erreur identifiée:
 
-1. envoyer un message à `yoranrd@gmail.com`,
+1. ouvrir la page [Contact](../../contact/),
 2. préciser la page concernée,
 3. indiquer la correction proposée ou la source fiable.
 
@@ -59,4 +59,4 @@ Une révision éditoriale est ensuite effectuée.
 
 ## Contact
 
-Pour toute question liée à ces mentions légales: **yoranrd@gmail.com**.
+Pour toute question liée à ces mentions légales, utiliser la page [Contact](../../contact/).

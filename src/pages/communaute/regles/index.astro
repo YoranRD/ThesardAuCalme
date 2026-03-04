@@ -1,0 +1,97 @@
+---
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import { communityUrl, isConfiguredExternalUrl } from "../../../config/identity";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { withBase } from "../../../lib/links";
+
+const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : withBase("/contact/");
+const communityTarget = isConfiguredExternalUrl(communityUrl) ? "_blank" : undefined;
+const communityRel = isConfiguredExternalUrl(communityUrl) ? "noopener nofollow" : undefined;
+---
+
+<BaseLayout
+  canonicalPath="/communaute/regles/"
+  title="Règles de la communauté | Thésard Au Calme"
+  description="Règles simples pour une communauté doctorale utile: respect, clarté, confidentialité et orientation exécution."
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs
+        items={[
+          { label: "Accueil", href: "/" },
+          { label: "Communauté", href: "/communaute/" },
+          { label: "Règles" }
+        ]}
+      />
+      <p class="eyebrow">Communauté</p>
+      <h1>Règles: qualité des échanges avant quantité</h1>
+      <p>
+        Le cadre communautaire est volontairement simple. L'objectif n'est pas de contrôler les personnes, mais de protéger
+        un environnement où chaque échange peut aider à produire une sortie utile dans la semaine.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface block">
+      <h2>Règles essentielles</h2>
+      <ol>
+        <li>Respect: pas d'attaque personnelle, pas de ton méprisant.</li>
+        <li>Clarté: toute demande doit contenir contexte + objectif + contrainte.</li>
+        <li>Confidentialité: anonymiser les données sensibles et documents non publics.</li>
+        <li>Fiabilité: éviter les conseils non sourcés sur sujets administratifs critiques.</li>
+        <li>Exécution: privilégier les retours actionnables en moins de 5 points.</li>
+      </ol>
+
+      <h2>Ce qui n'est pas accepté</h2>
+      <ul>
+        <li>Spam, auto-promotion agressive, prospection non sollicitée.</li>
+        <li>Partage de documents confidentiels sans autorisation.</li>
+        <li>Recommandations dangereuses ou non vérifiées sur santé/droit.</li>
+        <li>Contenus qui détournent la communauté de son objectif de progression.</li>
+      </ul>
+
+      <h2>Tonalité attendue</h2>
+      <ul>
+        <li>Directe, factuelle, sans posture de supériorité.</li>
+        <li>Orientée solution et expérimentation.</li>
+        <li>Capable d'indiquer les limites d'un conseil.</li>
+      </ul>
+
+      <a class="button button-primary" href={communityCta} target={communityTarget} rel={communityRel}>Lire et accepter dans la communauté</a>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container surface block">
+      <h2>Procédure en cas de désaccord</h2>
+      <p>Quand un échange se tend, la règle est de revenir aux faits: contexte, objectif, contraintes. Toute ambiguïté est traitée par reformulation avant réponse. Cette méthode protège la qualité des interactions et évite les interprétations personnelles. La modération intervient si le cadre n'est pas respecté après rappel.</p>
+      <ul>
+        <li>Reformuler la demande initiale.</li>
+        <li>Identifier le point de désaccord précis.</li>
+        <li>Proposer une action concrète et vérifiable.</li>
+      </ul>
+      <a class="button button-secondary" href={withBase("/communaute/")}>Retour au hub communauté</a>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container surface block">
+      <h2>Rappel de posture</h2>
+      <p>La communauté est un espace de travail collectif. Chaque contribution vise à améliorer la décision et l'exécution, pas à gagner un débat. Cette posture maintient un climat utile, même quand les avis divergent.</p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .block {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .block ul,
+  .block ol {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text-soft);
+  }
+</style>

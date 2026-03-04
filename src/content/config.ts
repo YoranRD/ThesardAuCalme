@@ -134,8 +134,34 @@ const pages = defineCollection({
   })
 });
 
+const articles = defineCollection({
+  type: "content",
+  schema: z
+    .object({
+      title: z.string().min(8).max(140),
+      date: z.coerce.date(),
+      lang: z.enum(["fr", "en"]),
+      summary: z.string().min(90).max(340),
+      tags: z.array(z.string().min(2).max(40)).min(2).max(14),
+      status: z.enum(["published", "coming-soon"]).default("coming-soon"),
+      youtubeId: z.string().regex(/^[A-Za-z0-9_-]{11}$/).optional(),
+      linkedVideoSlug: z.string().regex(/^[a-z0-9-]+$/).max(120).optional()
+    })
+    .superRefine((entry, ctx) => {
+      const uniqueTags = new Set(entry.tags);
+      if (uniqueTags.size !== entry.tags.length) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["tags"],
+          message: "tags must be unique"
+        });
+      }
+    })
+});
+
 export const collections = {
   videos,
   guides,
-  pages
+  pages,
+  articles
 };

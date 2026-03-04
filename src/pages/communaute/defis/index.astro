@@ -1,0 +1,131 @@
+---
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import { communityUrl, isConfiguredExternalUrl } from "../../../config/identity";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { withBase } from "../../../lib/links";
+
+const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : withBase("/contact/");
+const communityTarget = isConfiguredExternalUrl(communityUrl) ? "_blank" : undefined;
+const communityRel = isConfiguredExternalUrl(communityUrl) ? "noopener nofollow" : undefined;
+
+const weeklyChallenges = [
+  {
+    title: "Défi 1 — 500 mots propres",
+    goal: "Produire 500 mots relus sur une section existante.",
+    checklist: [
+      "Définir la section cible.",
+      "Bloquer deux sessions de 45 minutes.",
+      "Faire une relecture de cohérence finale."
+    ]
+  },
+  {
+    title: "Défi 2 — Bibliographie fiable",
+    goal: "Nettoyer 15 références avec métadonnées complètes.",
+    checklist: [
+      "Supprimer doublons.",
+      "Uniformiser auteurs et dates.",
+      "Tester insertion citation dans le manuscrit."
+    ]
+  },
+  {
+    title: "Défi 3 — Admin sans débordement",
+    goal: "Clore un dossier administratif prioritaire sans bloquer la rédaction.",
+    checklist: [
+      "Lister pièces nécessaires.",
+      "Envoyer un email ciblé.",
+      "Archiver la preuve de dépôt."
+    ]
+  }
+];
+---
+
+<BaseLayout
+  canonicalPath="/communaute/defis/"
+  title="Défis hebdomadaires | Thésard Au Calme"
+  description="Défis hebdomadaires doctorat: formats courts et mesurables pour créer de la traction sans surcharge."
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs
+        items={[
+          { label: "Accueil", href: "/" },
+          { label: "Communauté", href: "/communaute/" },
+          { label: "Défis" }
+        ]}
+      />
+      <p class="eyebrow">Communauté</p>
+      <h1>Défis hebdomadaires</h1>
+      <p>
+        Les défis servent à transformer des intentions en livrables. La contrainte est volontaire: court, mesurable, utile.
+        Un défi réussi n'est pas spectaculaire. Il est répétable et cumulatif.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid challenge-grid">
+      {
+        weeklyChallenges.map((challenge) => (
+          <article class="surface block">
+            <h2>{challenge.title}</h2>
+            <p>{challenge.goal}</p>
+            <h3>Checklist</h3>
+            <ul>
+              {challenge.checklist.map((item) => <li>{item}</li>)}
+            </ul>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface block">
+      <h2>Comment participer proprement</h2>
+      <ol>
+        <li>Choisir un seul défi principal par semaine.</li>
+        <li>Publier le livrable attendu dès le début.</li>
+        <li>Partager un bilan factuel le dimanche (fait/non fait + cause). </li>
+      </ol>
+      <a class="button button-primary" href={communityCta} target={communityTarget} rel={communityRel}>Participer aux défis</a>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container surface block">
+      <h2>Format de reporting recommandé</h2>
+      <p>Un reporting utile tient en quatre lignes: objectif prévu, résultat obtenu, blocage rencontré, correction décidée. Ce format permet de recevoir des réponses ciblées sans transformer le suivi en charge supplémentaire. Il favorise aussi l'auto-évaluation et rend la progression visible sur plusieurs semaines.</p>
+      <ul>
+        <li>Prévu: livrable annoncé en début de semaine.</li>
+        <li>Obtenu: sortie réelle (texte, refs, dossier).</li>
+        <li>Blocage: cause principale en un mot.</li>
+        <li>Correction: action testée la semaine suivante.</li>
+      </ul>
+      <a class="button button-secondary" href={withBase("/templates/")}>Utiliser les templates</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .challenge-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .block {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .block ul,
+  .block ol {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text-soft);
+  }
+
+  @media (max-width: 980px) {
+    .challenge-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,274 @@
+---
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import { withBase } from "../../lib/links";
+import {
+  getResourceObjectiveKey,
+  getResourceOutboundPath,
+  resourceByKey,
+  resourceObjectives,
+  resourcesCatalog,
+  type ResourceEntry
+} from "../../lib/resources";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  return resourcesCatalog.map((resource) => ({
+    params: { key: resource.key },
+    props: { resource }
+  }));
+}
+
+interface Props {
+  resource: ResourceEntry;
+}
+
+const { resource } = Astro.props;
+
+const objectiveKey = getResourceObjectiveKey(resource);
+const objective = resourceObjectives.find((entry) => entry.key === objectiveKey);
+
+const whoItsForByObjective: Record<string, string> = {
+  ecrire: "Doctorant·es qui veulent passer d'un brouillon dispersé à un système d'écriture tenable.",
+  "citer-bibliographie": "Doctorant·es qui doivent fiabiliser citations, bibliographies et traçabilité des sources.",
+  "lire-pdf-annoter": "Doctorant·es qui lisent beaucoup de PDF et veulent réinjecter les notes dans la rédaction.",
+  "sauvegarder-synchroniser": "Doctorant·es qui veulent réduire le risque de perte de données et garder des versions restaurables.",
+  "focus-routine": "Doctorant·es qui cherchent une routine hebdo stable avec moins de dispersion quotidienne.",
+  administratif: "Doctorant·es en France, notamment internationaux, qui doivent séquencer les démarches administratives."
+};
+
+const pitfallsByObjective: Record<string, string[]> = {
+  ecrire: [
+    "Multiplier les outils d'écriture sans convention de fichiers.",
+    "Changer de méthode chaque semaine au lieu de stabiliser une routine.",
+    "Négliger l'export des données avant des refontes de structure."
+  ],
+  "citer-bibliographie": [
+    "Importer des références sans contrôle des métadonnées.",
+    "Mélanger styles de citation dans un même manuscrit.",
+    "Ignorer les doublons jusqu'à la phase de soumission."
+  ],
+  "lire-pdf-annoter": [
+    "Surligner sans créer de synthèse réutilisable.",
+    "Conserver les annotations dans un format difficile à exporter.",
+    "Lire sans objectif de sortie (note, paragraphe, section)."
+  ],
+  "sauvegarder-synchroniser": [
+    "Confondre synchronisation et sauvegarde de version.",
+    "Ne pas tester la restauration d'un fichier critique.",
+    "Centraliser toutes les copies sur un seul fournisseur."
+  ],
+  "focus-routine": [
+    "Utiliser une todo illimitée sans priorisation journalière.",
+    "Empiler les minuteries sans revue hebdomadaire.",
+    "Planifier des journées irréalistes sans marge d'imprévu."
+  ],
+  administratif: [
+    "Suivre des conseils de forum sans vérifier les sources officielles.",
+    "Traiter les dossiers dans le mauvais ordre.",
+    "Perdre les preuves administratives faute d'archivage centralisé."
+  ]
+};
+
+const setupChecklistByObjective: Record<string, string[]> = {
+  ecrire: [
+    "Créer un dossier projet unique et une convention de noms.",
+    "Définir un flux note vers paragraphe comme sortie standard.",
+    "Préparer un template de section réutilisable.",
+    "Planifier 3 sessions d'écriture hebdomadaires.",
+    "Tester l'export du projet vers format neutre (Markdown, DOCX ou PDF).",
+    "Faire une revue de structure chaque fin de semaine."
+  ],
+  "citer-bibliographie": [
+    "Choisir un style de citation unique par projet.",
+    "Importer 20 références test et corriger les métadonnées.",
+    "Créer 5 tags thématiques cohérents.",
+    "Vérifier le flux insertion citation dans l'éditeur principal.",
+    "Nettoyer doublons et champs vides chaque semaine.",
+    "Exporter une bibliographie de test avant rédaction intensive."
+  ],
+  "lire-pdf-annoter": [
+    "Définir 3 types d'annotations (résultat, limite, idée).",
+    "Créer un template de note de lecture en 10 lignes.",
+    "Programmer 2 sessions lecture + synthèse hebdomadaires.",
+    "Tester l'export des highlights vers outil de notes.",
+    "Relier chaque lecture à une section de chapitre cible.",
+    "Archiver les PDF dans une arborescence stable."
+  ],
+  "sauvegarder-synchroniser": [
+    "Identifier les dossiers critiques de thèse.",
+    "Mettre en place 3 copies selon la règle 3-2-1.",
+    "Configurer une sauvegarde automatique quotidienne.",
+    "Créer un point de restauration hebdomadaire.",
+    "Tester la récupération d'un dossier complet.",
+    "Documenter la procédure de restauration en 1 page."
+  ],
+  "focus-routine": [
+    "Définir 3 priorités hebdo maximum.",
+    "Planifier des blocs focus de 60 à 90 minutes.",
+    "Regrouper l'administratif sur des créneaux dédiés.",
+    "Fixer une revue hebdo de 20 minutes.",
+    "Supprimer les tâches sans livrable explicite.",
+    "Mesurer la progression par sorties, pas par heures."
+  ],
+  administratif: [
+    "Lister toutes les démarches actives avec dates limites.",
+    "Associer chaque dossier à une source officielle.",
+    "Créer un dossier de preuves (PDF + captures).",
+    "Définir l'ordre d'exécution des démarches critiques.",
+    "Programmer un contrôle hebdo des échéances.",
+    "Préparer un email type pour demandes de clarification."
+  ]
+};
+
+const fallbackChecklist = [
+  "Vérifier les besoins réels avant installation.",
+  "Tester sur un cas simple de 30 minutes.",
+  "Valider l'export des données.",
+  "Documenter la configuration minimale.",
+  "Programmer une revue à J+14."
+];
+
+const alternatives = resource.freeAlternativeKeys
+  .map((key) => resourceByKey.get(key))
+  .filter((entry): entry is ResourceEntry => Boolean(entry))
+  .slice(0, 2);
+
+if (alternatives.length === 0) {
+  const fallback = resourcesCatalog
+    .filter((entry) => entry.key !== resource.key && getResourceObjectiveKey(entry) === objectiveKey)
+    .slice(0, 2);
+  alternatives.push(...fallback);
+}
+
+const pitfalls = pitfallsByObjective[objectiveKey] ?? [];
+const setupChecklist = setupChecklistByObjective[objectiveKey] ?? fallbackChecklist;
+const whoItsFor = whoItsForByObjective[objectiveKey] ?? "Doctorant·es qui veulent un système plus stable et vérifiable.";
+---
+
+<BaseLayout
+  canonicalPath={`/outils/${resource.key}/`}
+  title={`${resource.name} | Fiche outil doctorat`}
+  description={`${resource.name}: fiche pratique pour doctorat avec critères, pièges, setup et alternatives gratuites.`}
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs
+        items={[
+          { label: "Accueil", href: "/" },
+          { label: "Outils", href: "/outils/" },
+          { label: resource.name }
+        ]}
+      />
+      <p class="eyebrow">Fiche outil</p>
+      <h1>{resource.name}</h1>
+      <p>{resource.description}</p>
+      <p class="small muted">
+        Objectif: {objective?.label ?? "Support doctorat"} · Tarification: {resource.pricingNote}
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid two-cols">
+      <article class="surface block">
+        <h2>Pour qui</h2>
+        <p>{whoItsFor}</p>
+
+        <h2>Pourquoi recommandé</h2>
+        <ul>
+          {resource.whyRecommended.map((item) => <li>{item}</li>)}
+        </ul>
+
+        <h2>Critères utilisés</h2>
+        <ul>
+          {resource.criteriaUsed.map((item) => <li>{item}</li>)}
+        </ul>
+      </article>
+
+      <article class="surface block">
+        <h2>Pièges fréquents</h2>
+        <ul>
+          {pitfalls.map((item) => <li>{item}</li>)}
+        </ul>
+
+        <h2>Checklist de setup</h2>
+        <ol>
+          {setupChecklist.slice(0, 10).map((item) => <li>{item}</li>)}
+        </ol>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid two-cols">
+      <article class="surface block">
+        <h2>Alternatives gratuites</h2>
+        {
+          alternatives.length > 0 ? (
+            <ul>
+              {
+                alternatives.map((entry) => (
+                  <li>
+                    <a href={withBase(`/outils/${entry.key}/`)}>{entry.name}</a> — {entry.pricingNote}
+                  </li>
+                ))
+              }
+            </ul>
+          ) : (
+            <p>Aucune alternative directe documentée pour l'instant.</p>
+          )
+        }
+      </article>
+
+      <article class="surface block disclosure-block">
+        <h2>Transparence</h2>
+        <p>
+          Le bouton ci-dessous utilise une redirection interne `/out/[key]/` pour suivre les clics sortants. Cela ne modifie
+          pas le prix du service. L'ordre des recommandations reste éditorial et révisable.
+        </p>
+        <a class="button button-primary" href={getResourceOutboundPath(resource.key)} rel="nofollow sponsored">
+          Ouvrir {resource.name}
+        </a>
+        <a class="button button-secondary" href={withBase("/legal/affiliation/")}>Politique d'affiliation</a>
+      </article>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .two-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .block {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .block ul,
+  .block ol {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text-soft);
+  }
+
+  .block a {
+    text-decoration: none;
+  }
+
+  .block a:hover {
+    text-decoration: underline;
+  }
+
+  .disclosure-block {
+    background: #faf5ee;
+    border: 1px solid #e0c39c;
+  }
+
+  @media (max-width: 980px) {
+    .two-cols {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

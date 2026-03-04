@@ -1,0 +1,228 @@
+---
+import { getCollection } from "astro:content";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import { communityUrl, isConfiguredExternalUrl, youtubeUrl } from "../../config/identity";
+import { withBase } from "../../lib/links";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const articles = (await getCollection("articles", ({ data }) => data.lang === "fr")).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+
+const tags = [...new Set(articles.flatMap((article) => article.data.tags))].sort((a, b) => a.localeCompare(b, "fr"));
+
+const serializedArticles = articles.map((article) => ({
+  slug: article.slug,
+  title: article.data.title,
+  summary: article.data.summary,
+  status: article.data.status,
+  date: article.data.date.toISOString(),
+  tags: article.data.tags
+}));
+
+const baseUrl = withBase("/");
+const youtubeCta = isConfiguredExternalUrl(youtubeUrl) ? youtubeUrl : withBase("/contact/");
+const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : withBase("/contact/");
+---
+
+<BaseLayout
+  canonicalPath="/articles/"
+  title="Articles | Thésard Au Calme"
+  description="Articles approfondis orientés exécution pour doctorat en France: checklists, comparatifs, scripts vidéo et méthodes testables."
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Articles" }]} />
+      <p class="eyebrow">Articles</p>
+      <h1>Bibliothèque éditoriale orientée vidéo</h1>
+      <p>
+        Ces articles servent à la fois de guides autonomes et de base de script pour les prochaines vidéos. Format: 80% checklists,
+        20% exemples concrets.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface article-filters">
+      <label for="article-search">Rechercher un article</label>
+      <input id="article-search" type="search" placeholder="ex: zotero, soutenance, procrastination, sauvegarde" />
+
+      <p class="small muted">Filtrer par tag</p>
+      <div class="tag-row" id="article-tags">
+        <button class="filter-chip is-active" type="button" data-tag="all">Tous</button>
+        {tags.map((tag) => <button class="filter-chip" type="button" data-tag={tag}>{tag}</button>)}
+      </div>
+
+      <p id="article-status" class="small muted">{articles.length} article(s) disponibles.</p>
+      <div id="article-results" class="grid cards-grid"></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface article-cta">
+      <h2>Suivre les prochaines publications vidéo</h2>
+      <p>
+        Les articles marqués "coming soon" sont prêts en version texte. La version vidéo est publiée ensuite sur la chaîne.
+      </p>
+      <div class="actions">
+        <a class="button button-secondary" href={youtubeCta} target={isConfiguredExternalUrl(youtubeCta) ? "_blank" : undefined} rel={isConfiguredExternalUrl(youtubeCta) ? "noopener nofollow" : undefined}>Chaîne YouTube</a>
+        <a class="button button-secondary" href={communityCta} target={isConfiguredExternalUrl(communityCta) ? "_blank" : undefined} rel={isConfiguredExternalUrl(communityCta) ? "noopener nofollow" : undefined}>Communauté</a>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline define:vars={{ serializedArticles, baseUrl }}>
+    const searchInput = document.getElementById("article-search");
+    const statusNode = document.getElementById("article-status");
+    const resultsNode = document.getElementById("article-results");
+    const tagButtons = Array.from(document.querySelectorAll("#article-tags [data-tag]"));
+
+    const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+
+    const toBasePath = (path) => `${normalizedBase}${String(path).replace(/^\/+/, "")}`;
+
+    const articles = serializedArticles.map((entry) => ({
+      ...entry,
+      path: toBasePath(`/articles/${entry.slug}/`)
+    }));
+
+    let selectedTag = "all";
+
+    const normalize = (value) =>
+      String(value)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+
+    const formatDate = (isoDate) =>
+      new Date(isoDate).toLocaleDateString("fr-FR", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric"
+      });
+
+    const renderCard = (entry) => {
+      const article = document.createElement("article");
+      article.className = "card article-card";
+      const statusLabel = entry.status === "published" ? "Publié" : "Coming soon";
+      const tags = entry.tags.map((tag) => `#${tag}`).join(" · ");
+
+      article.innerHTML = `
+        <p class="small muted">${formatDate(entry.date)} · ${statusLabel}</p>
+        <h3><a href="${entry.path}">${entry.title}</a></h3>
+        <p>${entry.summary}</p>
+        <p class="small muted">${tags}</p>
+      `;
+
+      return article;
+    };
+
+    const refreshResults = () => {
+      const query = normalize(searchInput.value || "");
+      const terms = query.length > 0 ? query.split(/\s+/).filter(Boolean) : [];
+
+      const filtered = articles.filter((entry) => {
+        if (selectedTag !== "all" && !entry.tags.includes(selectedTag)) {
+          return false;
+        }
+
+        if (terms.length === 0) {
+          return true;
+        }
+
+        const haystack = normalize(`${entry.title} ${entry.summary} ${entry.tags.join(" ")}`);
+        return terms.every((term) => haystack.includes(term));
+      });
+
+      resultsNode.innerHTML = "";
+      filtered.forEach((entry) => resultsNode.appendChild(renderCard(entry)));
+      statusNode.textContent = `${filtered.length} résultat(s).`;
+    };
+
+    tagButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        selectedTag = button.dataset.tag;
+        tagButtons.forEach((item) => item.classList.toggle("is-active", item.dataset.tag === selectedTag));
+        refreshResults();
+      });
+    });
+
+    searchInput.addEventListener("input", refreshResults);
+    refreshResults();
+  </script>
+</BaseLayout>
+
+<style>
+  .article-filters {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .article-filters input {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.72rem 0.8rem;
+    font: inherit;
+    background: #fff;
+  }
+
+  .tag-row {
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-chip {
+    border: 1px solid var(--border);
+    background: #fff;
+    border-radius: 999px;
+    padding: 0.28rem 0.72rem;
+    color: var(--text-soft);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.86rem;
+  }
+
+  .filter-chip.is-active {
+    background: #efebe2;
+    color: var(--text);
+    border-color: #bcb4a6;
+  }
+
+  .cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .article-card {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .article-card h3 {
+    margin: 0;
+  }
+
+  .article-card a {
+    text-decoration: none;
+  }
+
+  .article-cta {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 960px) {
+    .cards-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -4,6 +4,7 @@ import mascot from "../assets/brand/mascot.svg";
 import CtaBlock from "../components/CtaBlock.astro";
 import GuideCard from "../components/GuideCard.astro";
 import VideoCard from "../components/VideoCard.astro";
+import { communityUrl, isConfiguredExternalUrl, youtubeUrl } from "../config/identity";
 import { brandDisplayName, brandTagline, getCanonicalUrl } from "../config/site";
 import { withBase } from "../lib/links";
 import { resourcesCatalog } from "../lib/resources";
@@ -17,9 +18,17 @@ const guides = (await getCollection("guides", ({ data }) => data.lang === "fr"))
   (a, b) => b.data.date.getTime() - a.data.date.getTime()
 );
 
+const articles = (await getCollection("articles", ({ data }) => data.lang === "fr")).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+
 const featuredVideos = videos.slice(0, 3);
 const featuredGuides = guides.slice(0, 2);
+const featuredArticles = articles.slice(0, 3);
 const featuredResources = resourcesCatalog.slice(0, 4);
+
+const youtubeCta = isConfiguredExternalUrl(youtubeUrl) ? youtubeUrl : withBase("/contact/");
+const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : withBase("/contact/");
 
 const structuredData = {
   "@context": "https://schema.org",
@@ -92,6 +101,29 @@ const structuredData = {
   </section>
 
   <section class="section">
+    <div class="container surface article-preview">
+      <p class="eyebrow">Articles vidéo-ready</p>
+      <h2>Script d'abord, vidéo ensuite</h2>
+      <p>
+        Les nouveaux articles servent de base script pour les prochaines vidéos. Chaque publication contient des checklists
+        et des exemples directement réutilisables.
+      </p>
+      <div class="grid cards-3">
+        {
+          featuredArticles.map((article) => (
+            <article class="card article-card">
+              <p class="small muted">{article.data.status === "published" ? "Publié" : "Coming soon"}</p>
+              <h3><a href={withBase(`/articles/${article.slug}/`)}>{article.data.title}</a></h3>
+              <p>{article.data.summary}</p>
+            </article>
+          ))
+        }
+      </div>
+      <a class="button button-secondary" href={withBase("/articles/")}>Voir tous les articles</a>
+    </div>
+  </section>
+
+  <section class="section">
     <div class="container resources-preview surface">
       <div>
         <p class="eyebrow">Ressources sélectionnées</p>
@@ -101,6 +133,19 @@ const structuredData = {
         {featuredResources.map((resource) => <li><a href={withBase(`/ressources/#${resource.key}`)}>{resource.name}</a></li>)}
       </ul>
       <a class="button button-secondary" href={withBase("/ressources/")}>Explorer toutes les ressources</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface community-cta">
+      <h2>Chaîne + communauté</h2>
+      <p>
+        Pour garder la cadence: contenus YouTube no-face, défis hebdo et retours d\'exécution en communauté.
+      </p>
+      <div class="hero-actions">
+        <a class="button button-secondary" href={youtubeCta} target={isConfiguredExternalUrl(youtubeCta) ? "_blank" : undefined} rel={isConfiguredExternalUrl(youtubeCta) ? "noopener nofollow" : undefined}>Chaîne YouTube</a>
+        <a class="button button-secondary" href={communityCta} target={isConfiguredExternalUrl(communityCta) ? "_blank" : undefined} rel={isConfiguredExternalUrl(communityCta) ? "noopener nofollow" : undefined}>Rejoindre la communauté</a>
+      </div>
     </div>
   </section>
 
@@ -159,6 +204,31 @@ const structuredData = {
     padding: 1.4rem;
   }
 
+  .article-preview {
+    display: grid;
+    gap: 0.7rem;
+    padding: 1.4rem;
+  }
+
+  .article-card {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .article-card h3 {
+    margin: 0;
+  }
+
+  .article-card a {
+    text-decoration: none;
+  }
+
+  .community-cta {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.55rem;
+  }
+
   .resources-preview ul {
     margin: 0;
     padding-left: 1.1rem;
@@ -170,7 +240,8 @@ const structuredData = {
     text-decoration: none;
   }
 
-  .resources-preview a:hover {
+  .resources-preview a:hover,
+  .article-card a:hover {
     text-decoration: underline;
   }
 

@@ -59,6 +59,6 @@ Le site propose un cadre de choix, pas une injonction d'achat. La décision fina
 
 Pour signaler un conflit d'intérêt, une incohérence de recommandation ou une erreur factuelle:
 
-- écrire à **yoranrd@gmail.com**,
+- ouvrir la page [Contact](../../contact/),
 - indiquer la page concernée,
 - joindre la source ou l'argument utile à la correction.

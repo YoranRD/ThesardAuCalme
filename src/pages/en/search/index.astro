@@ -10,7 +10,7 @@ const baseUrl = withBase("/");
 <BaseLayout
   canonicalPath="/en/search/"
   title="Search | Thésard Au Calme"
-  description="Quick search across guides, videos, and editorial pages for doctoral workflows in France."
+  description="Quick search across guides, videos, editorial pages, and articles for doctoral workflows in France."
   lang="en"
 >
   <section class="section">
@@ -19,7 +19,7 @@ const baseUrl = withBase("/");
       <p class="eyebrow">Search</p>
       <h1>Find the right page in seconds</h1>
       <p>
-        This lightweight search runs on a static JSON index and covers guides, videos, and editorial pages.
+        This lightweight search runs on a static JSON index and covers guides, videos, editorial pages, and articles.
       </p>
     </div>
   </section>
@@ -36,6 +36,7 @@ const baseUrl = withBase("/");
             <button type="button" class="filter-chip is-active" data-filter="type" data-value="guide">Guides</button>
             <button type="button" class="filter-chip is-active" data-filter="type" data-value="video">Videos</button>
             <button type="button" class="filter-chip is-active" data-filter="type" data-value="page">Pages</button>
+            <button type="button" class="filter-chip is-active" data-filter="type" data-value="article">Articles</button>
           </div>
         </div>
 
@@ -97,10 +98,11 @@ const baseUrl = withBase("/");
     const typeLabel = {
       guide: "Guide",
       video: "Video",
-      page: "Page"
+      page: "Page",
+      article: "Article"
     };
 
-    const selectedTypes = new Set(["guide", "video", "page"]);
+    const selectedTypes = new Set(["guide", "video", "page", "article"]);
     const selectedLangs = new Set(["en"]);
 
     const syncButtons = (buttons, selectedSet) => {
@@ -215,6 +217,23 @@ const baseUrl = withBase("/");
       });
 
     searchInput.addEventListener("input", applySearch);
+
+    document.addEventListener("keydown", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
+
+      const isTypingContext =
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable;
+
+      if (!isTypingContext && event.key === "/") {
+        event.preventDefault();
+        searchInput.focus();
+      }
+    });
   </script>
 </BaseLayout>
 

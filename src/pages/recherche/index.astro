@@ -10,7 +10,7 @@ const baseUrl = withBase("/");
 <BaseLayout
   canonicalPath="/recherche/"
   title="Recherche | Thésard Au Calme"
-  description="Recherche rapide dans les guides, vidéos et pages éditoriales du site: titres, résumés et tags pour trouver une réponse immédiatement."
+  description="Recherche rapide dans les guides, vidéos, pages éditoriales et articles du site: titres, résumés et tags pour trouver une réponse immédiatement."
 >
   <section class="section">
     <div class="container prose">
@@ -18,7 +18,7 @@ const baseUrl = withBase("/");
       <p class="eyebrow">Recherche</p>
       <h1>Trouver rapidement le bon contenu</h1>
       <p>
-        Cette recherche locale couvre les guides, les fiches vidéos et les pages éditoriales. Elle fonctionne sans backend
+        Cette recherche locale couvre les guides, les fiches vidéos, les pages éditoriales et les articles. Elle fonctionne sans backend
         et reste légère pour un usage mobile.
       </p>
     </div>
@@ -36,6 +36,7 @@ const baseUrl = withBase("/");
             <button type="button" class="filter-chip is-active" data-filter="type" data-value="guide">Guides</button>
             <button type="button" class="filter-chip is-active" data-filter="type" data-value="video">Vidéos</button>
             <button type="button" class="filter-chip is-active" data-filter="type" data-value="page">Pages</button>
+            <button type="button" class="filter-chip is-active" data-filter="type" data-value="article">Articles</button>
           </div>
         </div>
 
@@ -97,10 +98,11 @@ const baseUrl = withBase("/");
     const typeLabel = {
       guide: "Guide",
       video: "Vidéo",
-      page: "Page"
+      page: "Page",
+      article: "Article"
     };
 
-    const selectedTypes = new Set(["guide", "video", "page"]);
+    const selectedTypes = new Set(["guide", "video", "page", "article"]);
     const selectedLangs = new Set(["fr"]);
 
     const syncButtons = (buttons, selectedSet) => {
@@ -215,6 +217,23 @@ const baseUrl = withBase("/");
       });
 
     searchInput.addEventListener("input", applySearch);
+
+    document.addEventListener("keydown", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
+
+      const isTypingContext =
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable;
+
+      if (!isTypingContext && event.key === "/") {
+        event.preventDefault();
+        searchInput.focus();
+      }
+    });
   </script>
 </BaseLayout>
 

@@ -1,0 +1,101 @@
+---
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import { communityUrl, isConfiguredExternalUrl } from "../../config/identity";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { withBase } from "../../lib/links";
+
+const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : withBase("/contact/");
+const communityTarget = isConfiguredExternalUrl(communityUrl) ? "_blank" : undefined;
+const communityRel = isConfiguredExternalUrl(communityUrl) ? "noopener nofollow" : undefined;
+---
+
+<BaseLayout
+  canonicalPath="/communaute/"
+  title="Communauté doctorat | Thésard Au Calme"
+  description="Hub communauté Thésard Au Calme: rejoindre, défis hebdomadaires, règles de travail et cadre d'entraide orienté exécution."
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Communauté" }]} />
+      <p class="eyebrow">Communauté</p>
+      <h1>Construire une traction collective, sans bruit</h1>
+      <p>
+        Cette communauté est pensée pour les doctorant·es qui veulent avancer régulièrement. Le but n'est pas de collectionner
+        des discussions générales, mais de convertir des objectifs flous en actions vérifiables: lire, écrire, clarifier,
+        livrer.
+      </p>
+      <p>
+        Le cadre repose sur une idée simple: chaque membre publie des engagements réalistes, documente ses blocages et repart
+        avec une prochaine action claire. L'entraide se fait sur des situations concrètes, pas sur des injonctions vagues.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface block">
+      <h2>Start here en 3 étapes</h2>
+      <ol>
+        <li>Lire les <a href={withBase("/communaute/regles/")}>règles</a> et vérifier l'alignement avec la posture attendue.</li>
+        <li>Passer par la page <a href={withBase("/communaute/rejoindre/")}>Rejoindre</a> pour comprendre le fonctionnement.</li>
+        <li>Choisir un <a href={withBase("/communaute/defis/")}>défi hebdomadaire</a> et publier un engagement mesurable.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface block">
+      <h2>Ce que la communauté apporte</h2>
+      <ul>
+        <li>Un cadre d'exécution hebdomadaire compatible avec la réalité d'une thèse.</li>
+        <li>Des retours pratiques sur rédaction, bibliographie, organisation et démarches admin.</li>
+        <li>Un espace de suivi collectif pour éviter l'isolement opérationnel.</li>
+        <li>Des ressources prêtes à l'emploi: checklists, templates, retours d'expérience.</li>
+      </ul>
+
+      <h2>Checklist de démarrage</h2>
+      <ul>
+        <li>Définir une priorité scientifique pour les 7 prochains jours.</li>
+        <li>Définir un livrable minimal (ex: 500 mots, 10 références nettoyées, 1 dossier admin clos).</li>
+        <li>Lister un blocage principal et la question associée.</li>
+        <li>Bloquer 3 créneaux de travail profond dans l'agenda.</li>
+      </ul>
+
+      <a class="button button-primary" href={communityCta} target={communityTarget} rel={communityRel}>Rejoindre la communauté</a>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container surface block">
+      <h2>Ce qui est attendu la première semaine</h2>
+      <p>La première semaine n'a pas pour objectif de tout résoudre. Elle sert à poser un rythme réaliste: un engagement public, un livrable court, un retour structuré. Cette logique réduit la pression et augmente la probabilité de continuité. Le critère de succès n'est pas la quantité de messages publiés, mais la clarté des actions exécutées.</p>
+      <ul>
+        <li>Publier un objectif hebdo mesurable.</li>
+        <li>Partager un blocage prioritaire avec contexte.</li>
+        <li>Produire un bilan de fin de semaine.</li>
+      </ul>
+      <a class="button button-secondary" href={withBase("/communaute/rejoindre/")}>Voir le parcours rejoindre</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .block {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .block ul,
+  .block ol {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text-soft);
+  }
+
+  .block a {
+    text-decoration: none;
+  }
+
+  .block a:hover {
+    text-decoration: underline;
+  }
+</style>

@@ -2,7 +2,7 @@ import { getCollection } from "astro:content";
 import { assertPageRoutesAreUnique } from "../lib/pages";
 
 interface SearchEntry {
-  type: "guide" | "video" | "page";
+  type: "guide" | "video" | "page" | "article";
   lang: "fr" | "en";
   title: string;
   summary: string;
@@ -21,6 +21,7 @@ export async function GET() {
   const guides = await getCollection("guides");
   const videos = await getCollection("videos");
   const pages = await getCollection("pages");
+  const articles = await getCollection("articles");
 
   assertPageRoutesAreUnique(pages);
 
@@ -53,7 +54,17 @@ export async function GET() {
     path: page.data.route
   }));
 
-  const payload = [...guideEntries, ...videoEntries, ...pageEntries].sort(byMostRecent);
+  const articleEntries: SearchEntry[] = articles.map((article) => ({
+    type: "article",
+    lang: article.data.lang,
+    title: article.data.title,
+    summary: article.data.summary,
+    tags: article.data.tags,
+    date: article.data.date.toISOString(),
+    path: `/articles/${article.slug}/`
+  }));
+
+  const payload = [...guideEntries, ...videoEntries, ...pageEntries, ...articleEntries].sort(byMostRecent);
 
   return new Response(JSON.stringify(payload), {
     headers: {

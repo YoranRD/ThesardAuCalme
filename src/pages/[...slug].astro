@@ -1,6 +1,7 @@
 ---
 import { getCollection, render, type CollectionEntry } from "astro:content";
 import Breadcrumbs from "../components/Breadcrumbs.astro";
+import TableOfContents from "../components/TableOfContents.astro";
 import TagList from "../components/TagList.astro";
 import { brandDisplayName } from "../config/site";
 import BaseLayout from "../layouts/BaseLayout.astro";
@@ -48,7 +49,11 @@ const labelOverrides = new Map<string, string>([
   ["legal", "Légal"],
   ["mentions-legales", "Mentions légales"],
   ["confidentialite", "Confidentialité"],
-  ["affiliation", "Affiliation"]
+  ["affiliation", "Affiliation"],
+  ["communaute", "Communauté"],
+  ["defis", "Défis"],
+  ["regles", "Règles"],
+  ["rejoindre", "Rejoindre"]
 ]);
 
 const formatSegmentLabel = (segment: string): string => {
@@ -65,7 +70,7 @@ const formatSegmentLabel = (segment: string): string => {
 };
 
 const { page } = Astro.props;
-const { Content } = await render(page);
+const { Content, headings } = await render(page);
 
 const isFrench = page.data.lang === "fr";
 const pageLang = isFrench ? "fr" : "en";
@@ -110,6 +115,16 @@ for (let i = 0; i < visibleIndexes.length; i += 1) {
     </div>
   </section>
 
+  {
+    headings.length > 0 && (
+      <section class="section toc-section">
+        <div class="container toc-wrap">
+          <TableOfContents headings={headings} title={isFrench ? "Sommaire" : "Contents"} />
+        </div>
+      </section>
+    )
+  }
+
   <section class="section">
     <article class="container surface page-body prose">
       <Content />
@@ -120,5 +135,13 @@ for (let i = 0; i < visibleIndexes.length; i += 1) {
 <style>
   .page-body {
     padding: clamp(1.2rem, 3vw, 2.2rem);
+  }
+
+  .toc-section {
+    padding-top: 0;
+  }
+
+  .toc-wrap {
+    max-width: 75ch;
   }
 </style>

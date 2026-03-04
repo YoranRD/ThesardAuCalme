@@ -1,6 +1,7 @@
 ---
 import { getCollection, render, type CollectionEntry } from "astro:content";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import TableOfContents from "../../components/TableOfContents.astro";
 import TagList from "../../components/TagList.astro";
 import { brandDisplayName } from "../../config/site";
 import { seriesByKey } from "../../data/series";
@@ -21,7 +22,7 @@ interface Props {
 }
 
 const { guide } = Astro.props;
-const { Content } = await render(guide);
+const { Content, headings } = await render(guide);
 
 const isFrench = guide.data.lang === "fr";
 const pageLang = isFrench ? "fr" : "en";
@@ -73,6 +74,16 @@ const seriesDefinition = guide.data.series ? seriesByKey.get(guide.data.series) 
       <TagList tags={guide.data.tags} />
     </div>
   </section>
+
+  {
+    headings.length > 0 && (
+      <section class="section toc-section">
+        <div class="container toc-wrap">
+          <TableOfContents headings={headings} title={isFrench ? "Sommaire du guide" : "Guide outline"} />
+        </div>
+      </section>
+    )
+  }
 
   <section class="section">
     <article class="container surface guide-body prose">
@@ -144,6 +155,14 @@ const seriesDefinition = guide.data.series ? seriesByKey.get(guide.data.series) 
 <style>
   .guide-body {
     padding: clamp(1.2rem, 3vw, 2.1rem);
+  }
+
+  .toc-section {
+    padding-top: 0;
+  }
+
+  .toc-wrap {
+    max-width: 75ch;
   }
 
   .related-grid {

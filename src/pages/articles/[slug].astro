@@ -1,0 +1,300 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import TableOfContents from "../../components/TableOfContents.astro";
+import TagList from "../../components/TagList.astro";
+import { contactEmail, isConfiguredExternalUrl, youtubeUrl } from "../../config/identity";
+import { brandDisplayName } from "../../config/site";
+import {
+  getRelatedArticles,
+  getRelatedGuidesForArticle,
+  getRelatedVideosForArticle
+} from "../../lib/content-relations";
+import { withBase } from "../../lib/links";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const articles = await getCollection("articles");
+  return articles.map((article) => ({
+    params: { slug: article.slug },
+    props: { article }
+  }));
+}
+
+interface Props {
+  article: CollectionEntry<"articles">;
+}
+
+const { article } = Astro.props;
+const { Content, headings } = await render(article);
+
+const isFrench = article.data.lang === "fr";
+const locale = isFrench ? "fr-FR" : "en-US";
+const publicationDate = article.data.date.toLocaleDateString(locale, {
+  day: "2-digit",
+  month: "long",
+  year: "numeric"
+});
+
+const allArticles = await getCollection("articles", ({ data }) => data.lang === article.data.lang);
+const allGuides = await getCollection("guides", ({ data }) => data.lang === article.data.lang);
+const allVideos = await getCollection("videos", ({ data }) => data.lang === article.data.lang);
+
+const relatedArticles = getRelatedArticles(
+  article,
+  allArticles.filter((entry) => entry.slug !== article.slug),
+  3
+);
+
+const relatedGuides = getRelatedGuidesForArticle(article, allGuides, 3);
+const relatedVideos = getRelatedVideosForArticle(article, allVideos, 3);
+
+const linkedVideo = article.data.linkedVideoSlug
+  ? allVideos.find((video) => video.slug === article.data.linkedVideoSlug)
+  : undefined;
+
+const canLinkYoutube = isConfiguredExternalUrl(youtubeUrl);
+const youtubeButtonHref = canLinkYoutube ? youtubeUrl : withBase("/contact/");
+
+const tocHeadings = headings.filter((heading) => heading.depth >= 2 && heading.depth <= 3);
+const outlineItems =
+  tocHeadings.length >= 5
+    ? tocHeadings.slice(0, 5).map((heading) => heading.text)
+    : [
+        ...tocHeadings.map((heading) => heading.text),
+        ...article.data.tags
+          .slice(0, Math.max(0, 5 - tocHeadings.length))
+          .map((tag) => `Point clé: ${tag}`)
+      ].slice(0, 5);
+
+const hookLines = [
+  `${article.data.title}: la version exécutable, sans surcharge de théorie.`,
+  "Objectif: sortir avec une checklist claire et une action faisable aujourd'hui."
+];
+
+const ctaLine = canLinkYoutube
+  ? "CTA: pour la version vidéo dès publication, s'abonner à la chaîne YouTube puis appliquer la checklist en 30 minutes."
+  : `CTA: pour la version vidéo dès publication, écrire à ${contactEmail} et demander la notification.`;
+---
+
+<BaseLayout
+  canonicalPath={`/articles/${article.slug}/`}
+  title={`${article.data.title} | ${brandDisplayName}`}
+  description={article.data.summary}
+  type="article"
+  lang={article.data.lang}
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs
+        items={[
+          { label: isFrench ? "Accueil" : "Home", href: isFrench ? "/" : "/en/" },
+          { label: isFrench ? "Articles" : "Articles", href: "/articles/" },
+          { label: article.data.title }
+        ]}
+      />
+      <p class="eyebrow">{isFrench ? "Article" : "Article"}</p>
+      <h1>{article.data.title}</h1>
+      <p class="small muted">
+        {publicationDate} · {article.data.status === "published" ? (isFrench ? "Publié" : "Published") : "Coming soon"}
+      </p>
+      <p>{article.data.summary}</p>
+      <TagList tags={article.data.tags} />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface video-block">
+      <h2>{isFrench ? "Bloc vidéo" : "Video block"}</h2>
+      {
+        article.data.youtubeId ? (
+          <>
+            <iframe
+              src={`https://www.youtube-nocookie.com/embed/${article.data.youtubeId}`}
+              title={article.data.title}
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+            />
+            <a
+              class="button button-secondary"
+              href={`https://www.youtube.com/watch?v=${article.data.youtubeId}`}
+              target="_blank"
+              rel="noopener nofollow"
+            >
+              {isFrench ? "Voir la vidéo" : "Watch video"}
+            </a>
+          </>
+        ) : (
+          <>
+            <p class="small muted">{isFrench ? "Vidéo à venir" : "Video coming soon"}</p>
+            <a
+              class="button button-secondary"
+              href={youtubeButtonHref}
+              target={canLinkYoutube ? "_blank" : undefined}
+              rel={canLinkYoutube ? "noopener nofollow" : undefined}
+            >
+              {isFrench ? "S’abonner sur YouTube" : "Subscribe on YouTube"}
+            </a>
+            {
+              linkedVideo && (
+                <p class="small muted">
+                  {isFrench ? "Vidéo liée déjà disponible:" : "Related video already available:"} <a href={withBase(`/videos/${linkedVideo.slug}/`)}>{linkedVideo.data.title}</a>
+                </p>
+              )
+            }
+          </>
+        )
+      }
+    </div>
+  </section>
+
+  {
+    tocHeadings.length >= 4 && (
+      <section class="section toc-section">
+        <div class="container toc-wrap">
+          <TableOfContents headings={tocHeadings} title={isFrench ? "Sommaire de l’article" : "Article outline"} />
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section">
+    <article class="container surface article-body prose">
+      <Content />
+    </article>
+  </section>
+
+  <section class="section">
+    <div class="container surface script-block">
+      <h2>{isFrench ? "Bloc script YouTube (copier-coller)" : "YouTube script block"}</h2>
+      <h3>{isFrench ? "Hook (2 lignes)" : "Hook (2 lines)"}</h3>
+      <pre>{hookLines.join("\n")}</pre>
+      <h3>{isFrench ? "Outline (5 points)" : "Outline (5 bullets)"}</h3>
+      <ul>
+        {outlineItems.map((item) => <li>{item}</li>)}
+      </ul>
+      <h3>CTA</h3>
+      <pre>{ctaLine}</pre>
+    </div>
+  </section>
+
+  {(relatedArticles.length > 0 || relatedGuides.length > 0 || relatedVideos.length > 0) && (
+    <section class="section">
+      <div class="container grid related-grid">
+        {
+          relatedArticles.length > 0 && (
+            <article class="surface related-block">
+              <h2>{isFrench ? "Articles liés" : "Related articles"}</h2>
+              <ul>
+                {relatedArticles.map((entry) => <li><a href={withBase(`/articles/${entry.slug}/`)}>{entry.data.title}</a></li>)}
+              </ul>
+            </article>
+          )
+        }
+
+        {
+          relatedGuides.length > 0 && (
+            <article class="surface related-block">
+              <h2>{isFrench ? "Guides liés" : "Related guides"}</h2>
+              <ul>
+                {relatedGuides.map((entry) => <li><a href={withBase(`/guides/${entry.slug}/`)}>{entry.data.title}</a></li>)}
+              </ul>
+            </article>
+          )
+        }
+
+        {
+          relatedVideos.length > 0 && (
+            <article class="surface related-block">
+              <h2>{isFrench ? "Vidéos liées" : "Related videos"}</h2>
+              <ul>
+                {relatedVideos.map((entry) => <li><a href={withBase(`/videos/${entry.slug}/`)}>{entry.data.title}</a></li>)}
+              </ul>
+            </article>
+          )
+        }
+      </div>
+    </section>
+  )}
+</BaseLayout>
+
+<style>
+  .video-block {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .video-block iframe {
+    width: 100%;
+    min-height: clamp(220px, 45vw, 520px);
+    border: 0;
+    border-radius: 10px;
+  }
+
+  .toc-section {
+    padding-top: 0;
+  }
+
+  .toc-wrap {
+    max-width: 75ch;
+  }
+
+  .article-body {
+    padding: clamp(1.2rem, 3vw, 2.2rem);
+  }
+
+  .script-block {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .script-block pre {
+    margin: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    padding: 0.7rem;
+    white-space: pre-wrap;
+    font: inherit;
+    color: var(--text-soft);
+  }
+
+  .script-block ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--text-soft);
+  }
+
+  .related-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .related-block {
+    padding: 1rem;
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  .related-block ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--text-soft);
+  }
+
+  .related-block a {
+    text-decoration: none;
+  }
+
+  .related-block a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 980px) {
+    .related-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

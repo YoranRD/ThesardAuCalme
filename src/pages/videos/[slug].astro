@@ -1,6 +1,7 @@
 ---
 import { getCollection, render, type CollectionEntry } from "astro:content";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import TableOfContents from "../../components/TableOfContents.astro";
 import TagList from "../../components/TagList.astro";
 import { brandDisplayName } from "../../config/site";
 import { seriesByKey } from "../../data/series";
@@ -23,7 +24,7 @@ interface Props {
 }
 
 const { video } = Astro.props;
-const { Content } = await render(video);
+const { Content, headings } = await render(video);
 
 const isFrench = video.data.lang === "fr";
 const pageLang = isFrench ? "fr" : "en";
@@ -129,6 +130,7 @@ const videoStructuredData = {
     <div class="container grid two-columns">
       <article class="surface block prose">
         <h2>{isFrench ? "Résumé détaillé" : "Detailed summary"}</h2>
+        <TableOfContents headings={headings} title={isFrench ? "Sommaire" : "Outline"} />
         <Content />
       </article>
 

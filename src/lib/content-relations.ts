@@ -2,6 +2,7 @@ import type { CollectionEntry } from "astro:content";
 
 export type GuideEntry = CollectionEntry<"guides">;
 export type VideoEntry = CollectionEntry<"videos">;
+export type ArticleEntry = CollectionEntry<"articles">;
 
 export interface SeriesRenderableItem {
   kind: "guide" | "video";
@@ -14,7 +15,7 @@ export interface SeriesRenderableItem {
   path: string;
 }
 
-const computeSharedTagScore = (baseTags: string[], candidateTags: string[]): number => {
+export const computeSharedTagScore = (baseTags: string[], candidateTags: string[]): number => {
   const baseSet = new Set(baseTags.map((tag) => tag.toLowerCase()));
   let score = 0;
 
@@ -48,6 +49,54 @@ export const getRelatedVideosForGuide = (guide: GuideEntry, videos: VideoEntry[]
     .map((video) => ({
       video,
       score: computeSharedTagScore(guide.data.tags, video.data.tags)
+    }))
+    .filter((entry) => entry.score > 0)
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        b.video.data.date.getTime() - a.video.data.date.getTime() ||
+        a.video.data.title.localeCompare(b.video.data.title, "fr")
+    )
+    .slice(0, limit)
+    .map((entry) => entry.video);
+
+export const getRelatedArticles = (article: ArticleEntry, articles: ArticleEntry[], limit = 3): ArticleEntry[] =>
+  articles
+    .map((candidate) => ({
+      candidate,
+      score: computeSharedTagScore(article.data.tags, candidate.data.tags)
+    }))
+    .filter((entry) => entry.score > 0)
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        b.candidate.data.date.getTime() - a.candidate.data.date.getTime() ||
+        a.candidate.data.title.localeCompare(b.candidate.data.title, "fr")
+    )
+    .slice(0, limit)
+    .map((entry) => entry.candidate);
+
+export const getRelatedGuidesForArticle = (article: ArticleEntry, guides: GuideEntry[], limit = 3): GuideEntry[] =>
+  guides
+    .map((guide) => ({
+      guide,
+      score: computeSharedTagScore(article.data.tags, guide.data.tags)
+    }))
+    .filter((entry) => entry.score > 0)
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        b.guide.data.date.getTime() - a.guide.data.date.getTime() ||
+        a.guide.data.title.localeCompare(b.guide.data.title, "fr")
+    )
+    .slice(0, limit)
+    .map((entry) => entry.guide);
+
+export const getRelatedVideosForArticle = (article: ArticleEntry, videos: VideoEntry[], limit = 3): VideoEntry[] =>
+  videos
+    .map((video) => ({
+      video,
+      score: computeSharedTagScore(article.data.tags, video.data.tags)
     }))
     .filter((entry) => entry.score > 0)
     .sort(
