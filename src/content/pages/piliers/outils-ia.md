@@ -155,3 +155,57 @@ Un usage éthique de l'IA en doctorat repose sur une équation simple: assistanc
 - Créer une checklist de validation avant soumission.
 - Tester un prompt de structuration sur un chapitre en cours.
 - Noter le gain réel en temps sur 2 semaines.
+
+## Cadre de validation scientifique avant publication
+
+Chaque sortie issue d'un assistant IA doit passer un contrôle systématique avant insertion dans un document de thèse.
+
+### Checklist de validation (obligatoire)
+
+1. Vérification factuelle: chaque affirmation est traçable à une source primaire.
+2. Vérification terminologique: définitions alignées avec le champ disciplinaire.
+3. Vérification quantitative: chiffres, unités et ordres de grandeur cohérents.
+4. Vérification logique: absence de contradiction entre méthode, résultats et discussion.
+5. Vérification stylistique: ton académique propre, sans formulation générique.
+
+## Exemples de prompts utiles par phase
+
+### Phase lecture
+
+"Synthétise ces notes en 5 questions de recherche, sans ajouter d'information externe. Signaler explicitement les zones d'incertitude."
+
+### Phase écriture
+
+"Proposer trois structures de section discussion à partir de ce plan. Pour chaque structure: hypothèse centrale, limites, transition vers conclusion."
+
+### Phase soutenance
+
+"Générer 15 questions critiques de jury sur ce résumé et classer par risque: élevé, moyen, faible."
+
+## Journal de traçabilité IA (format minimal)
+
+Conserver une note par session:
+
+- tâche confiée,
+- extrait envoyé,
+- sortie obtenue,
+- corrections humaines appliquées,
+- décision finale (garder, modifier, supprimer).
+
+Ce journal simplifie la transparence en cas de demande d'explication par encadrement ou revue.
+
+## Erreurs avancées à éviter
+
+- Demander une revue bibliographique complète sans vérifier les références une par une.
+- Mélanger notes confidentielles et prompts externes sans anonymisation.
+- Utiliser la même formulation IA dans plusieurs chapitres sans harmonisation.
+- Déléguer la conclusion scientifique à un modèle génératif.
+
+## Intégration avec un workflow doctoral réaliste
+
+1. Préparer les notes dans un outil local (ex: Obsidian, Zotero).
+2. Solliciter l'IA uniquement pour structure ou variantes.
+3. Réinjecter les propositions dans le document principal après audit.
+4. Exporter une version relue humainement avant partage.
+
+Ce séquencement préserve l'originalité intellectuelle tout en réduisant la friction rédactionnelle.

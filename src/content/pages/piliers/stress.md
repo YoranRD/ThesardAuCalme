@@ -181,3 +181,53 @@ La gestion du stress doctoral n'est pas un module séparé du travail scientifiq
 - Bloquer 3 sessions profondes dans l'agenda.
 - Programmer une revue vendredi 20 minutes.
 - Préparer une communication courte à l'encadrement.
+
+## Plan de reprise sur 7 jours (quand tout déborde)
+
+Ce plan vise à restaurer l'exécution minimale sans prétendre résoudre toute la charge en une semaine.
+
+### Jour 1: tri
+
+- Lister toutes les obligations.
+- Marquer essentiel/reportable/supprimable.
+- Bloquer 1 créneau focus court.
+
+### Jour 2: stabilisation
+
+- Traiter une tâche administrative critique.
+- Produire un livrable scientifique très court (notes, plan, 300 mots).
+
+### Jour 3-4: traction
+
+- Deux blocs focus de 60-90 minutes.
+- Un point écrit vers encadrement (état + prochaines étapes).
+
+### Jour 5-7: consolidation
+
+- Revue des actions accomplies.
+- Ajustement du plan hebdo suivant.
+- Protection de la récupération (sommeil, pauses, marche).
+
+## Tableau anti-chaos (format hebdo)
+
+| Domaine | Priorité de la semaine | Sortie attendue | Date |
+|---|---|---|---|
+| Recherche | Section discussion | 800 mots relus | Vendredi |
+| Administratif | Dossier inscription | pièces déposées | Mardi |
+| Encadrement | Réunion de suivi | décisions validées | Jeudi |
+| Santé personnelle | Sommeil + activité | 5/7 jours respectés | Dimanche |
+
+Ce tableau force une lecture réaliste de la charge, au lieu d'une todo infinie.
+
+## Quand escalader vers un soutien externe
+
+Si les signaux d'alerte persistent au-delà de 2 à 3 semaines malgré les ajustements organisationnels, il devient pertinent de solliciter une aide professionnelle (services universitaires ou santé compétente). Le but est de protéger la continuité du doctorat et la santé globale.
+
+## Boucle de prévention mensuelle
+
+1. Identifier la source principale de surcharge du mois.
+2. Supprimer ou déléguer une tâche structurellement inutile.
+3. Renforcer une habitude qui fonctionne déjà.
+4. Formaliser ce changement dans le planning du mois suivant.
+
+L'amélioration durable vient de petites décisions répétées, pas d'un plan parfait appliqué une seule fois.

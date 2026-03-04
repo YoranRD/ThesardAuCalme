@@ -4,17 +4,16 @@ import Breadcrumbs from "../components/Breadcrumbs.astro";
 import TagList from "../components/TagList.astro";
 import { brandDisplayName } from "../config/site";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { assertPageRoutesAreUnique, routeToSlugParam } from "../lib/pages";
 
 export async function getStaticPaths() {
   const pages = await getCollection("pages");
+  assertPageRoutesAreUnique(pages);
 
-  return pages.map((page) => {
-    const slug = page.data.route.replace(/^\/+|\/+$/g, "");
-    return {
-      params: { slug },
-      props: { page }
-    };
-  });
+  return pages.map((page) => ({
+    params: { slug: routeToSlugParam(page.data.route) },
+    props: { page }
+  }));
 }
 
 interface Props {
@@ -45,7 +44,11 @@ const labelOverrides = new Map<string, string>([
   ["soutenance", "Soutenance"],
   ["stress", "Stress"],
   ["carriere", "Carrière"],
-  ["outils-ia", "Outils IA"]
+  ["outils-ia", "Outils IA"],
+  ["legal", "Légal"],
+  ["mentions-legales", "Mentions légales"],
+  ["confidentialite", "Confidentialité"],
+  ["affiliation", "Affiliation"]
 ]);
 
 const formatSegmentLabel = (segment: string): string => {

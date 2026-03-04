@@ -10,7 +10,7 @@ const baseUrl = withBase("/");
 <BaseLayout
   canonicalPath="/en/search/"
   title="Search | Thésard Au Calme"
-  description="Quick search across guides and video pages for international doctoral workflows in France."
+  description="Quick search across guides, videos, and editorial pages for doctoral workflows in France."
   lang="en"
 >
   <section class="section">
@@ -19,15 +19,35 @@ const baseUrl = withBase("/");
       <p class="eyebrow">Search</p>
       <h1>Find the right page in seconds</h1>
       <p>
-        This lightweight search runs entirely on a static JSON index and covers all guide and video pages.
+        This lightweight search runs on a static JSON index and covers guides, videos, and editorial pages.
       </p>
     </div>
   </section>
 
   <section class="section">
     <div class="container surface search-block">
-      <label for="search-input-en">Search by keyword, tag or topic</label>
+      <label for="search-input-en">Search by keyword, tag, or topic</label>
       <input id="search-input-en" name="q" type="search" placeholder="example: enrollment, zotero, writing" />
+
+      <div class="filters-grid">
+        <div class="filter-group">
+          <p class="small muted">Content type</p>
+          <div class="chip-row" id="type-filters-en">
+            <button type="button" class="filter-chip is-active" data-filter="type" data-value="guide">Guides</button>
+            <button type="button" class="filter-chip is-active" data-filter="type" data-value="video">Videos</button>
+            <button type="button" class="filter-chip is-active" data-filter="type" data-value="page">Pages</button>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <p class="small muted">Language</p>
+          <div class="chip-row" id="lang-filters-en">
+            <button type="button" class="filter-chip" data-filter="lang" data-value="fr">FR</button>
+            <button type="button" class="filter-chip is-active" data-filter="lang" data-value="en">EN</button>
+          </div>
+        </div>
+      </div>
+
       <p id="search-status-en" class="small muted">Loading search index…</p>
       <div id="search-results-en" class="grid results-grid"></div>
     </div>
@@ -48,6 +68,8 @@ const baseUrl = withBase("/");
     const searchInput = document.getElementById("search-input-en");
     const searchStatus = document.getElementById("search-status-en");
     const searchResults = document.getElementById("search-results-en");
+    const typeButtons = Array.from(document.querySelectorAll('[data-filter="type"]'));
+    const langButtons = Array.from(document.querySelectorAll('[data-filter="lang"]'));
 
     const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
 
@@ -72,18 +94,48 @@ const baseUrl = withBase("/");
         year: "numeric"
       });
 
+    const typeLabel = {
+      guide: "Guide",
+      video: "Video",
+      page: "Page"
+    };
+
+    const selectedTypes = new Set(["guide", "video", "page"]);
+    const selectedLangs = new Set(["en"]);
+
+    const syncButtons = (buttons, selectedSet) => {
+      buttons.forEach((button) => {
+        const value = button.dataset.value;
+        button.classList.toggle("is-active", selectedSet.has(value));
+      });
+    };
+
+    const toggleSelectedValue = (selectedSet, value) => {
+      if (selectedSet.has(value)) {
+        if (selectedSet.size > 1) {
+          selectedSet.delete(value);
+        }
+      } else {
+        selectedSet.add(value);
+      }
+    };
+
     const buildCard = (entry) => {
       const article = document.createElement("article");
       article.className = "card result-card";
 
-      const typeLabel = entry.type === "guide" ? "Guide" : "Video";
-      const tags = entry.tags.map((tag) => `#${tag}`).join(" · ");
+      const metaBits = [typeLabel[entry.type] ?? "Content"];
+      if (entry.date) {
+        metaBits.push(formatDate(entry.date));
+      }
+
+      const tags = entry.tags.length > 0 ? entry.tags.map((tag) => `#${tag}`).join(" · ") : "";
 
       article.innerHTML = `
-        <p class="small muted">${typeLabel} · ${formatDate(entry.date)}</p>
+        <p class="small muted">${metaBits.join(" · ")}</p>
         <h3><a href="${toBasePath(entry.path)}">${entry.title}</a></h3>
         <p>${entry.summary}</p>
-        <p class="small muted">${tags}</p>
+        ${tags ? `<p class="small muted">${tags}</p>` : ""}
       `;
 
       return article;
@@ -118,12 +170,32 @@ const baseUrl = withBase("/");
       const terms = query.split(/\s+/).filter(Boolean);
 
       const matches = index.filter((entry) => {
+        if (!selectedTypes.has(entry.type) || !selectedLangs.has(entry.lang)) {
+          return false;
+        }
+
         const haystack = normalize(`${entry.title} ${entry.summary} ${entry.tags.join(" ")}`);
         return terms.every((term) => haystack.includes(term));
       });
 
       renderResults(matches.slice(0, 30), query);
     };
+
+    typeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        toggleSelectedValue(selectedTypes, button.dataset.value);
+        syncButtons(typeButtons, selectedTypes);
+        applySearch();
+      });
+    });
+
+    langButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        toggleSelectedValue(selectedLangs, button.dataset.value);
+        syncButtons(langButtons, selectedLangs);
+        applySearch();
+      });
+    });
 
     fetch(searchIndexUrl)
       .then((response) => {
@@ -133,7 +205,9 @@ const baseUrl = withBase("/");
         return response.json();
       })
       .then((entries) => {
-        index = entries.filter((entry) => entry.lang === "en");
+        index = entries;
+        syncButtons(typeButtons, selectedTypes);
+        syncButtons(langButtons, selectedLangs);
         searchStatus.textContent = "Type at least 2 characters to start searching.";
       })
       .catch(() => {
@@ -157,6 +231,34 @@ const baseUrl = withBase("/");
     padding: 0.72rem 0.8rem;
     font: inherit;
     background: #fff;
+  }
+
+  .filters-grid {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .chip-row {
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-chip {
+    border: 1px solid var(--border);
+    background: #fff;
+    border-radius: 999px;
+    padding: 0.28rem 0.72rem;
+    color: var(--text-soft);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.86rem;
+  }
+
+  .filter-chip.is-active {
+    background: #efebe2;
+    color: var(--text);
+    border-color: #bcb4a6;
   }
 
   .results-grid {

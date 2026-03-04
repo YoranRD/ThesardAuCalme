@@ -10,7 +10,7 @@ const baseUrl = withBase("/");
 <BaseLayout
   canonicalPath="/recherche/"
   title="Recherche | Thésard Au Calme"
-  description="Recherche rapide dans les guides et vidéos du site: titres, résumés et tags pour trouver une réponse immédiatement."
+  description="Recherche rapide dans les guides, vidéos et pages éditoriales du site: titres, résumés et tags pour trouver une réponse immédiatement."
 >
   <section class="section">
     <div class="container prose">
@@ -18,8 +18,8 @@ const baseUrl = withBase("/");
       <p class="eyebrow">Recherche</p>
       <h1>Trouver rapidement le bon contenu</h1>
       <p>
-        Cette recherche locale couvre les guides et les fiches vidéos. Elle fonctionne sans backend et reste rapide,
-        même avec un index enrichi.
+        Cette recherche locale couvre les guides, les fiches vidéos et les pages éditoriales. Elle fonctionne sans backend
+        et reste légère pour un usage mobile.
       </p>
     </div>
   </section>
@@ -28,6 +28,26 @@ const baseUrl = withBase("/");
     <div class="container surface search-block">
       <label for="search-input">Rechercher par mot-clé, tag ou thème</label>
       <input id="search-input" name="q" type="search" placeholder="ex: zotero, soutenance, visa, routine" />
+
+      <div class="filters-grid">
+        <div class="filter-group">
+          <p class="small muted">Type de contenu</p>
+          <div class="chip-row" id="type-filters">
+            <button type="button" class="filter-chip is-active" data-filter="type" data-value="guide">Guides</button>
+            <button type="button" class="filter-chip is-active" data-filter="type" data-value="video">Vidéos</button>
+            <button type="button" class="filter-chip is-active" data-filter="type" data-value="page">Pages</button>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <p class="small muted">Langue</p>
+          <div class="chip-row" id="lang-filters">
+            <button type="button" class="filter-chip is-active" data-filter="lang" data-value="fr">FR</button>
+            <button type="button" class="filter-chip" data-filter="lang" data-value="en">EN</button>
+          </div>
+        </div>
+      </div>
+
       <p id="search-status" class="small muted">Chargement de l’index…</p>
       <div id="search-results" class="grid results-grid"></div>
     </div>
@@ -48,6 +68,8 @@ const baseUrl = withBase("/");
     const searchInput = document.getElementById("search-input");
     const searchStatus = document.getElementById("search-status");
     const searchResults = document.getElementById("search-results");
+    const typeButtons = Array.from(document.querySelectorAll('[data-filter="type"]'));
+    const langButtons = Array.from(document.querySelectorAll('[data-filter="lang"]'));
 
     const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
 
@@ -72,18 +94,48 @@ const baseUrl = withBase("/");
         year: "numeric"
       });
 
+    const typeLabel = {
+      guide: "Guide",
+      video: "Vidéo",
+      page: "Page"
+    };
+
+    const selectedTypes = new Set(["guide", "video", "page"]);
+    const selectedLangs = new Set(["fr"]);
+
+    const syncButtons = (buttons, selectedSet) => {
+      buttons.forEach((button) => {
+        const value = button.dataset.value;
+        button.classList.toggle("is-active", selectedSet.has(value));
+      });
+    };
+
+    const toggleSelectedValue = (selectedSet, value) => {
+      if (selectedSet.has(value)) {
+        if (selectedSet.size > 1) {
+          selectedSet.delete(value);
+        }
+      } else {
+        selectedSet.add(value);
+      }
+    };
+
     const buildCard = (entry) => {
       const article = document.createElement("article");
       article.className = "card result-card";
 
-      const typeLabel = entry.type === "guide" ? "Guide" : "Vidéo";
-      const tags = entry.tags.map((tag) => `#${tag}`).join(" · ");
+      const metaBits = [typeLabel[entry.type] ?? "Contenu"];
+      if (entry.date) {
+        metaBits.push(formatDate(entry.date));
+      }
+
+      const tags = entry.tags.length > 0 ? entry.tags.map((tag) => `#${tag}`).join(" · ") : "";
 
       article.innerHTML = `
-        <p class="small muted">${typeLabel} · ${formatDate(entry.date)}</p>
+        <p class="small muted">${metaBits.join(" · ")}</p>
         <h3><a href="${toBasePath(entry.path)}">${entry.title}</a></h3>
         <p>${entry.summary}</p>
-        <p class="small muted">${tags}</p>
+        ${tags ? `<p class="small muted">${tags}</p>` : ""}
       `;
 
       return article;
@@ -118,12 +170,32 @@ const baseUrl = withBase("/");
       const terms = query.split(/\s+/).filter(Boolean);
 
       const matches = index.filter((entry) => {
+        if (!selectedTypes.has(entry.type) || !selectedLangs.has(entry.lang)) {
+          return false;
+        }
+
         const haystack = normalize(`${entry.title} ${entry.summary} ${entry.tags.join(" ")}`);
         return terms.every((term) => haystack.includes(term));
       });
 
       renderResults(matches.slice(0, 30), query);
     };
+
+    typeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        toggleSelectedValue(selectedTypes, button.dataset.value);
+        syncButtons(typeButtons, selectedTypes);
+        applySearch();
+      });
+    });
+
+    langButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        toggleSelectedValue(selectedLangs, button.dataset.value);
+        syncButtons(langButtons, selectedLangs);
+        applySearch();
+      });
+    });
 
     fetch(searchIndexUrl)
       .then((response) => {
@@ -133,7 +205,9 @@ const baseUrl = withBase("/");
         return response.json();
       })
       .then((entries) => {
-        index = entries.filter((entry) => entry.lang === "fr");
+        index = entries;
+        syncButtons(typeButtons, selectedTypes);
+        syncButtons(langButtons, selectedLangs);
         searchStatus.textContent = "Entrer au moins 2 caractères pour lancer la recherche.";
       })
       .catch(() => {
@@ -157,6 +231,34 @@ const baseUrl = withBase("/");
     padding: 0.72rem 0.8rem;
     font: inherit;
     background: #fff;
+  }
+
+  .filters-grid {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .chip-row {
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-chip {
+    border: 1px solid var(--border);
+    background: #fff;
+    border-radius: 999px;
+    padding: 0.28rem 0.72rem;
+    color: var(--text-soft);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.86rem;
+  }
+
+  .filter-chip.is-active {
+    background: #efebe2;
+    color: var(--text);
+    border-color: #bcb4a6;
   }
 
   .results-grid {

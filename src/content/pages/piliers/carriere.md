@@ -158,3 +158,42 @@ La décision postdoc vs industrie devient plus simple quand elle est traitée co
 - Préparer un tableau de suivi candidatures.
 - Planifier 5 échanges exploratoires en 2 semaines.
 - Fixer une date de décision explicite.
+
+## Exemple de matrice pondérée (décision en 30 minutes)
+
+Utiliser une matrice simple pour éviter une décision pilotée par la fatigue.
+
+| Critère | Poids | Postdoc (note/10) | Industrie (note/10) |
+|---|---:|---:|---:|
+| Stabilité géographique | 3 | 5 | 8 |
+| Continuité recherche fondamentale | 4 | 9 | 6 |
+| Niveau de revenu cible | 3 | 6 | 8 |
+| Possibilité de publication | 4 | 9 | 5 |
+| Apprentissage produit/équipe | 2 | 5 | 9 |
+
+Calculer le score pondéré, puis vérifier si le résultat est cohérent avec les contraintes personnelles (visa, famille, mobilité, santé). Si la note chiffrée contredit l'intuition, revoir les poids avant toute décision finale.
+
+### Mini exemple
+
+Un profil qui vise un poste académique à moyen terme peut accepter un postdoc moins stable si la qualité d'encadrement et le potentiel de publication sont très élevés. À l'inverse, un profil contraint par le lieu de vie peut privilégier l'industrie même avec un intérêt fort pour la recherche.
+
+## Risques transverses à anticiper
+
+- Contrat signé tardivement, sans plan de transition financière.
+- Décision prise sans vérifier contraintes de titre de séjour.
+- Offre séduisante mais rôle flou sur les 6 premiers mois.
+- Postdoc prestigieux mais encadrement indisponible.
+
+## Plan de sécurisation avant signature
+
+1. Vérifier conditions contractuelles ligne par ligne.
+2. Demander un échange avec une personne déjà dans l'équipe.
+3. Clarifier les attentes à 3 mois et 12 mois.
+4. Vérifier la compatibilité administrative (titre, relocation, assurance).
+5. Conserver une option secondaire active jusqu'à confirmation écrite.
+
+## Ressources complémentaires
+
+- [Templates email](../templates/emails/) pour demandes de précisions contractuelles.
+- [Roadmaps](../roadmaps/) pour planifier la période de transition.
+- [Recherche](../recherche/) pour retrouver les contenus carrière, soutenance et publication.

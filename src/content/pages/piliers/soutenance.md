@@ -199,3 +199,55 @@ Préparer une soutenance, c'est conduire un projet court avec contraintes élev�
 - Planifier 3 répétitions avec feedback ciblé.
 - Créer un dossier "questions difficiles".
 - Geler une version technique de secours.
+
+## Paquet de preuves: ce qui doit être prêt avant J-14
+
+Préparer un dossier de preuves accélère les réponses pendant les questions et réduit la charge mentale.
+
+Contenu conseillé:
+
+- slides finales (source + PDF),
+- tableaux de résultats complets,
+- annexes méthodologiques,
+- références clés avec DOI,
+- note synthèse des limites.
+
+Classer ces éléments dans un dossier unique versionné évite la recherche de documents en urgence.
+
+## Simulation de jury (format 45 minutes)
+
+- 20 minutes d'exposé chronométré.
+- 20 minutes de questions critiques.
+- 5 minutes de debrief orienté corrections.
+
+### Exemple de grille de debrief
+
+1. Message principal compris ou non?
+2. Slide la plus confuse?
+3. Question restée sans réponse claire?
+4. Transition la plus faible?
+5. Action prioritaire avant prochaine répétition?
+
+## Protocole de correction entre deux répétitions
+
+1. Corriger seulement les 3 points les plus coûteux.
+2. Refaire une répétition courte sur ces points.
+3. Geler la version si amélioration confirmée.
+
+Cette méthode évite de retoucher 40 slides sans effet réel sur la qualité de soutenance.
+
+## Pitfalls fréquents à J-7
+
+- Changer la narration complète sous stress.
+- Ajouter des annexes non maîtrisées.
+- Négliger les questions sur limites et validité externe.
+- Supprimer trop de contexte au point de rendre les résultats illisibles.
+
+## Boucle finale de fiabilité
+
+- Vérifier le temps sur trois répétitions consécutives.
+- Vérifier la lisibilité de chaque figure depuis le fond de salle.
+- Vérifier la cohérence terminologique (même terme partout).
+- Vérifier la disponibilité de la version de secours hors ligne.
+
+Un exposé solide n'est pas celui qui impressionne par la densité. C'est celui qui reste intelligible, défendable et stable sous questions.

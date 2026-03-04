@@ -1,18 +1,28 @@
 import { getCollection } from "astro:content";
+import { assertPageRoutesAreUnique } from "../lib/pages";
 
 interface SearchEntry {
-  type: "guide" | "video";
+  type: "guide" | "video" | "page";
   lang: "fr" | "en";
   title: string;
   summary: string;
   tags: string[];
-  date: string;
+  date?: string;
   path: string;
 }
+
+const byMostRecent = (a: SearchEntry, b: SearchEntry): number => {
+  const aTime = a.date ? new Date(a.date).getTime() : 0;
+  const bTime = b.date ? new Date(b.date).getTime() : 0;
+  return bTime - aTime;
+};
 
 export async function GET() {
   const guides = await getCollection("guides");
   const videos = await getCollection("videos");
+  const pages = await getCollection("pages");
+
+  assertPageRoutesAreUnique(pages);
 
   const guideEntries: SearchEntry[] = guides.map((guide) => ({
     type: "guide",
@@ -34,9 +44,16 @@ export async function GET() {
     path: `/videos/${video.slug}/`
   }));
 
-  const payload = [...guideEntries, ...videoEntries].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  const pageEntries: SearchEntry[] = pages.map((page) => ({
+    type: "page",
+    lang: page.data.lang,
+    title: page.data.title,
+    summary: page.data.summary,
+    tags: page.data.tags,
+    path: page.data.route
+  }));
+
+  const payload = [...guideEntries, ...videoEntries, ...pageEntries].sort(byMostRecent);
 
   return new Response(JSON.stringify(payload), {
     headers: {
