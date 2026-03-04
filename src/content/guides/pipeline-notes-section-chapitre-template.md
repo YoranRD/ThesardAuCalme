@@ -8,6 +8,8 @@ tags:
   - workflow
   - chapitre
   - template
+series: ecriture-sans-friction
+seriesOrder: 2
 ---
 
 Le blocage en thèse vient rarement d'un manque d'idées. Il vient d'un manque de transformation structurée entre la lecture et le texte final. Le pipeline notes → section → chapitre résout précisément ce problème: chaque étape produit un objet intermédiaire vérifiable.

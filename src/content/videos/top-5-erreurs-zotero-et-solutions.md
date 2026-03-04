@@ -32,6 +32,8 @@ faq:
     a: Les imports non vérifiés. Une métadonnée fausse répétée sur des dizaines d'entrées devient très coûteuse en phase de rédaction finale.
   - q: À quelle fréquence faire un sanity check Zotero?
     a: Un contrôle léger hebdomadaire et un audit plus complet mensuel donnent un bon équilibre entre fiabilité et charge de maintenance.
+series: zotero-propre
+seriesOrder: 4
 ---
 
 La vidéo fournit un protocole de correction en 30 minutes pour reprendre le contrôle d'une bibliothèque déjà désordonnée.

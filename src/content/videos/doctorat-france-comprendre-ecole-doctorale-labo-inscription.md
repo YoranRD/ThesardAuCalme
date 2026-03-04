@@ -32,6 +32,8 @@ faq:
     a: Commencer par l'interlocuteur explicitement désigné dans l'établissement, puis escalader avec un dossier synthétique si nécessaire.
   - q: Le laboratoire peut-il valider l'inscription administrative?
     a: Le laboratoire accompagne souvent, mais la validation administrative suit les procédures institutionnelles dédiées.
+series: doctorat-france-international
+seriesOrder: 2
 ---
 
 La vidéo fournit un schéma de communication pratique pour éviter les allers-retours improductifs entre services.

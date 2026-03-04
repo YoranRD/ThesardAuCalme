@@ -158,3 +158,62 @@ Pour remplacer par les IDs définitifs:
 - tags cohérents pour les pages `/themes` et `/en/topics`
 - clés de ressources valides dans `featuredResourceKeys`
 - build vert avec `npm run build`
+
+## Fonctionnalités avancées ajoutées
+
+- Recherche client-side:
+  - FR: `/recherche/`
+  - EN: `/en/search/`
+  - Index JSON statique: `/search-index.json` (généré depuis `guides` + `videos`)
+- Newsletter placeholder sans backend:
+  - FR: `/newsletter/`
+  - EN: `/en/newsletter/`
+- Téléchargements gratuits (sans formulaire):
+  - `/downloads/` et `/en/downloads/`
+  - fichiers dans `public/downloads/`
+- Shortlists ressources par profil:
+  - `/ressources/shortlists/`
+  - `/ressources/shortlists/debut-these/`
+  - `/ressources/shortlists/redaction/`
+  - `/ressources/shortlists/soutenance/`
+- Séries éditoriales:
+  - `/series/`
+  - `/series/[slug]/`
+  - champs `series` + `seriesOrder` dans `guides` et `videos`
+- Blocs "related content" + navigation précédent/suivant dans les pages guide/vidéo.
+
+## Nouvelle collection éditoriale
+
+Collection Astro ajoutée:
+
+- `pages` (dans `src/content/pages/**`)
+
+Rendu:
+
+- route dynamique `src/pages/[...slug].astro`
+- chaque fichier définit sa route via frontmatter `route: /.../`
+
+Exemples de sections publiées via cette collection:
+
+- pages piliers (`/publier/`, `/soutenance/`, `/stress/`, `/carriere/`, `/outils-ia/`)
+- international FR/EN (`/international/*`, `/en/international/*`)
+- templates (`/templates/**`)
+- FAQ (`/faq/`, `/en/faq/`)
+- glossaire (`/glossaire/`, `/en/glossary/`)
+- roadmaps (`/roadmaps/`, `/en/roadmaps/international-0-30/`)
+
+## Où modifier le contenu
+
+- Guides: `src/content/guides/*.md`
+- Vidéos: `src/content/videos/*.md`
+- Pages éditoriales: `src/content/pages/**/*.md`
+- Ressources software: `src/data/resources.yaml`
+- Séries (descriptions): `src/data/series.ts`
+- Shortlists par profil: `src/data/shortlists.ts`
+
+## Où vit l'index de recherche
+
+- Génération: `src/pages/search-index.json.ts`
+- Interface FR: `src/pages/recherche/index.astro`
+- Interface EN: `src/pages/en/search/index.astro`
+

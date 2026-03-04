@@ -8,6 +8,8 @@ tags:
   - bibliographie
   - zotero
   - workflow
+series: zotero-propre
+seriesOrder: 1
 ---
 
 Un workflow bibliographique robuste évite de réapprendre les mêmes références à chaque chapitre.

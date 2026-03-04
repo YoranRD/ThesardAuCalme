@@ -32,6 +32,8 @@ faq:
     a: Non. Le contenu donne une structure de contrôle, mais les règles locales de l'établissement et des autorités restent prioritaires.
   - q: Quel premier document préparer pour éviter les retards ?
     a: Un dossier unique listant les échéances avec pièces justificatives et dates de renouvellement.
+series: doctorat-france-international
+seriesOrder: 1
 ---
 
 Le kit administratif est conçu pour éviter le pilotage à vue. Il sépare ce qui dépend:

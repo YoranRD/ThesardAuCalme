@@ -33,6 +33,8 @@ faq:
     a: Non, mais il faut une cadence prévisible. Trois blocs profonds bien exécutés par semaine peuvent suffire à maintenir une progression solide.
   - q: Quelle méthode donne le meilleur retour immédiat?
     a: Le préchargement de session. Préparer sources et plan la veille réduit fortement le temps de démarrage le lendemain.
+series: ecriture-sans-friction
+seriesOrder: 4
 ---
 
 Cette vidéo montre comment transformer des créneaux fragmentés en livrables réels: paragraphes argumentés, transitions de section, corrections ciblées.

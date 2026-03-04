@@ -8,6 +8,8 @@ tags:
   - administratif
   - doctorat-france
   - checklist
+series: doctorat-france-international
+seriesOrder: 4
 ---
 
 Arriver en doctorat en France depuis l'international implique plusieurs systèmes en parallèle: université, école doctorale, laboratoire, titre de séjour, assurance santé, logement, banque. Le risque principal n'est pas de manquer d'information. Le risque est l'ordre des démarches.

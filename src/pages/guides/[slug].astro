@@ -3,6 +3,9 @@ import { getCollection, render, type CollectionEntry } from "astro:content";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
 import TagList from "../../components/TagList.astro";
 import { brandDisplayName } from "../../config/site";
+import { seriesByKey } from "../../data/series";
+import { getRelatedVideosForGuide, getSeriesItems, getSeriesNeighbors } from "../../lib/content-relations";
+import { withBase } from "../../lib/links";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
 export async function getStaticPaths() {
@@ -29,6 +32,22 @@ const publicationDate = guide.data.date.toLocaleDateString(locale, {
   month: "long",
   year: "numeric"
 });
+
+const allVideos = await getCollection("videos", ({ data }) => data.lang === guide.data.lang);
+const allGuides = await getCollection("guides", ({ data }) => data.lang === guide.data.lang);
+
+const relatedVideos = getRelatedVideosForGuide(
+  guide,
+  allVideos.filter((video) => video.slug !== guide.slug),
+  3
+);
+
+const seriesItems = guide.data.series
+  ? getSeriesItems(allGuides, allVideos, guide.data.series, guide.data.lang)
+  : [];
+
+const seriesNeighbors = getSeriesNeighbors(seriesItems, "guide", guide.slug);
+const seriesDefinition = guide.data.series ? seriesByKey.get(guide.data.series) : undefined;
 ---
 
 <BaseLayout
@@ -60,10 +79,103 @@ const publicationDate = guide.data.date.toLocaleDateString(locale, {
       <Content />
     </article>
   </section>
+
+  {
+    relatedVideos.length > 0 && (
+      <section class="section">
+        <div class="container surface guide-body">
+          <h2>{isFrench ? "Vidéos liées" : "Related videos"}</h2>
+          <div class="grid related-grid">
+            {
+              relatedVideos.map((video) => (
+                <article class="card related-card">
+                  <p class="small muted">{isFrench ? "Vidéo" : "Video"} · {video.data.durationMin} min</p>
+                  <h3><a href={withBase(`/videos/${video.slug}/`)}>{video.data.title}</a></h3>
+                  <p>{video.data.summary}</p>
+                </article>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    guide.data.series && (
+      <section class="section">
+        <div class="container surface guide-body">
+          <h2>{isFrench ? "Navigation de série" : "Series navigation"}</h2>
+          <p class="small muted">
+            {seriesDefinition ? seriesDefinition.title : guide.data.series}
+            {seriesDefinition && isFrench && ` · `}
+            {
+              seriesDefinition && isFrench && (
+                <a href={withBase(`/series/${seriesDefinition.slug}/`)}>Voir toute la série</a>
+              )
+            }
+          </p>
+          <div class="series-nav">
+            {
+              seriesNeighbors.previous ? (
+                <a class="button button-secondary" href={withBase(seriesNeighbors.previous.path)}>
+                  ← {isFrench ? "Précédent" : "Previous"}: {seriesNeighbors.previous.title}
+                </a>
+              ) : (
+                <span class="small muted">{isFrench ? "Début de série" : "Series start"}</span>
+              )
+            }
+            {
+              seriesNeighbors.next ? (
+                <a class="button button-secondary" href={withBase(seriesNeighbors.next.path)}>
+                  {isFrench ? "Suivant" : "Next"}: {seriesNeighbors.next.title} →
+                </a>
+              ) : (
+                <span class="small muted">{isFrench ? "Fin de série" : "Series end"}</span>
+              )
+            }
+          </div>
+        </div>
+      </section>
+    )
+  }
 </BaseLayout>
 
 <style>
   .guide-body {
     padding: clamp(1.2rem, 3vw, 2.1rem);
+  }
+
+  .related-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.8rem;
+    margin-top: 0.8rem;
+  }
+
+  .related-card {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .related-card h3 {
+    margin: 0;
+  }
+
+  .related-card a {
+    text-decoration: none;
+  }
+
+  .series-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    align-items: center;
+    margin-top: 0.6rem;
+  }
+
+  @media (max-width: 980px) {
+    .related-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

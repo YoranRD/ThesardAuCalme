@@ -8,6 +8,8 @@ tags:
   - organisation
   - doctorat
   - focus
+series: ecriture-sans-friction
+seriesOrder: 3
 ---
 
 Une bonne semaine de doctorat ne ressemble pas à un sprint permanent. Elle ressemble à un système stable: des blocs de travail protégés, des temps de coordination, un moment de relecture et une clôture propre. Le but de cette routine n'est pas de "faire plus". Le but est de **faire régulièrement** ce qui fait avancer la thèse: lire, écrire, vérifier les sources, préparer les échanges avec la direction.

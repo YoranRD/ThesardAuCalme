@@ -33,6 +33,8 @@ faq:
     a: Pas toutes. L'important est la régularité sur la semaine, avec des rituels ancrés à des moments fixes.
   - q: Comment démarrer sans surcharge?
     a: Démarrer avec deux habitudes seulement pendant trois semaines, puis ajouter la troisième quand la cadence devient stable.
+series: ecriture-sans-friction
+seriesOrder: 5
 ---
 
 L'approche proposée est volontairement anti-héroïque: peu d'habitudes, mais tenues dans le temps.

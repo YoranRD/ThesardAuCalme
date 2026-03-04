@@ -1,0 +1,63 @@
+---
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import { shortlistProfiles } from "../../../data/shortlists";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { withBase } from "../../../lib/links";
+---
+
+<BaseLayout
+  canonicalPath="/ressources/shortlists/"
+  title="Shortlists par profil | Ressources"
+  description="Shortlists ressources par profil doctoral: début de thèse, rédaction et soutenance, avec critères explicites."
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs
+        items={[
+          { label: "Accueil", href: "/" },
+          { label: "Ressources", href: "/ressources/" },
+          { label: "Shortlists" }
+        ]}
+      />
+      <p class="eyebrow">Shortlists</p>
+      <h1>Shortlists ressources par profil</h1>
+      <p>
+        Ces listes ne remplacent pas la page ressources complète. Elles servent de point de départ rapide,
+        avec un nombre volontairement réduit d'outils par objectif.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid cards-grid">
+      {
+        shortlistProfiles.map((profile) => (
+          <article class="card profile-card">
+            <h2>{profile.title}</h2>
+            <p>{profile.description}</p>
+            <a class="button button-secondary" href={withBase(`/ressources/shortlists/${profile.slug}/`)}>
+              Ouvrir la shortlist
+            </a>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .cards-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .profile-card {
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  @media (max-width: 980px) {
+    .cards-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

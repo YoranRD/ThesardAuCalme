@@ -1,0 +1,90 @@
+---
+import { getCollection } from "astro:content";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { withBase } from "../../lib/links";
+import { seriesByKey, seriesCatalog } from "../../data/series";
+import { getSeriesItems } from "../../lib/content-relations";
+
+export async function getStaticPaths() {
+  return seriesCatalog.map((series) => ({
+    params: { slug: series.slug },
+    props: { seriesKey: series.key }
+  }));
+}
+
+interface Props {
+  seriesKey: string;
+}
+
+const { seriesKey } = Astro.props;
+const definition = seriesByKey.get(seriesKey);
+
+if (!definition) {
+  throw new Error(`Unknown series key: ${seriesKey}`);
+}
+
+const allGuides = await getCollection("guides");
+const allVideos = await getCollection("videos");
+const items = getSeriesItems(allGuides, allVideos, seriesKey, "fr");
+---
+
+<BaseLayout
+  canonicalPath={`/series/${definition.slug}/`}
+  title={`${definition.title} | Série`}
+  description={definition.description}
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs
+        items={[
+          { label: "Accueil", href: "/" },
+          { label: "Séries", href: "/series/" },
+          { label: definition.title }
+        ]}
+      />
+      <p class="eyebrow">Série</p>
+      <h1>{definition.title}</h1>
+      <p>{definition.description}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid">
+      {
+        items.length > 0 ? (
+          items.map((item) => (
+            <article class="card step-card">
+              <p class="small muted">Étape {item.seriesOrder} · {item.kind === "guide" ? "Guide" : "Vidéo"}</p>
+              <h2><a href={withBase(item.path)}>{item.title}</a></h2>
+              <p>{item.summary}</p>
+            </article>
+          ))
+        ) : (
+          <article class="surface empty-card">
+            <p>Aucun contenu n'est encore affecté à cette série.</p>
+          </article>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .step-card {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .step-card h2 {
+    margin: 0;
+  }
+
+  .step-card a {
+    text-decoration: none;
+  }
+
+  .empty-card {
+    padding: 1.2rem;
+  }
+</style>

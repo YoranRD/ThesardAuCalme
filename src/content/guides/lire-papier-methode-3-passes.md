@@ -8,6 +8,8 @@ tags:
   - methodologie
   - article
   - productivite
+series: zotero-propre
+seriesOrder: 3
 ---
 
 Lire plus d'articles n'est pas le bon objectif. L'objectif utile est de **mieux décider** quels articles méritent une lecture profonde et comment transformer cette lecture en texte de thèse. La méthode 3 passes est une réponse pragmatique: première passe pour trier, deuxième pour comprendre, troisième pour intégrer.

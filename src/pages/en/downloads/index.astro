@@ -1,0 +1,73 @@
+---
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { withBase } from "../../../lib/links";
+
+const files = [
+  {
+    label: "International 30-day checklist",
+    path: "/downloads/checklist-30-jours-international.md",
+    description: "Execution order for core administrative steps during the first month in France."
+  },
+  {
+    label: "Weekly routine checklist",
+    path: "/downloads/checklist-routine-hebdo.md",
+    description: "Simple weekly framework to maintain output and reduce drift."
+  },
+  {
+    label: "Supervisor email template",
+    path: "/downloads/template-mail-directeur.md",
+    description: "Short meeting-request email with agenda and expected decisions."
+  }
+];
+---
+
+<BaseLayout
+  canonicalPath="/en/downloads/"
+  title="Downloads | Thésard Au Calme"
+  description="Free downloadable files: first-month checklist, weekly routine checklist and supervisor email template."
+  lang="en"
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Home", href: "/en/" }, { label: "Downloads" }]} />
+      <p class="eyebrow">Free downloads</p>
+      <h1>Operational files, no gate</h1>
+      <p>
+        These documents are available without signup. They are intended as practical starting points,
+        not locked lead funnels.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid">
+      {
+        files.map((file) => (
+          <article class="card download-card">
+            <h2>{file.label}</h2>
+            <p>{file.description}</p>
+            <a class="button button-secondary" href={withBase(file.path)} download>
+              Download file
+            </a>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .download-card {
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .download-card h2 {
+    margin: 0;
+  }
+
+  .download-card a {
+    width: fit-content;
+  }
+</style>

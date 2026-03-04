@@ -32,6 +32,8 @@ faq:
     a: Démarrer des dossiers qui dépendent d'un justificatif non obtenu. Une carte des dépendances évite ces boucles.
   - q: Comment garder la trace des démarches en parallèle?
     a: Utiliser un tableau unique avec statut, prochaine action, deadline et documents attachés.
+series: doctorat-france-international
+seriesOrder: 3
 ---
 
 Le but est de réduire le stress administratif par séquençage, sans prétendre remplacer les sources officielles.

@@ -67,6 +67,11 @@ const comparisonRows = resourcesCatalog
         {objectiveShortlist.map((item) => <li><a href={item.href}>{item.label}</a> — {item.recommendation}</li>)}
       </ul>
       <a class="button button-secondary" href={withBase("/ressources/#checklist")}>Ouvrir la checklist opérationnelle</a>
+      <div class="quick-links">
+        <a class="button button-secondary" href={withBase("/ressources/shortlists/")}>Shortlists par profil</a>
+        <a class="button button-secondary" href={withBase("/downloads/")}>Téléchargements gratuits</a>
+        <a class="button button-secondary" href={withBase("/newsletter/")}>Newsletter (coming soon)</a>
+      </div>
     </div>
   </section>
 
@@ -154,6 +159,12 @@ const comparisonRows = resourcesCatalog
 
   .shortlist a:hover {
     text-decoration: underline;
+  }
+
+  .quick-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
   }
 
   .objective-nav {

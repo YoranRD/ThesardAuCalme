@@ -1,0 +1,63 @@
+---
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { withBase } from "../../lib/links";
+
+const contactEmail = "contact@thesardaucalme.com";
+---
+
+<BaseLayout
+  canonicalPath="/newsletter/"
+  title="Newsletter | Thésard Au Calme"
+  description="Newsletter doctorat en préparation: checklists actionnables, retours d'expérience et méthodes testées."
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Newsletter" }]} />
+      <p class="eyebrow">Newsletter</p>
+      <h1>Une newsletter utile, pas une machine à bruit</h1>
+      <p>
+        L'objectif est simple: partager des checklists actionnables, des plans hebdos et des retours concrets sur le doctorat
+        en France. Format court, fréquence maîtrisée.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface newsletter-card">
+      <h2>Coming soon</h2>
+      <p>
+        Le système d'envoi n'est pas encore activé. En attendant, envoyer un email pour être ajouté à la première vague.
+      </p>
+      <a class="button button-primary" href={`mailto:${contactEmail}?subject=Inscription newsletter Thésard Au Calme`}>
+        Envoyer un email pour être ajouté
+      </a>
+      <p class="small muted">Aucune collecte de données sur le site pour le moment.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface newsletter-card">
+      <h2>Lead magnet gratuit</h2>
+      <p>
+        Télécharger la checklist “30 jours international” immédiatement, sans formulaire.
+      </p>
+      <a class="button button-secondary" href={withBase("/downloads/checklist-30-jours-international.md")} download>
+        Télécharger la checklist
+      </a>
+      <a class="button button-secondary" href={withBase("/downloads/")}>Voir tous les downloads</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .newsletter-card {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .newsletter-card a {
+    width: fit-content;
+  }
+</style>

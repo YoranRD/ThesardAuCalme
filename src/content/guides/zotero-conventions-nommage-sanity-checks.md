@@ -8,6 +8,8 @@ tags:
   - bibliographie
   - qualite
   - methodologie
+series: zotero-propre
+seriesOrder: 2
 ---
 
 Un gestionnaire bibliographique devient vite un goulot d'étranglement si les conventions sont floues. Le problème n'est pas Zotero en soi. Le problème est l'absence de règles collectives et de contrôles réguliers. Ce guide propose une méthode claire pour garder une base Zotero propre, exportable et stable jusqu'à la soutenance.

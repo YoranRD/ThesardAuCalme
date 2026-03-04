@@ -139,6 +139,20 @@ const profiles = [
       />
     </div>
   </section>
+
+  <section class="section">
+    <div class="container surface quick-links">
+      <h2>Téléchargements et mise à jour email</h2>
+      <p>
+        Pour avancer immédiatement: récupérer les checklists gratuites, puis demander l'ajout à la newsletter de lancement.
+      </p>
+      <div class="quick-actions">
+        <a class="button button-secondary" href={withBase("/downloads/")}>Ouvrir les downloads</a>
+        <a class="button button-secondary" href={withBase("/newsletter/")}>Page newsletter</a>
+        <a class="button button-secondary" href={withBase("/recherche/")}>Recherche rapide</a>
+      </div>
+    </div>
+  </section>
 </BaseLayout>
 
 <style>
@@ -160,5 +174,17 @@ const profiles = [
 
   .profile-card a:hover {
     text-decoration: underline;
+  }
+
+  .quick-links {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
   }
 </style>

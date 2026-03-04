@@ -1,6 +1,9 @@
 import { defineCollection, z } from "astro:content";
 import { chapterTimePattern, parseChapterTimeToSeconds } from "../lib/videos";
 
+const seriesSchema = z.string().regex(/^[a-z0-9-]+$/).min(3).max(80).optional();
+const seriesOrderSchema = z.number().int().positive().max(200).optional();
+
 const chapterSchema = z.object({
   time: z.string().regex(chapterTimePattern),
   label: z.string().min(2).max(120)
@@ -24,7 +27,9 @@ const videos = defineCollection({
       tags: z.array(z.string().min(2).max(40)).min(2).max(8),
       chapters: z.array(chapterSchema).min(2).max(20),
       featuredResourceKeys: z.array(z.string().min(2).max(60)).min(1).max(6),
-      faq: z.array(faqSchema).min(2).max(6)
+      faq: z.array(faqSchema).min(2).max(6),
+      series: seriesSchema,
+      seriesOrder: seriesOrderSchema
     })
     .superRefine((entry, ctx) => {
       const durationSeconds = entry.durationMin * 60;
@@ -75,21 +80,62 @@ const videos = defineCollection({
           message: "featuredResourceKeys must be unique"
         });
       }
+
+      if ((entry.series && !entry.seriesOrder) || (!entry.series && entry.seriesOrder)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["series"],
+          message: "series and seriesOrder must be defined together"
+        });
+      }
     })
 });
 
 const guides = defineCollection({
   type: "content",
+  schema: z
+    .object({
+      title: z.string().min(8).max(120),
+      date: z.coerce.date(),
+      lang: z.enum(["fr", "en"]),
+      summary: z.string().min(90).max(320),
+      tags: z.array(z.string().min(2).max(40)).min(2).max(10),
+      series: seriesSchema,
+      seriesOrder: seriesOrderSchema
+    })
+    .superRefine((entry, ctx) => {
+      const uniqueTags = new Set(entry.tags);
+      if (uniqueTags.size !== entry.tags.length) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["tags"],
+          message: "tags must be unique"
+        });
+      }
+
+      if ((entry.series && !entry.seriesOrder) || (!entry.series && entry.seriesOrder)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["series"],
+          message: "series and seriesOrder must be defined together"
+        });
+      }
+    })
+});
+
+const pages = defineCollection({
+  type: "content",
   schema: z.object({
-    title: z.string().min(8).max(120),
-    date: z.coerce.date(),
+    title: z.string().min(8).max(140),
+    summary: z.string().min(90).max(340),
     lang: z.enum(["fr", "en"]),
-    summary: z.string().min(90).max(320),
-    tags: z.array(z.string().min(2).max(40)).min(2).max(10)
+    route: z.string().regex(/^\/(?:[a-z0-9-]+\/)*[a-z0-9-]*\/$/),
+    tags: z.array(z.string().min(2).max(40)).min(1).max(16).default([])
   })
 });
 
 export const collections = {
   videos,
-  guides
+  guides,
+  pages
 };

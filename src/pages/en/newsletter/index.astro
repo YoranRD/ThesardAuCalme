@@ -1,0 +1,61 @@
+---
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { withBase } from "../../../lib/links";
+
+const contactEmail = "contact@thesardaucalme.com";
+---
+
+<BaseLayout
+  canonicalPath="/en/newsletter/"
+  title="Newsletter | Thésard Au Calme"
+  description="Newsletter placeholder for practical PhD checklists and workflows in France."
+  lang="en"
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Home", href: "/en/" }, { label: "Newsletter" }]} />
+      <p class="eyebrow">Newsletter</p>
+      <h1>Practical updates, no spam funnel</h1>
+      <p>
+        Planned format: concise checklists, operational systems and examples for international PhD workflows in France.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface newsletter-card">
+      <h2>Coming soon</h2>
+      <p>
+        Email infrastructure is not enabled yet. To join early access, send a direct email.
+      </p>
+      <a class="button button-primary" href={`mailto:${contactEmail}?subject=Newsletter waitlist`}>
+        Send email to join
+      </a>
+      <p class="small muted">No on-site data collection at this stage.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface newsletter-card">
+      <h2>Free checklist</h2>
+      <p>Download the 30-day international checklist without signup.</p>
+      <a class="button button-secondary" href={withBase("/downloads/checklist-30-jours-international.md")} download>
+        Download checklist
+      </a>
+      <a class="button button-secondary" href={withBase("/en/downloads/")}>Open downloads page</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .newsletter-card {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .newsletter-card a {
+    width: fit-content;
+  }
+</style>

@@ -8,6 +8,8 @@ tags:
   - ecriture
   - systeme
   - doctorat
+series: ecriture-sans-friction
+seriesOrder: 1
 ---
 
 L'écriture de thèse progresse mieux avec des transformations courtes qu'avec des sessions massives sans structure.

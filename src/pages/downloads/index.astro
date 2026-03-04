@@ -1,0 +1,72 @@
+---
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { withBase } from "../../lib/links";
+
+const files = [
+  {
+    label: "Checklist 30 jours international",
+    path: "/downloads/checklist-30-jours-international.md",
+    description: "Ordre d'exécution des démarches pour les 30 premiers jours en France."
+  },
+  {
+    label: "Checklist routine hebdo",
+    path: "/downloads/checklist-routine-hebdo.md",
+    description: "Cadre hebdomadaire simple pour maintenir une production scientifique stable."
+  },
+  {
+    label: "Template mail directeur",
+    path: "/downloads/template-mail-directeur.md",
+    description: "Message court pour planifier une réunion utile et préparée."
+  }
+];
+---
+
+<BaseLayout
+  canonicalPath="/downloads/"
+  title="Downloads | Thésard Au Calme"
+  description="Ressources téléchargeables gratuites: checklists doctorat, routine hebdo et template email encadrement."
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Downloads" }]} />
+      <p class="eyebrow">Téléchargements gratuits</p>
+      <h1>Ressources directes, sans formulaire</h1>
+      <p>
+        Ces documents sont publics et sans capture d’email. Ils servent de base opérationnelle pour démarrer vite,
+        puis adapter le système au contexte doctoral.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid">
+      {
+        files.map((file) => (
+          <article class="card download-card">
+            <h2>{file.label}</h2>
+            <p>{file.description}</p>
+            <a class="button button-secondary" href={withBase(file.path)} download>
+              Télécharger le fichier
+            </a>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .download-card {
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .download-card h2 {
+    margin: 0;
+  }
+
+  .download-card a {
+    width: fit-content;
+  }
+</style>

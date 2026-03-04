@@ -1,0 +1,121 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+import TagList from "../components/TagList.astro";
+import { brandDisplayName } from "../config/site";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const pages = await getCollection("pages");
+
+  return pages.map((page) => {
+    const slug = page.data.route.replace(/^\/+|\/+$/g, "");
+    return {
+      params: { slug },
+      props: { page }
+    };
+  });
+}
+
+interface Props {
+  page: CollectionEntry<"pages">;
+}
+
+interface Crumb {
+  label: string;
+  href?: string;
+}
+
+const labelOverrides = new Map<string, string>([
+  ["international", "International"],
+  ["arrival", "Arrival"],
+  ["housing", "Housing"],
+  ["health", "Health"],
+  ["banking", "Banking"],
+  ["templates", "Templates"],
+  ["emails", "Emails"],
+  ["meetings", "Meetings"],
+  ["planning", "Planning"],
+  ["faq", "FAQ"],
+  ["glossaire", "Glossaire"],
+  ["glossary", "Glossary"],
+  ["roadmaps", "Roadmaps"],
+  ["newsletter", "Newsletter"],
+  ["publier", "Publier"],
+  ["soutenance", "Soutenance"],
+  ["stress", "Stress"],
+  ["carriere", "Carrière"],
+  ["outils-ia", "Outils IA"]
+]);
+
+const formatSegmentLabel = (segment: string): string => {
+  const normalized = segment.toLowerCase();
+  const override = labelOverrides.get(normalized);
+  if (override) {
+    return override;
+  }
+
+  return normalized
+    .split("-")
+    .map((token) => token.charAt(0).toUpperCase() + token.slice(1))
+    .join(" ");
+};
+
+const { page } = Astro.props;
+const { Content } = await render(page);
+
+const isFrench = page.data.lang === "fr";
+const pageLang = isFrench ? "fr" : "en";
+const routeSegments = page.data.route.replace(/^\/+|\/+$/g, "").split("/").filter(Boolean);
+
+const visibleIndexes = routeSegments
+  .map((_, index) => index)
+  .filter((index) => !(index === 0 && routeSegments[index] === "en"));
+
+const breadcrumbs: Crumb[] = [
+  {
+    label: isFrench ? "Accueil" : "Home",
+    href: isFrench ? "/" : "/en/"
+  }
+];
+
+for (let i = 0; i < visibleIndexes.length; i += 1) {
+  const index = visibleIndexes[i];
+  const isLast = i === visibleIndexes.length - 1;
+
+  breadcrumbs.push({
+    label: formatSegmentLabel(routeSegments[index]),
+    href: isLast ? undefined : `/${routeSegments.slice(0, index + 1).join("/")}/`
+  });
+}
+---
+
+<BaseLayout
+  canonicalPath={page.data.route}
+  title={`${page.data.title} | ${brandDisplayName}`}
+  description={page.data.summary}
+  type="article"
+  lang={pageLang}
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={breadcrumbs} />
+      <p class="eyebrow">{isFrench ? "Dossier" : "Resource page"}</p>
+      <h1>{page.data.title}</h1>
+      <p>{page.data.summary}</p>
+      {page.data.tags.length > 0 && <TagList tags={page.data.tags} />}
+    </div>
+  </section>
+
+  <section class="section">
+    <article class="container surface page-body prose">
+      <Content />
+    </article>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-body {
+    padding: clamp(1.2rem, 3vw, 2.2rem);
+  }
+</style>

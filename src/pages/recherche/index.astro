@@ -1,0 +1,196 @@
+---
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { withBase } from "../../lib/links";
+
+const searchIndexUrl = withBase("/search-index.json");
+const baseUrl = withBase("/");
+---
+
+<BaseLayout
+  canonicalPath="/recherche/"
+  title="Recherche | Thésard Au Calme"
+  description="Recherche rapide dans les guides et vidéos du site: titres, résumés et tags pour trouver une réponse immédiatement."
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Recherche" }]} />
+      <p class="eyebrow">Recherche</p>
+      <h1>Trouver rapidement le bon contenu</h1>
+      <p>
+        Cette recherche locale couvre les guides et les fiches vidéos. Elle fonctionne sans backend et reste rapide,
+        même avec un index enrichi.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface search-block">
+      <label for="search-input">Rechercher par mot-clé, tag ou thème</label>
+      <input id="search-input" name="q" type="search" placeholder="ex: zotero, soutenance, visa, routine" />
+      <p id="search-status" class="small muted">Chargement de l’index…</p>
+      <div id="search-results" class="grid results-grid"></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface tips-block">
+      <h2>Raccourcis utiles</h2>
+      <ul>
+        <li><a href={withBase("/themes/")}>Explorer les contenus par thèmes</a> pour un angle ciblé.</li>
+        <li><a href={withBase("/series/")}>Suivre une série</a> pour progresser étape par étape.</li>
+        <li><a href={withBase("/ressources/")}>Voir les ressources</a> quand un outil concret est nécessaire.</li>
+      </ul>
+    </div>
+  </section>
+
+  <script is:inline define:vars={{ searchIndexUrl, baseUrl }}>
+    const searchInput = document.getElementById("search-input");
+    const searchStatus = document.getElementById("search-status");
+    const searchResults = document.getElementById("search-results");
+
+    const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+
+    const toBasePath = (path) => {
+      if (/^https?:\/\//i.test(path)) {
+        return path;
+      }
+      return `${normalizedBase}${String(path).replace(/^\/+/, "")}`;
+    };
+
+    const normalize = (value) =>
+      value
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+
+    const formatDate = (isoDate) =>
+      new Date(isoDate).toLocaleDateString("fr-FR", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric"
+      });
+
+    const buildCard = (entry) => {
+      const article = document.createElement("article");
+      article.className = "card result-card";
+
+      const typeLabel = entry.type === "guide" ? "Guide" : "Vidéo";
+      const tags = entry.tags.map((tag) => `#${tag}`).join(" · ");
+
+      article.innerHTML = `
+        <p class="small muted">${typeLabel} · ${formatDate(entry.date)}</p>
+        <h3><a href="${toBasePath(entry.path)}">${entry.title}</a></h3>
+        <p>${entry.summary}</p>
+        <p class="small muted">${tags}</p>
+      `;
+
+      return article;
+    };
+
+    const renderResults = (entries, query) => {
+      searchResults.innerHTML = "";
+
+      if (!query) {
+        searchStatus.textContent = "Entrer au moins 2 caractères pour lancer la recherche.";
+        return;
+      }
+
+      if (entries.length === 0) {
+        searchStatus.textContent = "Aucun résultat trouvé. Essayer un tag ou un mot-clé plus large.";
+        return;
+      }
+
+      searchStatus.textContent = `${entries.length} résultat(s) trouvé(s).`;
+      entries.forEach((entry) => searchResults.appendChild(buildCard(entry)));
+    };
+
+    let index = [];
+
+    const applySearch = () => {
+      const query = normalize(searchInput.value);
+      if (query.length < 2) {
+        renderResults([], "");
+        return;
+      }
+
+      const terms = query.split(/\s+/).filter(Boolean);
+
+      const matches = index.filter((entry) => {
+        const haystack = normalize(`${entry.title} ${entry.summary} ${entry.tags.join(" ")}`);
+        return terms.every((term) => haystack.includes(term));
+      });
+
+      renderResults(matches.slice(0, 30), query);
+    };
+
+    fetch(searchIndexUrl)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((entries) => {
+        index = entries.filter((entry) => entry.lang === "fr");
+        searchStatus.textContent = "Entrer au moins 2 caractères pour lancer la recherche.";
+      })
+      .catch(() => {
+        searchStatus.textContent = "Impossible de charger l’index de recherche.";
+      });
+
+    searchInput.addEventListener("input", applySearch);
+  </script>
+</BaseLayout>
+
+<style>
+  .search-block {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .search-block input {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.72rem 0.8rem;
+    font: inherit;
+    background: #fff;
+  }
+
+  .results-grid {
+    margin-top: 0.6rem;
+  }
+
+  .result-card {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .result-card h3 {
+    margin: 0;
+  }
+
+  .result-card a {
+    text-decoration: none;
+  }
+
+  .tips-block {
+    padding: 1.2rem;
+  }
+
+  .tips-block ul {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text-soft);
+  }
+
+  .tips-block a {
+    text-decoration: none;
+  }
+
+  .tips-block a:hover {
+    text-decoration: underline;
+  }
+</style>
