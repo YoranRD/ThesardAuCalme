@@ -20,6 +20,7 @@ const videos = defineCollection({
     .object({
       title: z.string().min(8).max(120),
       date: z.coerce.date(),
+      updated: z.coerce.date().optional(),
       lang: z.enum(["fr", "en"]),
       youtubeId: z.string().regex(/^[A-Za-z0-9_-]{11}$/),
       durationMin: z.number().positive().max(600),
@@ -88,6 +89,14 @@ const videos = defineCollection({
           message: "series and seriesOrder must be defined together"
         });
       }
+
+      if (entry.updated && entry.updated.getTime() < entry.date.getTime()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["updated"],
+          message: "updated date cannot be earlier than date"
+        });
+      }
     })
 });
 
@@ -97,6 +106,7 @@ const guides = defineCollection({
     .object({
       title: z.string().min(8).max(120),
       date: z.coerce.date(),
+      updated: z.coerce.date().optional(),
       lang: z.enum(["fr", "en"]),
       summary: z.string().min(90).max(320),
       tags: z.array(z.string().min(2).max(40)).min(2).max(10),
@@ -120,6 +130,14 @@ const guides = defineCollection({
           message: "series and seriesOrder must be defined together"
         });
       }
+
+      if (entry.updated && entry.updated.getTime() < entry.date.getTime()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["updated"],
+          message: "updated date cannot be earlier than date"
+        });
+      }
     })
 });
 
@@ -140,12 +158,45 @@ const articles = defineCollection({
     .object({
       title: z.string().min(8).max(140),
       date: z.coerce.date(),
+      updated: z.coerce.date().optional(),
       lang: z.enum(["fr", "en"]),
       summary: z.string().min(90).max(340),
       tags: z.array(z.string().min(2).max(40)).min(2).max(14),
       status: z.enum(["published", "coming-soon"]).default("coming-soon"),
       youtubeId: z.string().regex(/^[A-Za-z0-9_-]{11}$/).optional(),
       linkedVideoSlug: z.string().regex(/^[a-z0-9-]+$/).max(120).optional()
+    })
+    .superRefine((entry, ctx) => {
+      const uniqueTags = new Set(entry.tags);
+      if (uniqueTags.size !== entry.tags.length) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["tags"],
+          message: "tags must be unique"
+        });
+      }
+
+      if (entry.updated && entry.updated.getTime() < entry.date.getTime()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["updated"],
+          message: "updated date cannot be earlier than date"
+        });
+      }
+    })
+});
+
+const toolReviews = defineCollection({
+  type: "content",
+  schema: z
+    .object({
+      title: z.string().min(8).max(160),
+      lang: z.enum(["fr", "en"]),
+      summary: z.string().min(90).max(340),
+      resourceKey: z.string().regex(/^[a-z0-9-]{2,80}$/),
+      verdict: z.enum(["recommend", "conditional", "avoid"]),
+      tags: z.array(z.string().min(2).max(40)).min(2).max(10),
+      youtubeId: z.string().regex(/^[A-Za-z0-9_-]{11}$/).optional()
     })
     .superRefine((entry, ctx) => {
       const uniqueTags = new Set(entry.tags);
@@ -163,5 +214,6 @@ export const collections = {
   videos,
   guides,
   pages,
-  articles
+  articles,
+  toolReviews
 };

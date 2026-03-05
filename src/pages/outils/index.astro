@@ -1,117 +1,522 @@
 ---
+import { getCollection } from "astro:content";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import ToolboxCtaModal from "../../components/ToolboxCtaModal.astro";
 import { withBase } from "../../lib/links";
-import { getResourcesByObjective } from "../../lib/resources";
+import { getResourcesByObjective, type ResourceEntry } from "../../lib/resources";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
-const objectives = getResourcesByObjective().filter((section) => section.items.length > 0);
+const toolReviews = await getCollection("toolReviews", ({ data }) => data.lang === "fr");
+const reviewSlugSet = new Set(toolReviews.map((entry) => entry.slug));
+
+const getReviewOrDetailPath = (resource: ResourceEntry): string => {
+  if (resource.reviewSlug && reviewSlugSet.has(resource.reviewSlug)) {
+    return withBase(`/outils/avis/${resource.reviewSlug}/`);
+  }
+  return withBase(`/outils/${resource.key}/`);
+};
+
+const formatScore = (value: number): string => value.toFixed(1).replace(/\.0$/, "");
+const scoreFill = (value: number): string => `${Math.max(0, Math.min(100, (value / 5) * 100))}%`;
+
+const sections = getResourcesByObjective()
+  .map((section) => ({
+    objective: section.objective,
+    items: [...section.items].sort((a, b) => {
+      if (a.wizardScore !== b.wizardScore) {
+        return b.wizardScore - a.wizardScore;
+      }
+      if (a.isFeatured !== b.isFeatured) {
+        return a.isFeatured ? -1 : 1;
+      }
+      return a.name.localeCompare(b.name, "fr");
+    })
+  }))
+  .filter((section) => section.items.length > 0);
+
+const featured = sections
+  .flatMap((section) => section.items)
+  .filter((resource) => resource.isFeatured)
+  .sort((a, b) => {
+    if (a.wizardScore !== b.wizardScore) {
+      return b.wizardScore - a.wizardScore;
+    }
+    return a.name.localeCompare(b.name, "fr");
+  });
 ---
 
 <BaseLayout
   canonicalPath="/outils/"
-  title="Outils doctorat | Fiches logiciels"
-  description="Catalogue logiciel doctorat orienté objectifs: écrire, citer, lire, sauvegarder, focus et administratif, avec fiches outils détaillées."
+  title="Boite a outils doctorat | Thesard Au Calme"
+  description="Toolbox doctorale premium: incontournables, filtres par objectif, classement par score editorial, avis detailles et acces rapide aux outils recommandes."
 >
   <section class="section">
-    <div class="container prose">
+    <div class="container toolbox-hero">
       <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Outils" }]} />
-      <p class="eyebrow">Outils logiciels</p>
-      <h1>Fiches outils par objectif</h1>
+      <p class="eyebrow">Toolbox doctorale</p>
+      <h1>Boite a outils claire, sobre et actionnable</h1>
       <p>
-        Cette section sert de couche pratique: pour chaque outil, une fiche claire avec bénéfices, pièges, checklist de setup
-        et alternatives gratuites.
+        Selection edito classee par objectifs de these, avec score transparent, badges, cas d'usage, limites et double CTA
+        vers l'outil et l'avis detaille.
+      </p>
+      <p class="small transparency-inline">
+        Transparence: certains liens externes passent par <code>/out/[key]/</code>. Aucun classement paye.
+        <a href={withBase("/legal/affiliation/")}>Lire la politique d'affiliation</a>.
       </p>
     </div>
   </section>
 
-  <section class="section">
-    <div class="container surface top-note">
-      <h2>Transparence</h2>
-      <p>
-        Les boutons "Ouvrir l'outil" passent par `/out/[key]/` pour mesurer les clics sortants. Aucun changement de prix,
-        aucune priorité vendue: l'ordre dépend de l'utilité réelle dans un workflow doctoral.
-      </p>
-      <a class="button button-secondary" href={withBase("/legal/affiliation/")}>Voir la politique d'affiliation</a>
+  <section class="section featured-section">
+    <div class="container">
+      <div class="section-head">
+        <h2>Incontournables ⭐</h2>
+        <a class="button button-secondary" href={withBase("/outils/avis/")}>Tous les avis</a>
+      </div>
+      <div class="featured-rail" role="list">
+        {
+          featured.map((resource) => (
+            <article class="surface featured-card" role="listitem">
+              <div class="featured-head">
+                <span class="logo-placeholder" aria-hidden="true">{resource.name.slice(0, 2).toUpperCase()}</span>
+                <div>
+                  <p class="small muted">{resource.badge ?? "Selection editoriale"}</p>
+                  <h3>{resource.name}</h3>
+                </div>
+              </div>
+              <p class="small">{resource.description}</p>
+              {
+                resource.perk && (
+                  <p class="perk">
+                    <strong>{resource.perk.label}</strong>
+                    {resource.perk.code && <code>{resource.perk.code}</code>}
+                    {resource.perk.description && <span>{resource.perk.description}</span>}
+                  </p>
+                )
+              }
+              <div class="actions">
+                <a class="button button-primary" href={withBase(`/out/${resource.key}/`)} rel="nofollow sponsored">Decouvrir</a>
+                <a class="button button-secondary" href={getReviewOrDetailPath(resource)}>Lire l'avis</a>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section filter-section">
+    <div class="container filter-bar" data-toolbox-filter-root>
+      <div class="chips" role="group" aria-label="Filtrer par objectif">
+        <button type="button" class="chip active" data-objective-chip="all" aria-pressed="true">Tous</button>
+        {
+          sections.map((section) => (
+            <button type="button" class="chip" data-objective-chip={section.objective.key} aria-pressed="false">
+              {section.objective.label}
+            </button>
+          ))
+        }
+      </div>
+
+      <label class="search-label" for="toolbox-search">Rechercher un outil...</label>
+      <input id="toolbox-search" type="search" placeholder="Rechercher un outil..." data-toolbox-search />
+
+      <div class="toggles">
+        <label>
+          <input type="checkbox" data-toolbox-featured-only />
+          Show only featured
+        </label>
+        <label>
+          <input type="checkbox" data-toolbox-free-only />
+          Show only free/€
+        </label>
+      </div>
     </div>
   </section>
 
   <section class="section">
-    <div class="container grid objective-grid">
+    <div class="container toolbox-sections" data-toolbox-sections>
       {
-        objectives.map((section) => (
-          <section class="surface objective-block" id={section.objective.key}>
+        sections.map((section) => (
+          <section class="surface objective-section" data-objective-section={section.objective.key}>
             <p class="eyebrow">Objectif</p>
             <h2>{section.objective.label}</h2>
             <p>{section.objective.description}</p>
-            <div class="grid card-grid">
+            <ol class="ranking-list">
               {
-                section.items.map((resource) => (
-                  <article class="card tool-card">
-                    <p class="small muted">{resource.pricingNote}</p>
-                    <h3><a href={withBase(`/outils/${resource.key}/`)}>{resource.name}</a></h3>
-                    <p>{resource.description}</p>
-                    <div class="actions">
-                      <a class="button button-secondary" href={withBase(`/outils/${resource.key}/`)}>Voir la fiche</a>
-                      <a class="button button-secondary" href={withBase(`/out/${resource.key}/`)} rel="nofollow sponsored">Ouvrir l'outil</a>
+                section.items.map((resource, index) => (
+                  <li
+                    class="card ranking-item"
+                    data-resource-card
+                    data-featured={resource.isFeatured ? "true" : "false"}
+                    data-price-tier={resource.priceTier}
+                    data-search={`${resource.name} ${resource.description} ${resource.bestFor.join(" ")} ${resource.avoidIf.join(" ")}`
+                      .toLowerCase()}
+                  >
+                    <div class="ranking-meta">
+                      <span class="rank-medal" data-rank-medal>{index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index + 1}`}</span>
+                      {resource.badge && <span class="meta-pill">{resource.badge}</span>}
                     </div>
-                  </article>
+
+                    <h3>{resource.name}</h3>
+                    <p class="small"><strong>Best for:</strong> {resource.bestFor.join(" · ")}</p>
+                    {resource.avoidIf.length > 0 && <p class="small muted"><strong>A eviter si:</strong> {resource.avoidIf.join(" · ")}</p>}
+
+                    <p class="small score-row">
+                      <span class="star-meter" aria-label={`Score ${formatScore(resource.wizardScore)} sur 5`}>
+                        <span class="star-back">★★★★★</span>
+                        <span class="star-front" style={`width:${scoreFill(resource.wizardScore)}`}>★★★★★</span>
+                      </span>
+                      <span>{formatScore(resource.wizardScore)}/5</span>
+                      <span class="meta-pill">{resource.priceTier}</span>
+                    </p>
+
+                    {
+                      resource.perk && (
+                        <p class="perk small">
+                          <strong>{resource.perk.label}</strong>
+                          {resource.perk.code && <code>{resource.perk.code}</code>}
+                          {resource.perk.description && <span>{resource.perk.description}</span>}
+                        </p>
+                      )
+                    }
+
+                    <div class="actions">
+                      <a class="button button-primary" href={withBase(`/out/${resource.key}/`)} rel="nofollow sponsored">Decouvrir l'outil</a>
+                      <a class="button button-secondary" href={getReviewOrDetailPath(resource)}>Lire l'avis</a>
+                    </div>
+                  </li>
                 ))
               }
-            </div>
+            </ol>
           </section>
         ))
       }
     </div>
   </section>
+
+  <ToolboxCtaModal />
 </BaseLayout>
 
+<script is:inline>
+  (() => {
+    const root = document.querySelector("[data-toolbox-filter-root]");
+    const sectionContainer = document.querySelector("[data-toolbox-sections]");
+    if (!root || !sectionContainer) {
+      return;
+    }
+
+    const chips = [...root.querySelectorAll("[data-objective-chip]")];
+    const searchInput = root.querySelector("[data-toolbox-search]");
+    const featuredOnlyInput = root.querySelector("[data-toolbox-featured-only]");
+    const freeOnlyInput = root.querySelector("[data-toolbox-free-only]");
+    const sections = [...sectionContainer.querySelectorAll("[data-objective-section]")];
+
+    if (!searchInput || !featuredOnlyInput || !freeOnlyInput) {
+      return;
+    }
+
+    let activeObjective = "all";
+
+    const updateRankingLabels = (section) => {
+      const cards = [...section.querySelectorAll("[data-resource-card]")].filter((card) => !card.hidden);
+      const medals = ["🥇", "🥈", "🥉"];
+
+      cards.forEach((card, index) => {
+        const medalNode = card.querySelector("[data-rank-medal]");
+        if (!medalNode) {
+          return;
+        }
+        medalNode.textContent = medals[index] || `#${index + 1}`;
+      });
+    };
+
+    const applyFilters = () => {
+      const query = searchInput.value.trim().toLowerCase();
+      const onlyFeatured = featuredOnlyInput.checked;
+      const onlyFree = freeOnlyInput.checked;
+
+      sections.forEach((section) => {
+        const objectiveKey = section.getAttribute("data-objective-section");
+        const cards = [...section.querySelectorAll("[data-resource-card]")];
+
+        const objectiveVisible = activeObjective === "all" || activeObjective === objectiveKey;
+        let visibleCount = 0;
+
+        cards.forEach((card) => {
+          const searchable = card.getAttribute("data-search") || "";
+          const matchesSearch = query.length === 0 || searchable.includes(query);
+          const matchesFeatured = !onlyFeatured || card.getAttribute("data-featured") === "true";
+          const matchesPrice = !onlyFree || card.getAttribute("data-price-tier") === "€";
+
+          const isVisible = objectiveVisible && matchesSearch && matchesFeatured && matchesPrice;
+          card.hidden = !isVisible;
+          if (isVisible) {
+            visibleCount += 1;
+          }
+        });
+
+        section.hidden = !objectiveVisible || visibleCount === 0;
+        if (!section.hidden) {
+          updateRankingLabels(section);
+        }
+      });
+    };
+
+    chips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        activeObjective = chip.getAttribute("data-objective-chip") || "all";
+        chips.forEach((candidate) => {
+          const isActive = candidate === chip;
+          candidate.classList.toggle("active", isActive);
+          candidate.setAttribute("aria-pressed", isActive ? "true" : "false");
+        });
+        applyFilters();
+      });
+    });
+
+    searchInput.addEventListener("input", applyFilters);
+    featuredOnlyInput.addEventListener("change", applyFilters);
+    freeOnlyInput.addEventListener("change", applyFilters);
+
+    applyFilters();
+  })();
+</script>
+
 <style>
-  .top-note {
-    padding: 1.2rem;
+  .toolbox-hero {
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .transparency-inline {
+    width: fit-content;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 0.7rem;
+    background: #fff;
+  }
+
+  .transparency-inline a {
+    margin-left: 0.35rem;
+  }
+
+  .featured-section {
+    padding-top: 0;
+  }
+
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.8rem;
+    flex-wrap: wrap;
+  }
+
+  .featured-rail {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(280px, 350px);
+    gap: 0.8rem;
+    overflow-x: auto;
+    padding-bottom: 0.3rem;
+  }
+
+  .featured-card {
+    padding: 1rem;
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .featured-head {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+  }
+
+  .featured-head h3 {
+    margin: 0;
+  }
+
+  .logo-placeholder {
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    background: #fff;
+    color: var(--accent);
+    font-size: 0.8rem;
+  }
+
+  .filter-section {
+    padding-top: 0;
+    position: sticky;
+    top: 4.4rem;
+    z-index: 20;
+  }
+
+  .filter-bar {
+    background: #fffefc;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 0.75rem;
     display: grid;
     gap: 0.65rem;
   }
 
-  .objective-grid {
-    gap: 1.6rem;
-  }
-
-  .objective-block {
-    padding: 1.2rem;
-    display: grid;
-    gap: 0.75rem;
-  }
-
-  .card-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .tool-card {
-    display: grid;
-    gap: 0.45rem;
-  }
-
-  .tool-card h3 {
-    margin: 0;
-  }
-
-  .tool-card a {
-    text-decoration: none;
-  }
-
-  .tool-card a:hover {
-    text-decoration: underline;
-  }
-
-  .actions {
+  .chips {
     display: flex;
     gap: 0.45rem;
     flex-wrap: wrap;
   }
 
+  .chip {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--text-soft);
+    padding: 0.35rem 0.75rem;
+    cursor: pointer;
+    font: inherit;
+  }
+
+  .chip.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .search-label {
+    font-size: 0.86rem;
+    color: var(--text-soft);
+  }
+
+  .filter-bar input[type="search"] {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.52rem 0.65rem;
+    font: inherit;
+    color: var(--text);
+    background: #fff;
+  }
+
+  .toggles {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    color: var(--text-soft);
+    font-size: 0.92rem;
+  }
+
+  .toggles label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .toolbox-sections {
+    display: grid;
+    gap: 1.15rem;
+  }
+
+  .objective-section {
+    padding: 1rem;
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .ranking-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .ranking-item {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .ranking-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+
+  .rank-medal {
+    font-size: 1.1rem;
+    min-width: 2.1rem;
+  }
+
+  .score-row {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+
+  .star-meter {
+    position: relative;
+    display: inline-flex;
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  .star-back {
+    color: #cfc8bc;
+    letter-spacing: 0.02em;
+  }
+
+  .star-front {
+    position: absolute;
+    left: 0;
+    top: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    color: #f2b400;
+    letter-spacing: 0.02em;
+  }
+
+  .perk {
+    border: 1px solid #d6c2a2;
+    background: #fff6e9;
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 0.6rem;
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.38rem;
+  }
+
+  .perk code {
+    border: 1px dashed #b08b54;
+    border-radius: 0.35rem;
+    padding: 0.05rem 0.35rem;
+    background: #fff;
+    font-family: "SFMono-Regular", Menlo, monospace;
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
   @media (max-width: 980px) {
-    .card-grid {
-      grid-template-columns: 1fr;
+    .filter-section {
+      top: 0;
+      position: static;
+    }
+
+    .featured-rail {
+      grid-auto-columns: minmax(260px, 84vw);
     }
   }
 </style>

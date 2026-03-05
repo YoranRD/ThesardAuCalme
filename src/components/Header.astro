@@ -1,14 +1,29 @@
 ---
-import wordmark from "../assets/brand/wordmark.svg";
-import mascot from "../assets/brand/mascot.svg";
-import { activeBasePath } from "../config/site";
+import { activeBasePath, brandDisplayName } from "../config/site";
 import { withBase } from "../lib/links";
+
+const logoModule = import.meta.glob("../assets/brand/logo.svg", {
+  eager: true,
+  import: "default",
+  query: "?url"
+}) as Record<string, string>;
+
+const mascotModule = import.meta.glob("../assets/brand/mascot.svg", {
+  eager: true,
+  import: "default",
+  query: "?url"
+}) as Record<string, string>;
+
+const logoSrc = logoModule["../assets/brand/logo.svg"];
+const mascotSrc = mascotModule["../assets/brand/mascot.svg"];
 
 const navItems = [
   { href: "/", label: "Accueil" },
   { href: "/start/", label: "Commencer" },
+  { href: "/youtube/", label: "YouTube" },
   { href: "/videos/", label: "Vidéos" },
   { href: "/guides/", label: "Guides" },
+  { href: "/outils/", label: "Outils" },
   { href: "/articles/", label: "Articles" },
   { href: "/ressources/", label: "Ressources" },
   { href: "/recherche/", label: "Recherche" },
@@ -34,8 +49,26 @@ const isActive = (href: string): boolean => {
 <header class="site-header">
   <div class="container header-inner">
     <a class="brand-link" href={withBase("/")} aria-label="Retour à l'accueil">
-      <img src={mascot.src} alt="Mascotte Thésard Au Calme" width="44" height="44" loading="eager" />
-      <img src={wordmark.src} alt="Thésard Au Calme" width="250" height="46" loading="eager" />
+      {
+        mascotSrc && (
+          <img src={mascotSrc} alt="" width="42" height="42" loading="eager" decoding="async" aria-hidden="true" />
+        )
+      }
+      {
+        logoSrc && (
+          <img
+            class="brand-logo"
+            src={logoSrc}
+            alt=""
+            width="34"
+            height="34"
+            loading="eager"
+            decoding="async"
+            aria-hidden="true"
+          />
+        )
+      }
+      <span class="brand-name">{brandDisplayName}</span>
     </a>
 
     <nav aria-label="Navigation principale">
@@ -75,8 +108,19 @@ const isActive = (href: string): boolean => {
   .brand-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.55rem;
+    gap: 0.52rem;
     text-decoration: none;
+  }
+
+  .brand-logo {
+    border-radius: 0.35rem;
+  }
+
+  .brand-name {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+    font-size: 1.15rem;
+    letter-spacing: -0.01em;
+    color: var(--text);
   }
 
   .nav-list {
@@ -110,11 +154,6 @@ const isActive = (href: string): boolean => {
     .header-inner {
       flex-direction: column;
       align-items: flex-start;
-    }
-
-    .brand-link img:nth-child(2) {
-      width: 205px;
-      height: auto;
     }
 
     .nav-list {

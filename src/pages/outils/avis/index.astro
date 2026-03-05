@@ -1,0 +1,112 @@
+---
+import { getCollection } from "astro:content";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import { withBase } from "../../../lib/links";
+import { resourceByKey } from "../../../lib/resources";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+
+const reviews = await getCollection("toolReviews", ({ data }) => data.lang === "fr");
+
+const reviewCards = reviews
+  .map((review) => {
+    const resource = resourceByKey.get(review.data.resourceKey);
+    if (!resource) {
+      throw new Error(`Unknown resourceKey in tool review: ${review.slug}`);
+    }
+    return { review, resource };
+  })
+  .sort((a, b) => {
+    if (a.resource.isFeatured !== b.resource.isFeatured) {
+      return a.resource.isFeatured ? -1 : 1;
+    }
+    if (a.resource.wizardScore !== b.resource.wizardScore) {
+      return b.resource.wizardScore - a.resource.wizardScore;
+    }
+    return a.resource.name.localeCompare(b.resource.name, "fr");
+  });
+
+const verdictLabel: Record<string, string> = {
+  recommend: "Recommande",
+  conditional: "Recommande sous conditions",
+  avoid: "A eviter"
+};
+---
+
+<BaseLayout
+  canonicalPath="/outils/avis/"
+  title="Avis outils doctorat | Thesard Au Calme"
+  description="Avis detailles sur les outils de la toolbox doctorale: pour qui, alternatives, setup en 10 minutes et verdict editorial transparent."
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Outils", href: "/outils/" }, { label: "Avis" }]} />
+      <p class="eyebrow">Avis outils</p>
+      <h1>Bibliotheque d'avis editoriaux</h1>
+      <p>
+        Chaque avis documente les cas d'usage, les alternatives et les limites avant recommandation. Les liens sortants restent
+        traces via <code>/out/[key]/</code>.
+      </p>
+      <a class="button button-secondary" href={withBase("/legal/affiliation/")}>Transparence affiliation</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid review-grid">
+      {
+        reviewCards.map(({ review, resource }) => (
+          <article class="surface review-card">
+            <p class="small muted">{resource.badge ?? "Avis detaille"}</p>
+            <h2><a href={withBase(`/outils/avis/${review.slug}/`)}>{review.data.title}</a></h2>
+            <p>{review.data.summary}</p>
+            <p class="small">
+              <strong>Verdict:</strong> {verdictLabel[review.data.verdict]} · <strong>Score:</strong> {resource.wizardScore}/5 · {resource.priceTier}
+            </p>
+            <p class="small muted">Tags: {review.data.tags.join(" · ")}</p>
+            <div class="actions">
+              <a class="button button-secondary" href={withBase(`/outils/avis/${review.slug}/`)}>Lire l'avis</a>
+              <a class="button button-primary" href={withBase(`/out/${resource.key}/`)} rel="nofollow sponsored">Decouvrir l'outil</a>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .review-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .review-card {
+    padding: 1.15rem;
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .review-card h2 {
+    margin: 0;
+    font-size: 1.35rem;
+  }
+
+  .review-card a {
+    text-decoration: none;
+  }
+
+  .review-card a:hover {
+    text-decoration: underline;
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 980px) {
+    .review-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

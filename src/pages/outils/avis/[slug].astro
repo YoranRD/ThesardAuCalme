@@ -1,0 +1,186 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import { isConfiguredExternalUrl, youtubeUrl } from "../../../config/identity";
+import { withBase } from "../../../lib/links";
+import { resourceByKey } from "../../../lib/resources";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const reviews = await getCollection("toolReviews", ({ data }) => data.lang === "fr");
+
+  return reviews.map((review) => ({
+    params: { slug: review.slug },
+    props: { review }
+  }));
+}
+
+interface Props {
+  review: CollectionEntry<"toolReviews">;
+}
+
+const { review } = Astro.props;
+const resource = resourceByKey.get(review.data.resourceKey);
+
+if (!resource) {
+  throw new Error(`Unknown resourceKey in tool review page: ${review.slug}`);
+}
+
+const { Content } = await review.render();
+
+const verdictLabel: Record<string, string> = {
+  recommend: "Recommande",
+  conditional: "Recommande sous conditions",
+  avoid: "A eviter"
+};
+
+const youtubeFallbackIsExternal = isConfiguredExternalUrl(youtubeUrl);
+const youtubeFallbackHref = youtubeFallbackIsExternal ? youtubeUrl : withBase("/youtube/");
+---
+
+<BaseLayout
+  canonicalPath={`/outils/avis/${review.slug}/`}
+  title={`${review.data.title} | Avis outil`}
+  description={review.data.summary}
+  type="article"
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs
+        items={[
+          { label: "Accueil", href: "/" },
+          { label: "Outils", href: "/outils/" },
+          { label: "Avis", href: "/outils/avis/" },
+          { label: resource.name }
+        ]}
+      />
+      <p class="eyebrow">Avis detaille</p>
+      <h1>{review.data.title}</h1>
+      <p>{review.data.summary}</p>
+      <p class="small muted">
+        Verdict: {verdictLabel[review.data.verdict]} · Outil: <a href={withBase(`/outils/${resource.key}/`)}>{resource.name}</a> · Score: {resource.wizardScore}/5 · {resource.priceTier}
+      </p>
+      <div class="actions">
+        <a class="button button-primary" href={withBase(`/out/${resource.key}/`)} rel="nofollow sponsored">Decouvrir l'outil</a>
+        <a class="button button-secondary" href={withBase("/legal/affiliation/")}>Transparence affiliation</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid review-layout">
+      <article class="surface prose review-content">
+        <Content />
+      </article>
+
+      <aside class="surface side-panel">
+        <h2>Video</h2>
+        {
+          review.data.youtubeId ? (
+            <div class="video-wrapper">
+              <iframe
+                src={`https://www.youtube-nocookie.com/embed/${review.data.youtubeId}`}
+                title={`Video associee: ${review.data.title}`}
+                loading="lazy"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+              ></iframe>
+            </div>
+          ) : (
+            <div class="video-placeholder">
+              <p class="small muted">Video a venir pour cet avis.</p>
+              <a
+                class="button button-secondary"
+                href={youtubeFallbackHref}
+                target={youtubeFallbackIsExternal ? "_blank" : undefined}
+                rel={youtubeFallbackIsExternal ? "noopener nofollow" : undefined}
+              >
+                Voir la chaine
+              </a>
+            </div>
+          )
+        }
+
+        <h2>Acces rapide</h2>
+        <ul>
+          <li><a href={withBase(`/outils/${resource.key}/`)}>Fiche outil {resource.name}</a></li>
+          <li><a href={withBase(`/out/${resource.key}/`)} rel="nofollow sponsored">Sortie partenaire</a></li>
+          <li><a href={withBase("/outils/avis/")}>Tous les avis</a></li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .review-layout {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 1rem;
+  }
+
+  .review-content {
+    padding: 1.2rem;
+  }
+
+  .side-panel {
+    padding: 1.1rem;
+    display: grid;
+    gap: 0.75rem;
+    position: sticky;
+    top: 6.2rem;
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+
+  .video-wrapper {
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: #0f0f0f;
+  }
+
+  .video-wrapper iframe {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: 0;
+    display: block;
+  }
+
+  .video-placeholder {
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.8rem;
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .side-panel ul {
+    margin: 0;
+    padding-left: 1rem;
+    color: var(--text-soft);
+  }
+
+  .side-panel a {
+    text-decoration: none;
+  }
+
+  .side-panel a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 980px) {
+    .review-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .side-panel {
+      position: static;
+    }
+  }
+</style>

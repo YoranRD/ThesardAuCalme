@@ -11,6 +11,21 @@
     - Stabilite de synchronisation.
     - Durabilite du projet open source.
   pricingNote: free
+  priceTier: €
+  wizardScore: 5
+  bestFor:
+    - bibliographie
+    - citations
+    - revue-de-litterature
+    - travail-long
+  avoidIf:
+    - zero-maintenance-metadonnees
+  perk:
+    label: Open source
+    description: Fonctionnalites clefs accessibles sans abonnement.
+  badge: "🥇 #1 Recommandation"
+  isFeatured: true
+  reviewSlug: zotero
   url: https://www.zotero.org/
   freeAlternativeKeys:
     - jabref
@@ -71,6 +86,20 @@
     - Portabilite des projets.
     - Robustesse du versioning.
   pricingNote: freemium
+  priceTier: €€
+  wizardScore: 4.5
+  bestFor:
+    - latex-collaboratif
+    - articles
+    - these-sciences
+  avoidIf:
+    - flux-100-pourcent-hors-ligne
+  perk:
+    label: Plan gratuit pour demarrage
+    description: Edition collaborative immediate dans le navigateur.
+  badge: Collaboration rapide
+  isFeatured: true
+  reviewSlug: overleaf
   url: https://www.overleaf.com/
   freeAlternativeKeys:
     - typst
@@ -103,6 +132,21 @@
     - Capacite de structuration.
     - Performance sur corpus large.
   pricingNote: freemium
+  priceTier: €€
+  wizardScore: 4.5
+  bestFor:
+    - notes-reliees
+    - redaction
+    - long-corpus
+    - organisation
+  avoidIf:
+    - coedition-temps-reel-native
+  perk:
+    label: Plan gratuit solide
+    description: Base locale flexible avec ecosysteme de plugins mature.
+  badge: Coup de coeur
+  isFeatured: true
+  reviewSlug: obsidian
   url: https://obsidian.md/
   freeAlternativeKeys:
     - logseq
@@ -193,6 +237,20 @@
     - Couverture linguistique.
     - Cout d'entree.
   pricingNote: freemium
+  priceTier: €€
+  wizardScore: 4
+  bestFor:
+    - relecture-rapide
+    - francais-anglais
+    - controle-style
+  avoidIf:
+    - besoin-correction-editoriale-profonde
+  perk:
+    label: Version gratuite utile
+    description: Couvre la premiere passe de correction sur memoires et articles.
+  badge: Rapide a adopter
+  isFeatured: true
+  reviewSlug: language-tool
   url: https://languagetool.org/
   freeAlternativeKeys:
     - deepl-write
@@ -238,6 +296,20 @@
     - Qualite export highlights.
     - Productivite de lecture.
   pricingNote: paid
+  priceTier: €€€
+  wizardScore: 4
+  bestFor:
+    - lecture-intensive
+    - highlights
+    - synthese
+  avoidIf:
+    - budget-strictement-gratuit
+  perk:
+    label: Essai disponible
+    description: Centralise les lectures et exports de highlights vers les notes.
+  badge: Lecture intensive
+  isFeatured: true
+  reviewSlug: readwise-reader
   url: https://readwise.io/read
   freeAlternativeKeys:
     - hypothesis
@@ -313,6 +385,20 @@
     - Souverainete des donnees.
     - Cout total.
   pricingNote: free
+  priceTier: €
+  wizardScore: 4.5
+  bestFor:
+    - sauvegarde
+    - synchronisation
+    - souverainete
+  avoidIf:
+    - besoin-backup-cloud-cle-en-main
+  perk:
+    label: Sans abonnement
+    description: Synchronisation chiffree de pair a pair avec controle local.
+  badge: Best value
+  isFeatured: true
+  reviewSlug: syncthing
   url: https://syncthing.net/
 
 - key: google-drive
@@ -399,6 +485,20 @@
     - Fiabilite rappels.
     - Ergonomie quotidienne.
   pricingNote: freemium
+  priceTier: €€
+  wizardScore: 4
+  bestFor:
+    - routine-hebdo
+    - todo-projets
+    - rappels
+  avoidIf:
+    - gestion-projet-tres-complexe
+  perk:
+    label: Plan gratuit pour base solide
+    description: Suffisant pour une routine doctorale simple et stable.
+  badge: Routine fiable
+  isFeatured: true
+  reviewSlug: todoist
   url: https://todoist.com/
   freeAlternativeKeys:
     - google-tasks
@@ -470,6 +570,20 @@
     - Fiabilite institutionnelle.
     - Clarte des etapes.
   pricingNote: free
+  priceTier: €
+  wizardScore: 4
+  bestFor:
+    - international
+    - administratif
+    - orientation
+  avoidIf:
+    - demarches-non-academiques
+  perk:
+    label: Source institutionnelle
+    description: Portail de reference pour cadrer un parcours doctoral international.
+  badge: Incontournable international
+  isFeatured: true
+  reviewSlug: campus-france
   url: https://www.campusfrance.org/fr
 
 - key: france-visas

@@ -1,4 +1,5 @@
 ---
+import { getCollection } from "astro:content";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
 import { withBase } from "../../lib/links";
 import {
@@ -24,32 +25,88 @@ interface Props {
 
 const { resource } = Astro.props;
 
+const toolReviews = await getCollection("toolReviews", ({ data }) => data.lang === "fr");
+const reviewByResourceKey = new Map(toolReviews.map((review) => [review.data.resourceKey, review]));
+const reviewEntry = reviewByResourceKey.get(resource.key);
+const reviewPath = reviewEntry ? withBase(`/outils/avis/${reviewEntry.slug}/`) : null;
+
 const objectiveKey = getResourceObjectiveKey(resource);
 const objective = resourceObjectives.find((entry) => entry.key === objectiveKey);
 
 const whoItsForByObjective: Record<string, string> = {
-  ecrire: "Doctorant·es qui veulent passer d'un brouillon dispersé à un système d'écriture tenable.",
-  "citer-bibliographie": "Doctorant·es qui doivent fiabiliser citations, bibliographies et traçabilité des sources.",
-  "lire-pdf-annoter": "Doctorant·es qui lisent beaucoup de PDF et veulent réinjecter les notes dans la rédaction.",
-  "sauvegarder-synchroniser": "Doctorant·es qui veulent réduire le risque de perte de données et garder des versions restaurables.",
-  "focus-routine": "Doctorant·es qui cherchent une routine hebdo stable avec moins de dispersion quotidienne.",
-  administratif: "Doctorant·es en France, notamment internationaux, qui doivent séquencer les démarches administratives."
+  ecrire: "Doctorant-es qui veulent passer d'un brouillon disperse a un systeme d'ecriture tenable.",
+  "citer-bibliographie": "Doctorant-es qui doivent fiabiliser citations, bibliographies et tracabilite des sources.",
+  "lire-pdf-annoter": "Doctorant-es qui lisent beaucoup de PDF et veulent reinjecter les notes dans la redaction.",
+  "sauvegarder-synchroniser": "Doctorant-es qui veulent reduire le risque de perte de donnees et garder des versions restaurables.",
+  "focus-routine": "Doctorant-es qui cherchent une routine hebdo stable avec moins de dispersion quotidienne.",
+  administratif: "Doctorant-es en France, notamment internationaux, qui doivent sequencer les demarches administratives."
+};
+
+const setupChecklistByObjective: Record<string, string[]> = {
+  ecrire: [
+    "Creer un dossier projet unique et une convention de noms.",
+    "Definir un flux note vers paragraphe comme sortie standard.",
+    "Preparer un template de section reutilisable.",
+    "Planifier 3 sessions d'ecriture hebdomadaires.",
+    "Tester l'export du projet vers format neutre.",
+    "Faire une revue de structure chaque fin de semaine."
+  ],
+  "citer-bibliographie": [
+    "Choisir un style de citation unique par projet.",
+    "Importer 20 references test et corriger les metadonnees.",
+    "Creer 5 tags thematiques coherents.",
+    "Verifier le flux insertion citation dans l'editeur principal.",
+    "Nettoyer doublons et champs vides chaque semaine.",
+    "Exporter une bibliographie de test avant redaction intensive."
+  ],
+  "lire-pdf-annoter": [
+    "Definir 3 types d'annotations (resultat, limite, idee).",
+    "Creer un template de note de lecture en 10 lignes.",
+    "Programmer 2 sessions lecture + synthese hebdomadaires.",
+    "Tester l'export des highlights vers outil de notes.",
+    "Relier chaque lecture a une section de chapitre cible.",
+    "Archiver les PDF dans une arborescence stable."
+  ],
+  "sauvegarder-synchroniser": [
+    "Identifier les dossiers critiques de these.",
+    "Mettre en place 3 copies selon la regle 3-2-1.",
+    "Configurer une sauvegarde automatique quotidienne.",
+    "Creer un point de restauration hebdomadaire.",
+    "Tester la recuperation d'un dossier complet.",
+    "Documenter la procedure de restauration en 1 page."
+  ],
+  "focus-routine": [
+    "Definir 3 priorites hebdo maximum.",
+    "Planifier des blocs focus de 60 a 90 minutes.",
+    "Regrouper l'administratif sur des creneaux dedies.",
+    "Fixer une revue hebdo de 20 minutes.",
+    "Supprimer les taches sans livrable explicite.",
+    "Mesurer la progression par sorties, pas par heures."
+  ],
+  administratif: [
+    "Lister toutes les demarches actives avec dates limites.",
+    "Associer chaque dossier a une source officielle.",
+    "Creer un dossier de preuves (PDF + captures).",
+    "Definir l'ordre d'execution des demarches critiques.",
+    "Programmer un controle hebdo des echeances.",
+    "Preparer un email type pour demandes de clarification."
+  ]
 };
 
 const pitfallsByObjective: Record<string, string[]> = {
   ecrire: [
-    "Multiplier les outils d'écriture sans convention de fichiers.",
-    "Changer de méthode chaque semaine au lieu de stabiliser une routine.",
-    "Négliger l'export des données avant des refontes de structure."
+    "Multiplier les outils d'ecriture sans convention de fichiers.",
+    "Changer de methode chaque semaine au lieu de stabiliser une routine.",
+    "Negliger l'export des donnees avant des refontes de structure."
   ],
   "citer-bibliographie": [
-    "Importer des références sans contrôle des métadonnées.",
-    "Mélanger styles de citation dans un même manuscrit.",
-    "Ignorer les doublons jusqu'à la phase de soumission."
+    "Importer des references sans controle des metadonnees.",
+    "Melanger styles de citation dans un meme manuscrit.",
+    "Ignorer les doublons jusqu'a la phase de soumission."
   ],
   "lire-pdf-annoter": [
-    "Surligner sans créer de synthèse réutilisable.",
-    "Conserver les annotations dans un format difficile à exporter.",
+    "Surligner sans creer de synthese reutilisable.",
+    "Conserver les annotations dans un format difficile a exporter.",
     "Lire sans objectif de sortie (note, paragraphe, section)."
   ],
   "sauvegarder-synchroniser": [
@@ -58,100 +115,60 @@ const pitfallsByObjective: Record<string, string[]> = {
     "Centraliser toutes les copies sur un seul fournisseur."
   ],
   "focus-routine": [
-    "Utiliser une todo illimitée sans priorisation journalière.",
+    "Utiliser une todo illimitee sans priorisation journaliere.",
     "Empiler les minuteries sans revue hebdomadaire.",
-    "Planifier des journées irréalistes sans marge d'imprévu."
+    "Planifier des journees irrealistes sans marge d'imprevu."
   ],
   administratif: [
-    "Suivre des conseils de forum sans vérifier les sources officielles.",
+    "Suivre des conseils de forum sans verifier les sources officielles.",
     "Traiter les dossiers dans le mauvais ordre.",
-    "Perdre les preuves administratives faute d'archivage centralisé."
+    "Perdre les preuves administratives faute d'archivage centralise."
   ]
 };
-
-const setupChecklistByObjective: Record<string, string[]> = {
-  ecrire: [
-    "Créer un dossier projet unique et une convention de noms.",
-    "Définir un flux note vers paragraphe comme sortie standard.",
-    "Préparer un template de section réutilisable.",
-    "Planifier 3 sessions d'écriture hebdomadaires.",
-    "Tester l'export du projet vers format neutre (Markdown, DOCX ou PDF).",
-    "Faire une revue de structure chaque fin de semaine."
-  ],
-  "citer-bibliographie": [
-    "Choisir un style de citation unique par projet.",
-    "Importer 20 références test et corriger les métadonnées.",
-    "Créer 5 tags thématiques cohérents.",
-    "Vérifier le flux insertion citation dans l'éditeur principal.",
-    "Nettoyer doublons et champs vides chaque semaine.",
-    "Exporter une bibliographie de test avant rédaction intensive."
-  ],
-  "lire-pdf-annoter": [
-    "Définir 3 types d'annotations (résultat, limite, idée).",
-    "Créer un template de note de lecture en 10 lignes.",
-    "Programmer 2 sessions lecture + synthèse hebdomadaires.",
-    "Tester l'export des highlights vers outil de notes.",
-    "Relier chaque lecture à une section de chapitre cible.",
-    "Archiver les PDF dans une arborescence stable."
-  ],
-  "sauvegarder-synchroniser": [
-    "Identifier les dossiers critiques de thèse.",
-    "Mettre en place 3 copies selon la règle 3-2-1.",
-    "Configurer une sauvegarde automatique quotidienne.",
-    "Créer un point de restauration hebdomadaire.",
-    "Tester la récupération d'un dossier complet.",
-    "Documenter la procédure de restauration en 1 page."
-  ],
-  "focus-routine": [
-    "Définir 3 priorités hebdo maximum.",
-    "Planifier des blocs focus de 60 à 90 minutes.",
-    "Regrouper l'administratif sur des créneaux dédiés.",
-    "Fixer une revue hebdo de 20 minutes.",
-    "Supprimer les tâches sans livrable explicite.",
-    "Mesurer la progression par sorties, pas par heures."
-  ],
-  administratif: [
-    "Lister toutes les démarches actives avec dates limites.",
-    "Associer chaque dossier à une source officielle.",
-    "Créer un dossier de preuves (PDF + captures).",
-    "Définir l'ordre d'exécution des démarches critiques.",
-    "Programmer un contrôle hebdo des échéances.",
-    "Préparer un email type pour demandes de clarification."
-  ]
-};
-
-const fallbackChecklist = [
-  "Vérifier les besoins réels avant installation.",
-  "Tester sur un cas simple de 30 minutes.",
-  "Valider l'export des données.",
-  "Documenter la configuration minimale.",
-  "Programmer une revue à J+14."
-];
 
 const alternatives = resource.freeAlternativeKeys
   .map((key) => resourceByKey.get(key))
   .filter((entry): entry is ResourceEntry => Boolean(entry))
   .slice(0, 2);
 
-if (alternatives.length === 0) {
+if (alternatives.length < 2) {
   const fallback = resourcesCatalog
     .filter((entry) => entry.key !== resource.key && getResourceObjectiveKey(entry) === objectiveKey)
-    .slice(0, 2);
+    .slice(0, 2 - alternatives.length);
   alternatives.push(...fallback);
 }
 
-const pitfalls = pitfallsByObjective[objectiveKey] ?? [];
-const setupChecklist = setupChecklistByObjective[objectiveKey] ?? fallbackChecklist;
-const whoItsFor = whoItsForByObjective[objectiveKey] ?? "Doctorant·es qui veulent un système plus stable et vérifiable.";
+const scoreFill = `${Math.max(0, Math.min(100, (resource.wizardScore / 5) * 100))}%`;
+const formattedScore = resource.wizardScore.toFixed(1).replace(/\.0$/, "");
+
+const softwareJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: resource.name,
+  description: resource.description,
+  applicationCategory: objective?.label ?? "Doctorat",
+  operatingSystem: "Web",
+  offers: {
+    "@type": "Offer",
+    priceCategory: resource.priceTier
+  },
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: resource.wizardScore,
+    bestRating: 5,
+    worstRating: 1
+  }
+};
 ---
 
 <BaseLayout
   canonicalPath={`/outils/${resource.key}/`}
   title={`${resource.name} | Fiche outil doctorat`}
-  description={`${resource.name}: fiche pratique pour doctorat avec critères, pièges, setup et alternatives gratuites.`}
+  description={`${resource.name}: fiche premium avec score, cas d'usage, alternatives et CTA vers l'outil.`}
+  jsonLd={softwareJsonLd}
 >
   <section class="section">
-    <div class="container prose">
+    <div class="container summary-hero">
       <Breadcrumbs
         items={[
           { label: "Accueil", href: "/" },
@@ -159,12 +176,37 @@ const whoItsFor = whoItsForByObjective[objectiveKey] ?? "Doctorant·es qui veule
           { label: resource.name }
         ]}
       />
-      <p class="eyebrow">Fiche outil</p>
-      <h1>{resource.name}</h1>
-      <p>{resource.description}</p>
-      <p class="small muted">
-        Objectif: {objective?.label ?? "Support doctorat"} · Tarification: {resource.pricingNote}
-      </p>
+      <article class="surface summary-card">
+        <p class="eyebrow">Fiche outil</p>
+        <h1>{resource.name}</h1>
+        <p>{resource.description}</p>
+        <p class="small muted">{resource.badge ?? "Selection editoriale"}</p>
+
+        <div class="summary-meta">
+          <span class="star-meter" aria-label={`Score ${formattedScore} sur 5`}>
+            <span class="star-back">★★★★★</span>
+            <span class="star-front" style={`width:${scoreFill}`}>★★★★★</span>
+          </span>
+          <span class="small">{formattedScore}/5</span>
+          <span class="meta-pill">{resource.priceTier}</span>
+          <span class="meta-pill">{objective?.label ?? "Support doctorat"}</span>
+        </div>
+
+        <ul class="meta-list bestfor-chips">
+          {resource.bestFor.map((entry) => <li class="meta-pill">{entry}</li>)}
+        </ul>
+
+        <div class="actions">
+          <a class="button button-primary" href={getResourceOutboundPath(resource.key)} rel="nofollow sponsored">Decouvrir l'outil</a>
+          {
+            reviewPath ? (
+              <a class="button button-secondary" href={reviewPath}>Lire l'avis detaille</a>
+            ) : (
+              <a class="button button-secondary" href={withBase(`/outils/avis/`)}>Voir les avis</a>
+            )
+          }
+        </div>
+      </article>
     </div>
   </section>
 
@@ -172,70 +214,118 @@ const whoItsFor = whoItsForByObjective[objectiveKey] ?? "Doctorant·es qui veule
     <div class="container grid two-cols">
       <article class="surface block">
         <h2>Pour qui</h2>
-        <p>{whoItsFor}</p>
+        <p>{whoItsForByObjective[objectiveKey] ?? "Doctorant-es qui veulent un systeme plus stable et verifiable."}</p>
 
-        <h2>Pourquoi recommandé</h2>
+        <h2>Pourquoi recommande</h2>
         <ul>
           {resource.whyRecommended.map((item) => <li>{item}</li>)}
         </ul>
 
-        <h2>Critères utilisés</h2>
+        <h2>Criteres utilises</h2>
         <ul>
           {resource.criteriaUsed.map((item) => <li>{item}</li>)}
         </ul>
       </article>
 
       <article class="surface block">
-        <h2>Pièges fréquents</h2>
-        <ul>
-          {pitfalls.map((item) => <li>{item}</li>)}
-        </ul>
-
-        <h2>Checklist de setup</h2>
+        <h2>Setup en 10 minutes</h2>
         <ol>
-          {setupChecklist.slice(0, 10).map((item) => <li>{item}</li>)}
+          {(setupChecklistByObjective[objectiveKey] ?? []).map((item) => <li>{item}</li>)}
         </ol>
+
+        <h2>Pieges frequents</h2>
+        <ul>
+          {(pitfallsByObjective[objectiveKey] ?? []).map((item) => <li>{item}</li>)}
+        </ul>
       </article>
     </div>
   </section>
 
   <section class="section">
-    <div class="container grid two-cols">
-      <article class="surface block">
-        <h2>Alternatives gratuites</h2>
+    <div class="container surface compare-block">
+      <h2>Compare alternatives</h2>
+      <p class="small muted">
+        Deux options proches pour arbitrer selon contexte, budget et niveau de maturite du workflow.
+      </p>
+      <div class="grid alternatives-grid">
         {
-          alternatives.length > 0 ? (
-            <ul>
-              {
-                alternatives.map((entry) => (
-                  <li>
-                    <a href={withBase(`/outils/${entry.key}/`)}>{entry.name}</a> — {entry.pricingNote}
-                  </li>
-                ))
-              }
-            </ul>
-          ) : (
-            <p>Aucune alternative directe documentée pour l'instant.</p>
-          )
+          alternatives.map((entry) => (
+            <article class="card alternative-card">
+              <h3>{entry.name}</h3>
+              <p class="small muted">Score: {entry.wizardScore.toFixed(1).replace(/\.0$/, "")}/5 · {entry.priceTier}</p>
+              <ul>
+                <li><strong>Choisir {entry.name} pour:</strong> {entry.bestFor.slice(0, 2).join(" · ")}</li>
+                <li><strong>Choisir {resource.name} pour:</strong> {resource.bestFor.slice(0, 2).join(" · ")}</li>
+                {entry.avoidIf.length > 0 && <li><strong>A eviter si:</strong> {entry.avoidIf.join(" · ")}</li>}
+              </ul>
+              <div class="actions">
+                <a class="button button-secondary" href={withBase(`/outils/${entry.key}/`)}>Voir la fiche</a>
+                <a class="button button-secondary" href={getResourceOutboundPath(entry.key)} rel="nofollow sponsored">Ouvrir</a>
+              </div>
+            </article>
+          ))
         }
-      </article>
+      </div>
+    </div>
+  </section>
 
-      <article class="surface block disclosure-block">
-        <h2>Transparence</h2>
-        <p>
-          Le bouton ci-dessous utilise une redirection interne `/out/[key]/` pour suivre les clics sortants. Cela ne modifie
-          pas le prix du service. L'ordre des recommandations reste éditorial et révisable.
-        </p>
-        <a class="button button-primary" href={getResourceOutboundPath(resource.key)} rel="nofollow sponsored">
-          Ouvrir {resource.name}
-        </a>
-        <a class="button button-secondary" href={withBase("/legal/affiliation/")}>Politique d'affiliation</a>
-      </article>
+  <section class="section">
+    <div class="container surface disclosure-box">
+      <h2>Transparence</h2>
+      <p>
+        Les sorties externes utilisent <code>/out/[key]/</code> pour mesurer les clics. Aucun changement de prix et aucune
+        priorite vendue. Les criteres editoriaux restent explicites et revisables.
+      </p>
+      <a class="button button-secondary" href={withBase("/legal/affiliation/")}>Politique d'affiliation</a>
     </div>
   </section>
 </BaseLayout>
 
 <style>
+  .summary-hero {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .summary-card {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .summary-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+
+  .star-meter {
+    position: relative;
+    display: inline-flex;
+    line-height: 1;
+    font-size: 1rem;
+  }
+
+  .star-back {
+    color: #cfc8bc;
+    letter-spacing: 0.02em;
+  }
+
+  .star-front {
+    position: absolute;
+    left: 0;
+    top: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    color: #f2b400;
+    letter-spacing: 0.02em;
+  }
+
+  .bestfor-chips {
+    margin: 0;
+  }
+
   .two-cols {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -243,31 +333,54 @@ const whoItsFor = whoItsForByObjective[objectiveKey] ?? "Doctorant·es qui veule
   .block {
     padding: 1.2rem;
     display: grid;
-    gap: 0.65rem;
+    gap: 0.7rem;
   }
 
   .block ul,
   .block ol {
     margin: 0;
-    padding-left: 1.2rem;
+    padding-left: 1.15rem;
     color: var(--text-soft);
   }
 
-  .block a {
-    text-decoration: none;
+  .compare-block {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.75rem;
   }
 
-  .block a:hover {
-    text-decoration: underline;
+  .alternatives-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .disclosure-block {
+  .alternative-card {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .alternative-card ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--text-soft);
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .disclosure-box {
+    padding: 1.2rem;
     background: #faf5ee;
     border: 1px solid #e0c39c;
+    display: grid;
+    gap: 0.6rem;
   }
 
   @media (max-width: 980px) {
-    .two-cols {
+    .two-cols,
+    .alternatives-grid {
       grid-template-columns: 1fr;
     }
   }

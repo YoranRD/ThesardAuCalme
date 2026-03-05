@@ -1,0 +1,259 @@
+---
+import { communityUrl, isConfiguredExternalUrl, youtubeUrl } from "../config/identity";
+import { withBase } from "../lib/links";
+
+const communityIsExternal = isConfiguredExternalUrl(communityUrl);
+const communityHref = communityIsExternal ? communityUrl : withBase("/communaute/rejoindre/");
+const youtubeIsConfigured = isConfiguredExternalUrl(youtubeUrl);
+---
+
+<div class="toolbox-modal-root" data-toolbox-modal-root>
+  <div class="toolbox-modal-layer" data-toolbox-modal-layer hidden>
+    <button class="toolbox-modal-backdrop" data-toolbox-modal-dismiss aria-label="Fermer la fenetre"></button>
+    <section class="toolbox-modal" role="dialog" aria-modal="true" aria-labelledby="toolbox-modal-title" tabindex="-1">
+      <p class="eyebrow">Pack gratuit</p>
+      <h2 id="toolbox-modal-title">Boite de demarrage doctorat</h2>
+      <p>
+        Recuperer les checklists et templates essentiels pour structurer les prochaines semaines sans ajouter de complexite.
+      </p>
+      <div class="toolbox-modal-actions">
+        <a class="button button-primary" href={withBase("/downloads/")}>Ouvrir le pack gratuit</a>
+        <a
+          class="button button-secondary"
+          href={communityHref}
+          target={communityIsExternal ? "_blank" : undefined}
+          rel={communityIsExternal ? "noopener nofollow" : undefined}
+        >
+          Rejoindre la communaute
+        </a>
+        {
+          youtubeIsConfigured && (
+            <a class="button button-secondary" href={youtubeUrl} target="_blank" rel="noopener nofollow">
+              S'abonner YouTube
+            </a>
+          )
+        }
+        <button class="toolbox-modal-dismiss-text" type="button" data-toolbox-modal-dismiss>
+          Pas maintenant
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <button class="toolbox-mobile-cta" type="button" data-toolbox-modal-open>
+    <span>Pack gratuit</span>
+    <small>Checklists + templates</small>
+  </button>
+</div>
+
+<script is:inline>
+  (() => {
+    const roots = document.querySelectorAll("[data-toolbox-modal-root]");
+    if (roots.length === 0) {
+      return;
+    }
+
+    const storageKey = "tac-toolbox-modal-last-shown-at";
+    const cooldownMs = 7 * 24 * 60 * 60 * 1000;
+
+    const getLastShownAt = () => {
+      try {
+        const value = window.localStorage.getItem(storageKey);
+        return value ? Number(value) : 0;
+      } catch {
+        return 0;
+      }
+    };
+
+    const setLastShownAt = (timestamp) => {
+      try {
+        window.localStorage.setItem(storageKey, String(timestamp));
+      } catch {
+        // no-op when storage is unavailable
+      }
+    };
+
+    const canAutoShow = () => {
+      const lastShownAt = getLastShownAt();
+      if (!Number.isFinite(lastShownAt) || lastShownAt <= 0) {
+        return true;
+      }
+      return Date.now() - lastShownAt >= cooldownMs;
+    };
+
+    roots.forEach((root) => {
+      const layer = root.querySelector("[data-toolbox-modal-layer]");
+      const dialog = root.querySelector(".toolbox-modal");
+      const mobileTrigger = root.querySelector("[data-toolbox-modal-open]");
+      const dismissButtons = root.querySelectorAll("[data-toolbox-modal-dismiss]");
+
+      if (!layer || !dialog || !mobileTrigger) {
+        return;
+      }
+
+      let isOpen = false;
+      let autoShown = false;
+      let timerId;
+
+      const closeModal = () => {
+        if (!isOpen) {
+          return;
+        }
+        isOpen = false;
+        layer.hidden = true;
+        document.body.style.overflow = "";
+      };
+
+      const openModal = (force) => {
+        if (isOpen) {
+          return;
+        }
+
+        if (!force && !canAutoShow()) {
+          return;
+        }
+
+        isOpen = true;
+        layer.hidden = false;
+        document.body.style.overflow = "hidden";
+        setLastShownAt(Date.now());
+        dialog.focus();
+      };
+
+      const runAutoTrigger = () => {
+        if (autoShown) {
+          return;
+        }
+        autoShown = true;
+        openModal(false);
+      };
+
+      timerId = window.setTimeout(runAutoTrigger, 45000);
+
+      const onScroll = () => {
+        const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+        if (scrollableHeight <= 0) {
+          return;
+        }
+        const ratio = window.scrollY / scrollableHeight;
+        if (ratio >= 0.6) {
+          runAutoTrigger();
+        }
+      };
+
+      window.addEventListener("scroll", onScroll, { passive: true });
+
+      if (window.matchMedia("(pointer:fine)").matches) {
+        document.addEventListener("mouseout", (event) => {
+          if (event.relatedTarget !== null) {
+            return;
+          }
+          if (event.clientY <= 4) {
+            runAutoTrigger();
+          }
+        });
+      }
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          closeModal();
+        }
+      });
+
+      mobileTrigger.addEventListener("click", () => openModal(true));
+
+      dismissButtons.forEach((button) => {
+        button.addEventListener("click", closeModal);
+      });
+
+      window.addEventListener("beforeunload", () => {
+        window.clearTimeout(timerId);
+        window.removeEventListener("scroll", onScroll);
+      });
+    });
+  })();
+</script>
+
+<style>
+  .toolbox-modal-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: grid;
+    place-items: center;
+    padding: 1.2rem;
+  }
+
+  .toolbox-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    border: 0;
+    background: rgba(20, 20, 18, 0.5);
+    cursor: pointer;
+  }
+
+  .toolbox-modal {
+    position: relative;
+    z-index: 1;
+    width: min(660px, 100%);
+    background: #fffefc;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.8rem;
+  }
+
+  .toolbox-modal h2 {
+    margin: 0;
+  }
+
+  .toolbox-modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    align-items: center;
+  }
+
+  .toolbox-modal-dismiss-text {
+    border: 0;
+    background: transparent;
+    color: var(--text-soft);
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0.3rem 0.2rem;
+  }
+
+  .toolbox-mobile-cta {
+    position: fixed;
+    z-index: 35;
+    right: 0.9rem;
+    bottom: 0.9rem;
+    border: 1px solid var(--accent);
+    background: var(--surface);
+    color: var(--text);
+    border-radius: 999px;
+    padding: 0.5rem 0.85rem;
+    display: none;
+    gap: 0.2rem;
+    flex-direction: column;
+    align-items: flex-start;
+    box-shadow: var(--shadow);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .toolbox-mobile-cta small {
+    color: var(--text-soft);
+    font-size: 0.72rem;
+    line-height: 1.1;
+  }
+
+  @media (max-width: 900px) {
+    .toolbox-mobile-cta {
+      display: inline-flex;
+    }
+  }
+</style>
