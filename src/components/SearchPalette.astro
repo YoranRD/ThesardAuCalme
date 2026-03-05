@@ -1,0 +1,377 @@
+---
+import { withBase } from "../lib/links";
+
+const searchIndexUrl = withBase("/search-index.json");
+const searchPageHref = withBase("/recherche/");
+const baseUrl = withBase("/");
+---
+
+<div class="search-palette-root" data-search-palette-root>
+  <div class="search-palette-layer" data-search-palette-layer hidden>
+    <button class="search-palette-backdrop" type="button" data-search-palette-close aria-label="Fermer la recherche"></button>
+
+    <div class="surface search-palette-panel" role="dialog" aria-modal="true" aria-labelledby="search-palette-title">
+      <div class="search-palette-head">
+        <p class="eyebrow">Recherche globale</p>
+        <button class="button button-ghost" type="button" data-search-palette-close>Esc</button>
+      </div>
+
+      <h2 id="search-palette-title">Trouver un contenu en quelques secondes</h2>
+      <form class="search-palette-form" action={searchPageHref} method="get" data-search-palette-form>
+        <label class="small muted" for="search-palette-input">Titre, tag ou outil</label>
+        <input id="search-palette-input" name="q" type="search" placeholder="ex: zotero, soutenance, visa, stack" autocomplete="off" data-search-palette-input />
+      </form>
+
+      <p class="small muted shortcuts">Astuce: <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>K</kbd> pour ouvrir, <kbd>Esc</kbd> pour fermer.</p>
+      <div class="search-palette-results" data-search-palette-results></div>
+      <a class="button button-secondary" href={searchPageHref}>Ouvrir la recherche avancée</a>
+    </div>
+  </div>
+</div>
+
+<script is:inline define:vars={{ searchIndexUrl, searchPageHref, baseUrl }}>
+  (() => {
+    const root = document.querySelector("[data-search-palette-root]");
+    if (!(root instanceof HTMLElement)) {
+      return;
+    }
+
+    const layer = root.querySelector("[data-search-palette-layer]");
+    const input = root.querySelector("[data-search-palette-input]");
+    const results = root.querySelector("[data-search-palette-results]");
+    const closeButtons = [...root.querySelectorAll("[data-search-palette-close]")];
+    const form = root.querySelector("[data-search-palette-form]");
+
+    if (!(layer instanceof HTMLElement) || !(input instanceof HTMLInputElement) || !(results instanceof HTMLElement) || !(form instanceof HTMLFormElement)) {
+      return;
+    }
+
+    const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+    const toBasePath = (path) => {
+      if (/^https?:\/\//i.test(path)) {
+        return path;
+      }
+      return `${normalizedBase}${String(path).replace(/^\/+/, "")}`;
+    };
+
+    let searchIndex = null;
+    let previousFocused = null;
+    let activeResultIndex = -1;
+
+    const normalize = (value) =>
+      String(value)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+
+    const typeLabel = {
+      guide: "Guide",
+      video: "Vidéo",
+      page: "Page",
+      article: "Article",
+      "tool-review": "Avis"
+    };
+
+    const closePalette = () => {
+      layer.hidden = true;
+      document.body.classList.remove("search-palette-open");
+      activeResultIndex = -1;
+      if (previousFocused instanceof HTMLElement) {
+        previousFocused.focus();
+      }
+    };
+
+    const renderEmptyState = (query) => {
+      if (!query) {
+        results.innerHTML = `
+          <div class="quick-links">
+            <a href="${searchPageHref}?q=toolbox">Toolbox</a>
+            <a href="${searchPageHref}?q=playlist">Playlists</a>
+            <a href="${searchPageHref}?q=soutenance">Soutenance</a>
+            <a href="${searchPageHref}?q=zotero">Zotero</a>
+          </div>
+        `;
+        return;
+      }
+
+      results.innerHTML = `<p class="small muted">Aucun résultat rapide. Utiliser la recherche avancée pour élargir.</p>`;
+    };
+
+    const updateActiveResult = (nextIndex) => {
+      const links = [...results.querySelectorAll("a[data-result-link]")];
+      if (links.length === 0) {
+        activeResultIndex = -1;
+        return;
+      }
+
+      activeResultIndex = Math.max(0, Math.min(links.length - 1, nextIndex));
+
+      links.forEach((link, index) => {
+        link.classList.toggle("active", index === activeResultIndex);
+      });
+
+      const activeLink = links[activeResultIndex];
+      if (activeLink instanceof HTMLElement) {
+        activeLink.scrollIntoView({ block: "nearest" });
+      }
+    };
+
+    const renderResults = (query) => {
+      const normalizedQuery = normalize(query);
+      if (!normalizedQuery) {
+        renderEmptyState("");
+        return;
+      }
+
+      if (!Array.isArray(searchIndex)) {
+        renderEmptyState(normalizedQuery);
+        return;
+      }
+
+      const terms = normalizedQuery.split(/\s+/).filter(Boolean);
+      const matches = searchIndex
+        .filter((entry) => {
+          const haystack = normalize(`${entry.title} ${entry.summary} ${entry.tags.join(" ")}`);
+          return terms.every((term) => haystack.includes(term));
+        })
+        .slice(0, 10);
+
+      if (matches.length === 0) {
+        renderEmptyState(normalizedQuery);
+        return;
+      }
+
+      results.innerHTML = matches
+        .map(
+          (entry, index) => `
+            <a href="${toBasePath(entry.path)}" data-result-link class="palette-result${index === 0 ? " active" : ""}">
+              <span class="small muted">${typeLabel[entry.type] ?? "Contenu"}</span>
+              <strong>${entry.title}</strong>
+              <span class="small muted">${entry.summary}</span>
+            </a>
+          `
+        )
+        .join("");
+
+      activeResultIndex = 0;
+    };
+
+    const openPalette = () => {
+      previousFocused = document.activeElement;
+      layer.hidden = false;
+      document.body.classList.add("search-palette-open");
+      input.focus();
+      renderResults(input.value);
+
+      if (!Array.isArray(searchIndex)) {
+        fetch(searchIndexUrl)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json();
+          })
+          .then((payload) => {
+            searchIndex = payload;
+            renderResults(input.value);
+          })
+          .catch(() => {
+            searchIndex = [];
+            renderResults(input.value);
+          });
+      }
+    };
+
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
+
+      if (target.closest("[data-open-search-palette]")) {
+        event.preventDefault();
+        if (layer.hidden) {
+          openPalette();
+        } else {
+          closePalette();
+        }
+      }
+    });
+
+    closeButtons.forEach((button) => {
+      button.addEventListener("click", () => closePalette());
+    });
+
+    input.addEventListener("input", () => {
+      renderResults(input.value);
+    });
+
+    input.addEventListener("keydown", (event) => {
+      const links = [...results.querySelectorAll("a[data-result-link]")];
+
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        updateActiveResult(activeResultIndex + 1);
+      }
+
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        updateActiveResult(activeResultIndex - 1);
+      }
+
+      if (event.key === "Enter" && links.length > 0 && activeResultIndex >= 0) {
+        event.preventDefault();
+        const activeLink = links[activeResultIndex];
+        if (activeLink instanceof HTMLAnchorElement) {
+          window.location.href = activeLink.href;
+        }
+      }
+    });
+
+    form.addEventListener("submit", (event) => {
+      const query = input.value.trim();
+      if (!query) {
+        event.preventDefault();
+        return;
+      }
+      const destination = `${searchPageHref}?q=${encodeURIComponent(query)}`;
+      window.location.href = destination;
+      event.preventDefault();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      const target = event.target;
+      const isTypingContext =
+        target instanceof HTMLElement &&
+        (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
+
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        if (layer.hidden) {
+          openPalette();
+        } else {
+          closePalette();
+        }
+      }
+
+      if (event.key === "Escape" && !layer.hidden) {
+        event.preventDefault();
+        closePalette();
+      }
+
+      if (!isTypingContext && event.key === "/" && layer.hidden) {
+        event.preventDefault();
+        openPalette();
+      }
+    });
+  })();
+</script>
+
+<style>
+  :global(body.search-palette-open) {
+    overflow: hidden;
+  }
+
+  .search-palette-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+  }
+
+  .search-palette-backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: rgba(18, 23, 28, 0.48);
+    backdrop-filter: blur(3px);
+    cursor: pointer;
+  }
+
+  .search-palette-panel {
+    position: relative;
+    width: min(760px, calc(100% - 1.5rem));
+    margin: 8vh auto;
+    padding: 1rem;
+    display: grid;
+    gap: 0.7rem;
+    max-height: 82vh;
+    overflow: auto;
+  }
+
+  .search-palette-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+  }
+
+  .search-palette-head .eyebrow {
+    margin: 0;
+  }
+
+  .search-palette-panel h2 {
+    margin: 0;
+    font-size: 1.45rem;
+  }
+
+  .search-palette-form {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .search-palette-form input {
+    border: 1px solid var(--brand-border);
+    border-radius: var(--radius-2);
+    padding: 0.7rem 0.82rem;
+    font: inherit;
+    background: #fff;
+  }
+
+  .search-palette-results {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .palette-result {
+    border: 1px solid var(--brand-border);
+    border-radius: var(--radius-2);
+    padding: 0.62rem;
+    background: #fff;
+    text-decoration: none;
+    display: grid;
+    gap: 0.15rem;
+  }
+
+  .palette-result.active,
+  .palette-result:hover {
+    border-color: color-mix(in srgb, var(--brand-accent) 38%, var(--brand-border));
+    background: #f7fbfc;
+  }
+
+  .quick-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  .quick-links a {
+    border: 1px solid var(--brand-border);
+    border-radius: var(--radius-pill);
+    padding: 0.2rem 0.62rem;
+    text-decoration: none;
+    color: var(--brand-muted);
+    background: #fff;
+    font-size: 0.86rem;
+  }
+
+  .shortcuts kbd {
+    border: 1px solid var(--brand-border);
+    border-bottom-width: 2px;
+    border-radius: 0.35rem;
+    background: #fff;
+    padding: 0.05rem 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+  }
+</style>

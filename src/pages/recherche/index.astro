@@ -11,7 +11,7 @@ const baseUrl = withBase("/");
 <BaseLayout
   canonicalPath="/recherche/"
   title="Recherche | Thésard Au Calme"
-  description="Recherche rapide dans les guides, vidéos, pages éditoriales et articles du site: titres, résumés et tags pour trouver une réponse immédiatement."
+  description="Recherche locale instantanée dans les articles, guides, vidéos, hubs et avis outils pour trouver rapidement le bon contenu."
 >
   <section class="section">
     <div class="container prose">
@@ -19,25 +19,25 @@ const baseUrl = withBase("/");
       <p class="eyebrow">Recherche</p>
       <h1>Trouver rapidement le bon contenu</h1>
       <p>
-        Cette recherche locale couvre les guides, les fiches vidéos, les pages éditoriales et les articles. Elle fonctionne sans backend
-        et reste légère pour un usage mobile.
+        Index local statique: articles, guides, vidéos, pages hubs et avis outils. Le moteur reste léger, base-path safe et utilisable au clavier.
       </p>
     </div>
   </section>
 
-  <section class="section">
+  <section class="section search-main-section">
     <div class="container surface search-block">
       <label for="search-input">Rechercher par mot-clé, tag ou thème</label>
-      <input id="search-input" name="q" type="search" placeholder="ex: zotero, soutenance, visa, routine" />
+      <input id="search-input" name="q" type="search" placeholder="ex: zotero, soutenance, visa, stack" autocomplete="off" />
 
       <div class="filters-grid">
         <div class="filter-group">
           <p class="small muted">Type de contenu</p>
           <div class="chip-row" id="type-filters">
+            <button type="button" class="filter-chip is-active" data-filter="type" data-value="article">Articles</button>
             <button type="button" class="filter-chip is-active" data-filter="type" data-value="guide">Guides</button>
             <button type="button" class="filter-chip is-active" data-filter="type" data-value="video">Vidéos</button>
+            <button type="button" class="filter-chip is-active" data-filter="type" data-value="tool-review">Avis</button>
             <button type="button" class="filter-chip is-active" data-filter="type" data-value="page">Pages</button>
-            <button type="button" class="filter-chip is-active" data-filter="type" data-value="article">Articles</button>
           </div>
         </div>
 
@@ -51,7 +51,7 @@ const baseUrl = withBase("/");
       </div>
 
       <p id="search-status" class="small muted">Chargement de l’index…</p>
-      <div id="search-results" class="grid results-grid"></div>
+      <div id="search-results" class="search-groups"></div>
     </div>
   </section>
 
@@ -59,210 +59,295 @@ const baseUrl = withBase("/");
     <div class="container">
       <TopToolsStrip
         title="Top outils à ouvrir après la recherche"
-        description="Une sélection rapide pour transformer les résultats trouvés en actions concrètes."
+        description="Une sélection courte pour passer de la découverte à l'action en moins de 10 minutes."
         limit={8}
       />
     </div>
   </section>
-
-  <section class="section">
-    <div class="container surface tips-block">
-      <h2>Raccourcis utiles</h2>
-      <ul>
-        <li><a href={withBase("/themes/")}>Explorer les contenus par thèmes</a> pour un angle ciblé.</li>
-        <li><a href={withBase("/series/")}>Suivre une série</a> pour progresser étape par étape.</li>
-        <li><a href={withBase("/ressources/")}>Voir les ressources</a> quand un outil concret est nécessaire.</li>
-      </ul>
-    </div>
-  </section>
-
-  <script is:inline define:vars={{ searchIndexUrl, baseUrl }}>
-    const searchInput = document.getElementById("search-input");
-    const searchStatus = document.getElementById("search-status");
-    const searchResults = document.getElementById("search-results");
-    const typeButtons = Array.from(document.querySelectorAll('[data-filter="type"]'));
-    const langButtons = Array.from(document.querySelectorAll('[data-filter="lang"]'));
-
-    const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
-
-    const toBasePath = (path) => {
-      if (/^https?:\/\//i.test(path)) {
-        return path;
-      }
-      return `${normalizedBase}${String(path).replace(/^\/+/, "")}`;
-    };
-
-    const normalize = (value) =>
-      value
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .trim();
-
-    const formatDate = (isoDate) =>
-      new Date(isoDate).toLocaleDateString("fr-FR", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric"
-      });
-
-    const typeLabel = {
-      guide: "Guide",
-      video: "Vidéo",
-      page: "Page",
-      article: "Article"
-    };
-
-    const selectedTypes = new Set(["guide", "video", "page", "article"]);
-    const selectedLangs = new Set(["fr"]);
-
-    const syncButtons = (buttons, selectedSet) => {
-      buttons.forEach((button) => {
-        const value = button.dataset.value;
-        button.classList.toggle("is-active", selectedSet.has(value));
-      });
-    };
-
-    const toggleSelectedValue = (selectedSet, value) => {
-      if (selectedSet.has(value)) {
-        if (selectedSet.size > 1) {
-          selectedSet.delete(value);
-        }
-      } else {
-        selectedSet.add(value);
-      }
-    };
-
-    const buildCard = (entry) => {
-      const article = document.createElement("article");
-      article.className = "card result-card";
-
-      const metaBits = [typeLabel[entry.type] ?? "Contenu"];
-      if (entry.date) {
-        metaBits.push(formatDate(entry.date));
-      }
-
-      const tags = entry.tags.length > 0 ? entry.tags.map((tag) => `#${tag}`).join(" · ") : "";
-
-      article.innerHTML = `
-        <p class="small muted">${metaBits.join(" · ")}</p>
-        <h3><a href="${toBasePath(entry.path)}">${entry.title}</a></h3>
-        <p>${entry.summary}</p>
-        ${tags ? `<p class="small muted">${tags}</p>` : ""}
-      `;
-
-      return article;
-    };
-
-    const renderResults = (entries, query) => {
-      searchResults.innerHTML = "";
-
-      if (!query) {
-        searchStatus.textContent = "Entrer au moins 2 caractères pour lancer la recherche.";
-        return;
-      }
-
-      if (entries.length === 0) {
-        searchStatus.textContent = "Aucun résultat trouvé. Essayer un tag ou un mot-clé plus large.";
-        return;
-      }
-
-      searchStatus.textContent = `${entries.length} résultat(s) trouvé(s).`;
-      entries.forEach((entry) => searchResults.appendChild(buildCard(entry)));
-    };
-
-    let index = [];
-
-    const applySearch = () => {
-      const query = normalize(searchInput.value);
-      if (query.length < 2) {
-        renderResults([], "");
-        return;
-      }
-
-      const terms = query.split(/\s+/).filter(Boolean);
-
-      const matches = index.filter((entry) => {
-        if (!selectedTypes.has(entry.type) || !selectedLangs.has(entry.lang)) {
-          return false;
-        }
-
-        const haystack = normalize(`${entry.title} ${entry.summary} ${entry.tags.join(" ")}`);
-        return terms.every((term) => haystack.includes(term));
-      });
-
-      renderResults(matches.slice(0, 30), query);
-    };
-
-    typeButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        toggleSelectedValue(selectedTypes, button.dataset.value);
-        syncButtons(typeButtons, selectedTypes);
-        applySearch();
-      });
-    });
-
-    langButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        toggleSelectedValue(selectedLangs, button.dataset.value);
-        syncButtons(langButtons, selectedLangs);
-        applySearch();
-      });
-    });
-
-    fetch(searchIndexUrl)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((entries) => {
-        index = entries;
-        syncButtons(typeButtons, selectedTypes);
-        syncButtons(langButtons, selectedLangs);
-        searchStatus.textContent = "Entrer au moins 2 caractères pour lancer la recherche.";
-      })
-      .catch(() => {
-        searchStatus.textContent = "Impossible de charger l’index de recherche.";
-      });
-
-    searchInput.addEventListener("input", applySearch);
-
-    document.addEventListener("keydown", (event) => {
-      const target = event.target;
-      if (!(target instanceof HTMLElement)) {
-        return;
-      }
-
-      const isTypingContext =
-        target.tagName === "INPUT" ||
-        target.tagName === "TEXTAREA" ||
-        target.isContentEditable;
-
-      if (!isTypingContext && event.key === "/") {
-        event.preventDefault();
-        searchInput.focus();
-      }
-    });
-  </script>
 </BaseLayout>
 
+<script is:inline define:vars={{ searchIndexUrl, baseUrl }}>
+  const searchInput = document.getElementById("search-input");
+  const searchStatus = document.getElementById("search-status");
+  const searchResults = document.getElementById("search-results");
+  const typeButtons = Array.from(document.querySelectorAll('[data-filter="type"]'));
+  const langButtons = Array.from(document.querySelectorAll('[data-filter="lang"]'));
+
+  const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+
+  const toBasePath = (path) => {
+    if (/^https?:\/\//i.test(path)) {
+      return path;
+    }
+    return `${normalizedBase}${String(path).replace(/^\/+/, "")}`;
+  };
+
+  const normalize = (value) =>
+    String(value)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim();
+
+  const formatDate = (isoDate) =>
+    new Date(isoDate).toLocaleDateString("fr-FR", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric"
+    });
+
+  const typeLabel = {
+    article: "Articles",
+    guide: "Guides",
+    video: "Vidéos",
+    page: "Pages",
+    "tool-review": "Avis outils"
+  };
+
+  const orderedTypes = ["article", "guide", "video", "tool-review", "page"];
+  const selectedTypes = new Set(orderedTypes);
+  const selectedLangs = new Set(["fr"]);
+
+  let index = [];
+  let activeResultLinkIndex = -1;
+
+  const syncButtons = (buttons, selectedSet) => {
+    buttons.forEach((button) => {
+      const value = button.dataset.value;
+      button.classList.toggle("is-active", selectedSet.has(value));
+      button.setAttribute("aria-pressed", selectedSet.has(value) ? "true" : "false");
+    });
+  };
+
+  const toggleSelectedValue = (selectedSet, value) => {
+    if (selectedSet.has(value)) {
+      if (selectedSet.size > 1) {
+        selectedSet.delete(value);
+      }
+    } else {
+      selectedSet.add(value);
+    }
+  };
+
+  const updateUrlQuery = (query) => {
+    const url = new URL(window.location.href);
+    if (query) {
+      url.searchParams.set("q", query);
+    } else {
+      url.searchParams.delete("q");
+    }
+    window.history.replaceState({}, "", url);
+  };
+
+  const buildCard = (entry) => {
+    const article = document.createElement("article");
+    article.className = "card result-card";
+
+    const metaBits = [entry.type ? typeLabel[entry.type] : "Contenu"];
+    if (entry.date) {
+      metaBits.push(formatDate(entry.date));
+    }
+
+    const tags = entry.tags.length > 0 ? entry.tags.map((tag) => `#${tag}`).join(" · ") : "";
+
+    article.innerHTML = `
+      <p class="small muted">${metaBits.join(" · ")}</p>
+      <h3><a href="${toBasePath(entry.path)}" data-result-link>${entry.title}</a></h3>
+      <p>${entry.summary}</p>
+      ${tags ? `<p class="small muted">${tags}</p>` : ""}
+    `;
+
+    return article;
+  };
+
+  const updateActiveLink = (nextIndex) => {
+    const links = [...searchResults.querySelectorAll("a[data-result-link]")];
+    if (links.length === 0) {
+      activeResultLinkIndex = -1;
+      return;
+    }
+
+    activeResultLinkIndex = Math.max(0, Math.min(links.length - 1, nextIndex));
+
+    links.forEach((link, index) => {
+      link.classList.toggle("is-active-result", index === activeResultLinkIndex);
+    });
+
+    const activeLink = links[activeResultLinkIndex];
+    if (activeLink instanceof HTMLElement) {
+      activeLink.focus();
+      activeLink.scrollIntoView({ block: "nearest" });
+    }
+  };
+
+  const renderResults = (entries, query) => {
+    searchResults.innerHTML = "";
+    activeResultLinkIndex = -1;
+
+    if (!query) {
+      searchStatus.textContent = "Entrer au moins 2 caractères pour lancer la recherche.";
+      return;
+    }
+
+    if (entries.length === 0) {
+      searchStatus.textContent = "Aucun résultat. Essayer une formulation plus large.";
+      return;
+    }
+
+    const groupedEntries = Object.fromEntries(orderedTypes.map((type) => [type, []]));
+    entries.forEach((entry) => {
+      if (groupedEntries[entry.type]) {
+        groupedEntries[entry.type].push(entry);
+      }
+    });
+
+    let renderedCount = 0;
+
+    orderedTypes.forEach((type) => {
+      const groupItems = groupedEntries[type];
+      if (!groupItems || groupItems.length === 0) {
+        return;
+      }
+
+      const groupSection = document.createElement("section");
+      groupSection.className = "result-group";
+
+      const heading = document.createElement("h2");
+      heading.textContent = `${typeLabel[type]} (${groupItems.length})`;
+      groupSection.appendChild(heading);
+
+      const groupGrid = document.createElement("div");
+      groupGrid.className = "grid result-group-grid";
+      groupItems.forEach((entry) => groupGrid.appendChild(buildCard(entry)));
+
+      groupSection.appendChild(groupGrid);
+      searchResults.appendChild(groupSection);
+      renderedCount += groupItems.length;
+    });
+
+    searchStatus.textContent = `${renderedCount} résultat(s) trouvés.`;
+  };
+
+  const applySearch = () => {
+    const query = normalize(searchInput.value);
+    updateUrlQuery(query);
+
+    if (query.length < 2) {
+      renderResults([], "");
+      return;
+    }
+
+    const terms = query.split(/\s+/).filter(Boolean);
+
+    const matches = index.filter((entry) => {
+      if (!selectedTypes.has(entry.type) || !selectedLangs.has(entry.lang)) {
+        return false;
+      }
+
+      const haystack = normalize(`${entry.title} ${entry.summary} ${entry.tags.join(" ")}`);
+      return terms.every((term) => haystack.includes(term));
+    });
+
+    renderResults(matches.slice(0, 60), query);
+  };
+
+  typeButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      toggleSelectedValue(selectedTypes, button.dataset.value);
+      syncButtons(typeButtons, selectedTypes);
+      applySearch();
+    });
+  });
+
+  langButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      toggleSelectedValue(selectedLangs, button.dataset.value);
+      syncButtons(langButtons, selectedLangs);
+      applySearch();
+    });
+  });
+
+  fetch(searchIndexUrl)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((entries) => {
+      index = entries;
+      syncButtons(typeButtons, selectedTypes);
+      syncButtons(langButtons, selectedLangs);
+
+      const initialQuery = normalize(new URL(window.location.href).searchParams.get("q") || "");
+      if (initialQuery) {
+        searchInput.value = initialQuery;
+      }
+      applySearch();
+    })
+    .catch(() => {
+      searchStatus.textContent = "Impossible de charger l’index de recherche.";
+    });
+
+  searchInput.addEventListener("input", applySearch);
+
+  searchInput.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      updateActiveLink(activeResultLinkIndex + 1);
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      updateActiveLink(activeResultLinkIndex - 1);
+    }
+  });
+
+  searchResults.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      updateActiveLink(activeResultLinkIndex + 1);
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      updateActiveLink(activeResultLinkIndex - 1);
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) {
+      return;
+    }
+
+    const isTypingContext =
+      target.tagName === "INPUT" ||
+      target.tagName === "TEXTAREA" ||
+      target.isContentEditable;
+
+    if (!isTypingContext && event.key === "/") {
+      event.preventDefault();
+      searchInput.focus();
+    }
+  });
+</script>
+
 <style>
+  .search-main-section {
+    padding-top: 0;
+  }
+
   .search-block {
     padding: 1.2rem;
     display: grid;
-    gap: 0.75rem;
-  }
-
-  .top-tools-search {
-    padding-top: 0;
+    gap: 0.8rem;
   }
 
   .search-block input {
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 0.72rem 0.8rem;
+    border-radius: var(--radius-pill);
+    padding: 0.72rem 0.9rem;
     font: inherit;
     background: #fff;
   }
@@ -281,7 +366,7 @@ const baseUrl = withBase("/");
   .filter-chip {
     border: 1px solid var(--border);
     background: #fff;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     padding: 0.28rem 0.72rem;
     color: var(--text-soft);
     cursor: pointer;
@@ -290,43 +375,58 @@ const baseUrl = withBase("/");
   }
 
   .filter-chip.is-active {
-    background: #efebe2;
-    color: var(--text);
-    border-color: #bcb4a6;
+    background: #eef7f8;
+    color: var(--brand-accent);
+    border-color: color-mix(in srgb, var(--brand-accent) 32%, var(--border));
   }
 
-  .results-grid {
-    margin-top: 0.6rem;
+  .search-groups {
+    margin-top: 0.35rem;
+    display: grid;
+    gap: 1rem;
   }
 
-  .result-card {
+  #search-results :global(.result-group) {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  #search-results :global(.result-group h2) {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+
+  #search-results :global(.result-group-grid) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  #search-results :global(.result-card) {
     display: grid;
     gap: 0.45rem;
   }
 
-  .result-card h3 {
+  #search-results :global(.result-card h3) {
     margin: 0;
   }
 
-  .result-card a {
+  #search-results :global(.result-card a) {
     text-decoration: none;
   }
 
-  .tips-block {
-    padding: 1.2rem;
-  }
-
-  .tips-block ul {
-    margin: 0;
-    padding-left: 1.2rem;
-    color: var(--text-soft);
-  }
-
-  .tips-block a {
-    text-decoration: none;
-  }
-
-  .tips-block a:hover {
+  #search-results :global(.result-card a:hover),
+  #search-results :global(.result-card a.is-active-result) {
     text-decoration: underline;
+    color: var(--brand-accent);
+  }
+
+  .top-tools-search {
+    padding-top: 0;
+  }
+
+  @media (max-width: 960px) {
+    #search-results :global(.result-group-grid) {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

@@ -1,10 +1,26 @@
 :root {
-  --brand-bg: #f8f6f1;
-  --brand-surface: #fffefc;
-  --brand-text: #1f1f1c;
-  --brand-muted: #5f5a52;
-  --brand-accent: #2f5d5a;
-  --brand-border: #d8d0c3;
+  --brand-bg: #f7f4ee;
+  --brand-surface: #fffdf9;
+  --brand-text: #1f2326;
+  --brand-muted: #5f6266;
+  --brand-accent: #1f5e64;
+  --brand-border: #d7d0c2;
+
+  --font-sans: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  --font-mono: "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --fs-h1: clamp(2.15rem, 4.4vw, 3.75rem);
+  --fs-h2: clamp(1.7rem, 2.8vw, 2.5rem);
+  --fs-h3: clamp(1.3rem, 2vw, 1.7rem);
+  --fs-h4: clamp(1.1rem, 1.5vw, 1.25rem);
+  --fs-body: 1.02rem;
+  --fs-small: 0.9rem;
+
+  --lh-tight: 1.15;
+  --lh-title: 1.25;
+  --lh-body: 1.7;
+  --lh-relaxed: 1.85;
 
   --space-0: 0;
   --space-1: 0.25rem;
@@ -13,27 +29,38 @@
   --space-4: 1rem;
   --space-5: 1.5rem;
   --space-6: 2rem;
-  --space-7: 3rem;
+  --space-7: 2.75rem;
+  --space-8: 3.75rem;
+  --space-9: 5rem;
 
   --radius-1: 8px;
-  --radius-2: 10px;
-  --radius-3: 14px;
+  --radius-2: 12px;
+  --radius-3: 18px;
   --radius-pill: 999px;
 
-  --shadow-1: 0 6px 18px rgba(31, 31, 28, 0.06);
-  --shadow-2: 0 10px 30px rgba(31, 31, 28, 0.07);
-  --shadow-3: 0 16px 40px rgba(31, 31, 28, 0.1);
+  --shadow-1: 0 8px 22px rgba(27, 30, 32, 0.06);
+  --shadow-2: 0 14px 36px rgba(27, 30, 32, 0.08);
+  --shadow-3: 0 22px 58px rgba(27, 30, 32, 0.12);
 
-  --max-width: 1120px;
+  --max-width: 1160px;
+  --content-max: 74ch;
+  --content-wide: 92ch;
+
+  --surface-1: var(--brand-surface);
+  --surface-2: #f2ece1;
+  --surface-hero: linear-gradient(145deg, #fffdf8 0%, #f8f1e6 100%);
+
+  --button-padding-y: 0.62rem;
+  --button-padding-x: 1.05rem;
 
   --bg: var(--brand-bg);
-  --surface: var(--brand-surface);
-  --surface-muted: #f1ece3;
+  --surface: var(--surface-1);
+  --surface-muted: var(--surface-2);
   --text: var(--brand-text);
   --text-soft: var(--brand-muted);
   --border: var(--brand-border);
   --accent: var(--brand-accent);
-  --accent-soft: #dce7e6;
+  --accent-soft: #dcebee;
   --danger-soft: #f8e7dc;
   --radius-sm: var(--radius-2);
   --radius: var(--radius-3);

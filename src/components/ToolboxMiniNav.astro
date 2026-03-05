@@ -1,0 +1,123 @@
+---
+import { withBase } from "../lib/links";
+import { getResourcesByObjective } from "../lib/resources";
+
+interface Props {
+  currentKey?: string;
+  title?: string;
+}
+
+const { currentKey, title = "Explorer les catégories d'outils" } = Astro.props;
+
+const sections = getResourcesByObjective()
+  .map((section) => ({
+    ...section,
+    items: section.items.slice(0, 7)
+  }))
+  .filter((section) => section.items.length > 0);
+---
+
+<details class="surface toolbox-mini-nav" data-toolbox-mini-nav>
+  <summary>
+    <span>{title}</span>
+    <span class="small muted">{sections.length} catégories</span>
+  </summary>
+
+  <div class="toolbox-mini-nav-body">
+    {
+      sections.map((section) => (
+        <section class="mini-group">
+          <div class="mini-group-head">
+            <h3>{section.objective.label}</h3>
+            <a class="small" href={withBase(`/outils/#objective-${section.objective.key}`)}>Voir la section</a>
+          </div>
+          <ul>
+            {
+              section.items.map((item) => (
+                <li>
+                  <a class:list={{ active: currentKey === item.key }} href={withBase(`/outils/${item.key}/`)}>
+                    {item.name}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+</details>
+
+<style>
+  .toolbox-mini-nav {
+    padding: 0.75rem;
+  }
+
+  .toolbox-mini-nav summary {
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+  }
+
+  .toolbox-mini-nav summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .toolbox-mini-nav-body {
+    margin-top: 0.75rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+
+  .mini-group {
+    border: 1px solid var(--brand-border);
+    border-radius: var(--radius-2);
+    background: #fff;
+    padding: 0.7rem;
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .mini-group-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .mini-group h3 {
+    margin: 0;
+    font-size: 1.02rem;
+  }
+
+  .mini-group ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  .mini-group a {
+    color: var(--brand-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+
+  .mini-group a:hover,
+  .mini-group a.active {
+    color: var(--brand-accent);
+    text-decoration: underline;
+  }
+
+  @media (max-width: 920px) {
+    .toolbox-mini-nav-body {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

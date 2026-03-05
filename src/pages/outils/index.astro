@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
 import ToolboxCtaModal from "../../components/ToolboxCtaModal.astro";
+import ToolboxMiniNav from "../../components/ToolboxMiniNav.astro";
 import { withBase } from "../../lib/links";
 import { getResourcesByObjective, type ResourceEntry } from "../../lib/resources";
 import BaseLayout from "../../layouts/BaseLayout.astro";
@@ -47,22 +48,23 @@ const featured = sections
 
 <BaseLayout
   canonicalPath="/outils/"
-  title="Boite a outils doctorat | Thesard Au Calme"
-  description="Toolbox doctorale premium: incontournables, filtres par objectif, classement par score editorial, avis detailles et acces rapide aux outils recommandes."
+  title="Toolbox doctorat | Thésard Au Calme"
+  description="Toolbox premium pour doctorat: catégories, filtres, avis, scores et sélection d'outils testés dans un cadre transparent."
 >
   <section class="section">
     <div class="container toolbox-hero">
       <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Outils" }]} />
       <p class="eyebrow">Toolbox doctorale</p>
-      <h1>Boite a outils claire, sobre et actionnable</h1>
+      <h1>Explorer les meilleurs outils sans effet catalogue</h1>
       <p>
-        Selection edito classee par objectifs de these, avec score transparent, badges, cas d'usage, limites et double CTA
-        vers l'outil et l'avis detaille.
+        Sélection éditoriale classée par objectifs, avec score transparent, badges lisibles, limites explicites et double CTA outil + avis.
       </p>
       <p class="small transparency-inline">
-        Transparence: certains liens externes passent par <code>/out/[key]/</code>. Aucun classement paye.
-        <a href={withBase("/legal/affiliation/")}>Lire la politique d'affiliation</a>.
+        Transparence: certains liens externes passent par <code>/out/[key]/</code>. Aucun classement vendu.
+        <a href={withBase("/legal/affiliation/")}>Politique d'affiliation</a>.
       </p>
+
+      <ToolboxMiniNav title="Voir les catégories sans quitter la page" />
     </div>
   </section>
 
@@ -79,7 +81,7 @@ const featured = sections
               <div class="featured-head">
                 <span class="logo-placeholder" aria-hidden="true">{resource.name.slice(0, 2).toUpperCase()}</span>
                 <div>
-                  <p class="small muted">{resource.badge ?? "Selection editoriale"}</p>
+                  <p class="small muted">{resource.badge ?? "Sélection éditoriale"}</p>
                   <h3>{resource.name}</h3>
                 </div>
               </div>
@@ -94,13 +96,34 @@ const featured = sections
                 )
               }
               <div class="actions">
-                <a class="button button-primary" href={withBase(`/out/${resource.key}/`)} rel="nofollow sponsored">Decouvrir</a>
-                <a class="button button-secondary" href={getReviewOrDetailPath(resource)}>Lire l'avis</a>
+                <a class="button button-primary" href={withBase(`/out/${resource.key}/`)} rel="nofollow sponsored">Découvrir</a>
+                <a class="button button-secondary" href={getReviewOrDetailPath(resource)}>{resource.reviewSlug ? "Lire l’avis" : "Voir la fiche"}</a>
               </div>
             </article>
           ))
         }
       </div>
+    </div>
+  </section>
+
+  <section class="section top-categories-section" id="top-categories">
+    <div class="container grid top-categories-grid">
+      <a class="surface category-tile" href="#objective-ecrire">
+        <p class="eyebrow">IA & rédaction</p>
+        <h3>Écrire plus vite, corriger proprement</h3>
+      </a>
+      <a class="surface category-tile" href="#objective-citer-bibliographie">
+        <p class="eyebrow">Biblio</p>
+        <h3>Références solides et traçables</h3>
+      </a>
+      <a class="surface category-tile" href="#objective-focus-routine">
+        <p class="eyebrow">Focus</p>
+        <h3>Rythme hebdo et concentration</h3>
+      </a>
+      <a class="surface category-tile" href="#objective-administratif">
+        <p class="eyebrow">Admin</p>
+        <h3>Démarches France & international</h3>
+      </a>
     </div>
   </section>
 
@@ -117,17 +140,17 @@ const featured = sections
         }
       </div>
 
-      <label class="search-label" for="toolbox-search">Rechercher un outil...</label>
+      <label class="search-label" for="toolbox-search">Rechercher un outil</label>
       <input id="toolbox-search" type="search" placeholder="Rechercher un outil..." data-toolbox-search />
 
       <div class="toggles">
         <label>
           <input type="checkbox" data-toolbox-featured-only />
-          Show only featured
+          Incontournables uniquement
         </label>
         <label>
           <input type="checkbox" data-toolbox-free-only />
-          Show only free/€
+          Budget gratuit / €
         </label>
       </div>
     </div>
@@ -137,10 +160,11 @@ const featured = sections
     <div class="container toolbox-sections" data-toolbox-sections>
       {
         sections.map((section) => (
-          <section class="surface objective-section" data-objective-section={section.objective.key}>
+          <section class="surface objective-section" id={`objective-${section.objective.key}`} data-objective-section={section.objective.key}>
             <p class="eyebrow">Objectif</p>
             <h2>{section.objective.label}</h2>
             <p>{section.objective.description}</p>
+
             <ol class="ranking-list">
               {
                 section.items.map((resource, index) => (
@@ -152,14 +176,17 @@ const featured = sections
                     data-search={`${resource.name} ${resource.description} ${resource.bestFor.join(" ")} ${resource.avoidIf.join(" ")}`
                       .toLowerCase()}
                   >
-                    <div class="ranking-meta">
-                      <span class="rank-medal" data-rank-medal>{index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index + 1}`}</span>
-                      {resource.badge && <span class="meta-pill">{resource.badge}</span>}
+                    <div class="ranking-head">
+                      <div class="ranking-meta">
+                        <span class="rank-medal" data-rank-medal>{index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index + 1}`}</span>
+                        {resource.badge && <span class="meta-pill">{resource.badge}</span>}
+                      </div>
+                      <span class="logo-placeholder" aria-hidden="true">{resource.name.slice(0, 2).toUpperCase()}</span>
                     </div>
 
                     <h3>{resource.name}</h3>
                     <p class="small"><strong>Best for:</strong> {resource.bestFor.join(" · ")}</p>
-                    {resource.avoidIf.length > 0 && <p class="small muted"><strong>A eviter si:</strong> {resource.avoidIf.join(" · ")}</p>}
+                    {resource.avoidIf.length > 0 && <p class="small muted"><strong>À éviter si:</strong> {resource.avoidIf.join(" · ")}</p>}
 
                     <p class="small score-row">
                       <span class="star-meter" aria-label={`Score ${formatScore(resource.wizardScore)} sur 5`}>
@@ -181,8 +208,8 @@ const featured = sections
                     }
 
                     <div class="actions">
-                      <a class="button button-primary" href={withBase(`/out/${resource.key}/`)} rel="nofollow sponsored">Decouvrir l'outil</a>
-                      <a class="button button-secondary" href={getReviewOrDetailPath(resource)}>Lire l'avis</a>
+                      <a class="button button-primary" href={withBase(`/out/${resource.key}/`)} rel="nofollow sponsored">Découvrir l'outil</a>
+                      <a class="button button-secondary" href={getReviewOrDetailPath(resource)}>{resource.reviewSlug ? "Lire l’avis" : "Voir la fiche"}</a>
                     </div>
                   </li>
                 ))
@@ -316,14 +343,14 @@ const featured = sections
   .featured-rail {
     display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: minmax(280px, 350px);
+    grid-auto-columns: minmax(300px, 360px);
     gap: 0.8rem;
     overflow-x: auto;
     padding-bottom: 0.3rem;
   }
 
   .featured-card {
-    padding: 1rem;
+    padding: 1.1rem;
     display: grid;
     gap: 0.6rem;
   }
@@ -339,8 +366,8 @@ const featured = sections
   }
 
   .logo-placeholder {
-    width: 2.4rem;
-    height: 2.4rem;
+    width: 2.45rem;
+    height: 2.45rem;
     border-radius: 999px;
     border: 1px solid var(--border);
     display: inline-flex;
@@ -350,12 +377,45 @@ const featured = sections
     background: #fff;
     color: var(--accent);
     font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+
+  .top-categories-section {
+    padding-top: 0;
+  }
+
+  .top-categories-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+
+  .category-tile {
+    text-decoration: none;
+    padding: 0.9rem;
+    display: grid;
+    gap: 0.2rem;
+    box-shadow: var(--shadow-1);
+  }
+
+  .category-tile .eyebrow {
+    margin: 0;
+  }
+
+  .category-tile h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--brand-text);
+  }
+
+  .category-tile:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--brand-accent) 30%, var(--brand-border));
   }
 
   .filter-section {
     padding-top: 0;
     position: sticky;
-    top: 4.4rem;
+    top: 4.35rem;
     z-index: 20;
   }
 
@@ -398,8 +458,8 @@ const featured = sections
 
   .filter-bar input[type="search"] {
     border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 0.52rem 0.65rem;
+    border-radius: var(--radius-pill);
+    padding: 0.58rem 0.75rem;
     font: inherit;
     color: var(--text);
     background: #fff;
@@ -425,9 +485,10 @@ const featured = sections
   }
 
   .objective-section {
-    padding: 1rem;
+    padding: 1.1rem;
     display: grid;
     gap: 0.7rem;
+    scroll-margin-top: 6rem;
   }
 
   .ranking-list {
@@ -441,6 +502,13 @@ const featured = sections
   .ranking-item {
     display: grid;
     gap: 0.45rem;
+  }
+
+  .ranking-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.4rem;
+    align-items: center;
   }
 
   .ranking-meta {
@@ -509,6 +577,12 @@ const featured = sections
     flex-wrap: wrap;
   }
 
+  @media (max-width: 1080px) {
+    .top-categories-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
   @media (max-width: 980px) {
     .filter-section {
       top: 0;
@@ -517,6 +591,10 @@ const featured = sections
 
     .featured-rail {
       grid-auto-columns: minmax(260px, 84vw);
+    }
+
+    .top-categories-grid {
+      grid-template-columns: 1fr;
     }
   }
 </style>

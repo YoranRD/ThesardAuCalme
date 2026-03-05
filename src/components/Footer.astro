@@ -6,6 +6,7 @@ import {
   tiktokUrl,
   youtubeUrl
 } from "../config/identity";
+import { brandMascotSrc, hasBrandMascot } from "../lib/brand";
 import { withBase } from "../lib/links";
 import { featuredResources, resourcesCatalog } from "../lib/resources";
 
@@ -32,31 +33,45 @@ const topTools = [...featuredResources, ...rankedResources.filter((entry) => !fe
 ---
 
 <footer class="site-footer">
+  <div class="container footer-search-bar surface-muted">
+    <p class="small muted">Recherche rapide</p>
+    <form class="footer-search-form" action={withBase("/recherche/")} method="get">
+      <label class="sr-only" for="footer-search-input">Rechercher sur le site</label>
+      <input id="footer-search-input" type="search" name="q" placeholder="Rechercher un article, guide, vidéo ou outil" />
+      <button class="button button-primary" type="submit">Rechercher</button>
+    </form>
+  </div>
+
   <div class="container footer-grid">
-    <div>
+    <div class="footer-brand">
       <p class="eyebrow">Thésard Au Calme</p>
-      <p class="small">Contenus pédagogiques pour doctorant·es en France. Approche méthodique, transparente et sans promesse irréaliste.</p>
+      <p class="small">Contenus pédagogiques pour doctorant·es en France. Méthode sobre, progression durable, conversion éthique.</p>
+      {
+        hasBrandMascot && brandMascotSrc && (
+          <img class="footer-mascot" src={brandMascotSrc} alt="" width="88" height="88" loading="lazy" decoding="async" aria-hidden="true" />
+        )
+      }
     </div>
 
     <div>
       <p class="footer-title">Navigation</p>
       <ul>
-        <li><a href={withBase("/start/")}>Commencer ici</a></li>
-        <li><a href={withBase("/outils/")}>Toolbox outils</a></li>
-        <li><a href={withBase("/outils/avis/")}>Avis outils</a></li>
-        <li><a href={withBase("/articles/")}>Articles</a></li>
-        <li><a href={withBase("/ressources/")}>Ressources</a></li>
+        <li><a href={withBase("/start/")}>Commencer</a></li>
+        <li><a href={withBase("/articles/")}>Blog</a></li>
+        <li><a href={withBase("/guides/")}>Guides</a></li>
+        <li><a href={withBase("/videos/")}>Vidéos</a></li>
+        <li><a href={withBase("/recherche/")}>Recherche</a></li>
       </ul>
     </div>
 
     <div>
-      <p class="footer-title">Outils gratuits</p>
+      <p class="footer-title">Toolbox</p>
       <ul>
-        <li><a href={withBase("/downloads/")}>Téléchargements</a></li>
-        <li><a href={withBase("/newsletter/")}>Newsletter</a></li>
-        <li><a href={withBase("/communaute/")}>Communauté</a></li>
-        <li><a href={withBase("/communaute/kit/")}>Kit première semaine</a></li>
-        <li><a href={withBase("/youtube/")}>YouTube</a></li>
+        <li><a href={withBase("/outils/")}>Toolbox complète</a></li>
+        <li><a href={withBase("/outils/avis/")}>Avis outils</a></li>
+        <li><a href={withBase("/stacks/")}>Stacks</a></li>
+        <li><a href={withBase("/playlists/")}>Playlists</a></li>
+        <li><a href={withBase("/ressources/")}>Ressources</a></li>
       </ul>
     </div>
 
@@ -69,7 +84,18 @@ const topTools = [...featuredResources, ...rankedResources.filter((entry) => !fe
     </div>
 
     <div>
-      <p class="footer-title">Chaîne & communauté</p>
+      <p class="footer-title">Communauté</p>
+      <ul>
+        <li><a href={withBase("/communaute/")}>Hub communauté</a></li>
+        <li><a href={withBase("/communaute/defis/")}>Défis</a></li>
+        <li><a href={withBase("/communaute/kit/")}>Kit de départ</a></li>
+        <li><a href={withBase("/downloads/")}>Pack gratuit</a></li>
+        <li><a href={withBase("/newsletter/")}>Newsletter</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <p class="footer-title">Réseaux & légal</p>
       <ul>
         {
           socialLinks.map((entry) => (
@@ -86,17 +112,8 @@ const topTools = [...featuredResources, ...rankedResources.filter((entry) => !fe
             </li>
           ))
         }
-      </ul>
-    </div>
-
-    <div>
-      <p class="footer-title">Cadre légal</p>
-      <ul>
-        <li><a href={withBase("/legal/")}>Vue d'ensemble légale</a></li>
-        <li><a href={withBase("/legal/mentions-legales/")}>Mentions légales</a></li>
-        <li><a href={withBase("/legal/confidentialite/")}>Confidentialité</a></li>
         <li><a href={withBase("/legal/affiliation/")}>Affiliation</a></li>
-        <li><a href={withBase("/brand/")}>Brand & transparence</a></li>
+        <li><a href={withBase("/legal/confidentialite/")}>Confidentialité</a></li>
       </ul>
     </div>
   </div>
@@ -110,15 +127,59 @@ const topTools = [...featuredResources, ...rankedResources.filter((entry) => !fe
 <style>
   .site-footer {
     border-top: 1px solid var(--border);
-    margin-top: 4rem;
-    padding-top: 2.4rem;
-    background: #f2eee5;
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    background: #f0ebe1;
+  }
+
+  .footer-search-bar {
+    margin-bottom: var(--space-6);
+    padding: 0.85rem;
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .footer-search-bar p {
+    margin: 0;
+  }
+
+  .footer-search-form {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-search-form input {
+    min-width: 250px;
+    flex: 1;
+    border: 1px solid var(--brand-border);
+    border-radius: var(--radius-pill);
+    padding: 0.58rem 0.82rem;
+    font: inherit;
+    background: #fff;
   }
 
   .footer-grid {
     display: grid;
-    grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr 1fr;
-    gap: 1.4rem;
+    grid-template-columns: 1.2fr repeat(5, 1fr);
+    gap: 1.25rem;
+  }
+
+  .footer-brand {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .footer-brand p {
+    margin: 0;
+  }
+
+  .footer-mascot {
+    width: 76px;
+    height: 76px;
+    border-radius: var(--radius-2);
+    border: 1px solid var(--brand-border);
+    background: #fff;
   }
 
   .footer-grid ul {
@@ -126,7 +187,7 @@ const topTools = [...featuredResources, ...rankedResources.filter((entry) => !fe
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 0.28rem;
+    gap: 0.24rem;
   }
 
   .footer-grid a {
@@ -135,6 +196,7 @@ const topTools = [...featuredResources, ...rankedResources.filter((entry) => !fe
   }
 
   .footer-grid a:hover {
+    color: var(--brand-accent);
     text-decoration: underline;
   }
 
@@ -142,27 +204,44 @@ const topTools = [...featuredResources, ...rankedResources.filter((entry) => !fe
     margin: 0 0 0.45rem;
     color: var(--text);
     font-weight: 700;
+    font-size: 0.94rem;
   }
 
   .footer-bottom {
     border-top: 1px solid var(--border);
-    margin-top: 1.5rem;
-    padding: 0.85rem 0 1.5rem;
+    margin-top: var(--space-5);
+    padding: var(--space-4) 0 var(--space-5);
     display: flex;
     gap: 1rem;
     justify-content: space-between;
     flex-wrap: wrap;
   }
 
-  @media (max-width: 1080px) {
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    border: 0;
+    padding: 0;
+    clip: rect(0 0 0 0);
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 1120px) {
     .footer-grid {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
-  @media (max-width: 700px) {
+  @media (max-width: 760px) {
     .footer-grid {
       grid-template-columns: 1fr;
+    }
+
+    .footer-search-form input {
+      min-width: 0;
     }
   }
 </style>

@@ -1,0 +1,31 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { withBase } from "../../lib/links";
+
+const targetHref = withBase("/articles/");
+---
+
+<BaseLayout canonicalPath="/articles/" title="Blog | Thésard Au Calme" description="Alias du blog vers la bibliothèque d'articles." noindex={true}>
+  <section class="section">
+    <div class="container surface blog-alias-card">
+      <p class="eyebrow">Blog</p>
+      <h1>Redirection vers la bibliothèque d’articles</h1>
+      <p>La version canonique du blog se trouve sur la route <code>/articles/</code>.</p>
+      <a class="button button-primary" href={targetHref}>Ouvrir le blog</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<script is:inline define:vars={{ targetHref }}>
+  if (window.location.pathname.endsWith("/blog/") || window.location.pathname.endsWith("/blog")) {
+    window.location.replace(targetHref);
+  }
+</script>
+
+<style>
+  .blog-alias-card {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.6rem;
+  }
+</style>

@@ -3,6 +3,7 @@ import { getCollection } from "astro:content";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
 import TopToolsStrip from "../../components/TopToolsStrip.astro";
 import { communityUrl, isConfiguredExternalUrl, youtubeUrl } from "../../config/identity";
+import { getArticleCategory } from "../../lib/article-meta";
 import { withBase } from "../../lib/links";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
@@ -12,14 +13,30 @@ const articles = (await getCollection("articles", ({ data }) => data.lang === "f
 
 const tags = [...new Set(articles.flatMap((article) => article.data.tags))].sort((a, b) => a.localeCompare(b, "fr"));
 
-const serializedArticles = articles.map((article) => ({
-  slug: article.slug,
-  title: article.data.title,
-  summary: article.data.summary,
-  status: article.data.status,
-  date: article.data.date.toISOString(),
-  tags: article.data.tags
-}));
+const categoryMap = new Map<string, string>();
+articles.forEach((article) => {
+  const category = getArticleCategory(article.data.tags);
+  if (!categoryMap.has(category.key)) {
+    categoryMap.set(category.key, category.label);
+  }
+});
+
+const categories = [...categoryMap.entries()].map(([key, label]) => ({ key, label }));
+
+const serializedArticles = articles.map((article) => {
+  const category = getArticleCategory(article.data.tags);
+
+  return {
+    slug: article.slug,
+    title: article.data.title,
+    summary: article.data.summary,
+    status: article.data.status,
+    date: article.data.date.toISOString(),
+    tags: article.data.tags,
+    categoryKey: category.key,
+    categoryLabel: category.label
+  };
+});
 
 const baseUrl = withBase("/");
 const youtubeCta = isConfiguredExternalUrl(youtubeUrl) ? youtubeUrl : withBase("/contact/");
@@ -28,30 +45,49 @@ const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : with
 
 <BaseLayout
   canonicalPath="/articles/"
-  title="Articles | Thésard Au Calme"
-  description="Articles approfondis orientés exécution pour doctorat en France: checklists, comparatifs, scripts vidéo et méthodes testables."
+  title="Blog doctorat | Thésard Au Calme"
+  description="Blog doctorat orienté action: articles structurés, catégories, tags, tri chronologique et liens vers outils, guides et vidéos utiles."
 >
   <section class="section">
     <div class="container prose">
-      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Articles" }]} />
-      <p class="eyebrow">Articles</p>
-      <h1>Bibliothèque éditoriale orientée vidéo</h1>
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Blog" }]} />
+      <p class="eyebrow">Blog</p>
+      <h1>Blog doctorat: contenu lisible, actionnable, durable</h1>
       <p>
-        Ces articles servent à la fois de guides autonomes et de base de script pour les prochaines vidéos. Format: 80% checklists,
-        20% exemples concrets.
+        Chaque article est conçu comme une ressource de travail: contexte, étapes, pièges, points de contrôle et sorties concrètes.
       </p>
     </div>
   </section>
 
-  <section class="section">
-    <div class="container surface article-filters">
+  <section class="section blog-controls-section">
+    <div class="container surface blog-controls">
       <label for="article-search">Rechercher un article</label>
-      <input id="article-search" type="search" placeholder="ex: zotero, soutenance, procrastination, sauvegarde" />
+      <input id="article-search" type="search" placeholder="ex: zotero, soutenance, visa, relecture" autocomplete="off" />
 
-      <p class="small muted">Filtrer par tag</p>
-      <div class="tag-row" id="article-tags">
-        <button class="filter-chip is-active" type="button" data-tag="all">Tous</button>
-        {tags.map((tag) => <button class="filter-chip" type="button" data-tag={tag}>{tag}</button>)}
+      <div class="filters-grid">
+        <div>
+          <p class="small muted">Catégories</p>
+          <div class="tag-row" id="category-filters">
+            <button class="filter-chip is-active" type="button" data-category="all">Toutes</button>
+            {categories.map((category) => <button class="filter-chip" type="button" data-category={category.key}>{category.label}</button>)}
+          </div>
+        </div>
+
+        <div>
+          <p class="small muted">Tags</p>
+          <div class="tag-row" id="tag-filters">
+            <button class="filter-chip is-active" type="button" data-tag="all">Tous</button>
+            {tags.map((tag) => <button class="filter-chip" type="button" data-tag={tag}>{tag}</button>)}
+          </div>
+        </div>
+      </div>
+
+      <div class="sort-row">
+        <label for="sort-by">Tri</label>
+        <select id="sort-by">
+          <option value="newest">Plus récents</option>
+          <option value="oldest">Plus anciens</option>
+        </select>
       </div>
 
       <p id="article-status" class="small muted">{articles.length} article(s) disponibles.</p>
@@ -62,8 +98,8 @@ const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : with
   <section class="section top-tools-articles">
     <div class="container">
       <TopToolsStrip
-        title="Top outils reliés aux articles"
-        description="Les ressources les plus utiles pour passer du contenu à l'action."
+        title="Top outils liés au blog"
+        description="Ressources les plus utiles pour transformer lecture et notes en livrables académiques."
         limit={8}
       />
     </div>
@@ -71,10 +107,8 @@ const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : with
 
   <section class="section">
     <div class="container surface article-cta">
-      <h2>Suivre les prochaines publications vidéo</h2>
-      <p>
-        Les articles marqués "coming soon" sont prêts en version texte. La version vidéo est publiée ensuite sur la chaîne.
-      </p>
+      <h2>Continuer le parcours</h2>
+      <p>Le blog est conçu pour être combiné avec la chaîne YouTube et la communauté de pratique.</p>
       <div class="actions">
         <a class="button button-secondary" href={youtubeCta} target={isConfiguredExternalUrl(youtubeCta) ? "_blank" : undefined} rel={isConfiguredExternalUrl(youtubeCta) ? "noopener nofollow" : undefined}>Chaîne YouTube</a>
         <a class="button button-secondary" href={communityCta} target={isConfiguredExternalUrl(communityCta) ? "_blank" : undefined} rel={isConfiguredExternalUrl(communityCta) ? "noopener nofollow" : undefined}>Communauté</a>
@@ -86,18 +120,17 @@ const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : with
     const searchInput = document.getElementById("article-search");
     const statusNode = document.getElementById("article-status");
     const resultsNode = document.getElementById("article-results");
-    const tagButtons = Array.from(document.querySelectorAll("#article-tags [data-tag]"));
+    const categoryButtons = Array.from(document.querySelectorAll("#category-filters [data-category]"));
+    const tagButtons = Array.from(document.querySelectorAll("#tag-filters [data-tag]"));
+    const sortSelect = document.getElementById("sort-by");
 
     const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
-
     const toBasePath = (path) => `${normalizedBase}${String(path).replace(/^\/+/, "")}`;
 
     const articles = serializedArticles.map((entry) => ({
       ...entry,
       path: toBasePath(`/articles/${entry.slug}/`)
     }));
-
-    let selectedTag = "all";
 
     const normalize = (value) =>
       String(value)
@@ -113,17 +146,25 @@ const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : with
         year: "numeric"
       });
 
+    let selectedCategory = "all";
+    let selectedTag = "all";
+
     const renderCard = (entry) => {
       const article = document.createElement("article");
       article.className = "card article-card";
+
       const statusLabel = entry.status === "published" ? "Publié" : "Coming soon";
-      const tags = entry.tags.map((tag) => `#${tag}`).join(" · ");
+      const tags = entry.tags.slice(0, 3).map((tag) => `#${tag}`).join(" · ");
+      const coverToken = entry.title.split(" ").slice(0, 2).map((part) => part.charAt(0)).join("").toUpperCase();
 
       article.innerHTML = `
+        <div class="cover cover-${entry.categoryKey}">${coverToken}</div>
         <p class="small muted">${formatDate(entry.date)} · ${statusLabel}</p>
+        <p class="category-pill">${entry.categoryLabel}</p>
         <h3><a href="${entry.path}">${entry.title}</a></h3>
         <p>${entry.summary}</p>
         <p class="small muted">${tags}</p>
+        <a class="button button-secondary" href="${entry.path}">Lire l'article</a>
       `;
 
       return article;
@@ -132,8 +173,13 @@ const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : with
     const refreshResults = () => {
       const query = normalize(searchInput.value || "");
       const terms = query.length > 0 ? query.split(/\s+/).filter(Boolean) : [];
+      const sortBy = sortSelect.value;
 
       const filtered = articles.filter((entry) => {
+        if (selectedCategory !== "all" && entry.categoryKey !== selectedCategory) {
+          return false;
+        }
+
         if (selectedTag !== "all" && !entry.tags.includes(selectedTag)) {
           return false;
         }
@@ -142,14 +188,31 @@ const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : with
           return true;
         }
 
-        const haystack = normalize(`${entry.title} ${entry.summary} ${entry.tags.join(" ")}`);
+        const haystack = normalize(
+          `${entry.title} ${entry.summary} ${entry.tags.join(" ")} ${entry.categoryLabel}`
+        );
         return terms.every((term) => haystack.includes(term));
+      });
+
+      filtered.sort((a, b) => {
+        if (sortBy === "oldest") {
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
+        }
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
       });
 
       resultsNode.innerHTML = "";
       filtered.forEach((entry) => resultsNode.appendChild(renderCard(entry)));
       statusNode.textContent = `${filtered.length} résultat(s).`;
     };
+
+    categoryButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        selectedCategory = button.dataset.category;
+        categoryButtons.forEach((item) => item.classList.toggle("is-active", item.dataset.category === selectedCategory));
+        refreshResults();
+      });
+    });
 
     tagButtons.forEach((button) => {
       button.addEventListener("click", () => {
@@ -160,27 +223,34 @@ const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : with
     });
 
     searchInput.addEventListener("input", refreshResults);
+    sortSelect.addEventListener("change", refreshResults);
     refreshResults();
   </script>
 </BaseLayout>
 
 <style>
-  .article-filters {
-    padding: 1.2rem;
-    display: grid;
-    gap: 0.75rem;
-  }
-
-  .top-tools-articles {
+  .blog-controls-section {
     padding-top: 0;
   }
 
-  .article-filters input {
+  .blog-controls {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.8rem;
+  }
+
+  .blog-controls input,
+  .blog-controls select {
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 0.72rem 0.8rem;
+    border-radius: var(--radius-pill);
+    padding: 0.68rem 0.86rem;
     font: inherit;
     background: #fff;
+  }
+
+  .filters-grid {
+    display: grid;
+    gap: 0.75rem;
   }
 
   .tag-row {
@@ -192,7 +262,7 @@ const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : with
   .filter-chip {
     border: 1px solid var(--border);
     background: #fff;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     padding: 0.28rem 0.72rem;
     color: var(--text-soft);
     cursor: pointer;
@@ -201,25 +271,79 @@ const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : with
   }
 
   .filter-chip.is-active {
-    background: #efebe2;
-    color: var(--text);
-    border-color: #bcb4a6;
+    background: #eef7f8;
+    color: var(--brand-accent);
+    border-color: color-mix(in srgb, var(--brand-accent) 32%, var(--border));
+  }
+
+  .sort-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .cards-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
   }
 
-  .article-card {
+  #article-results :global(.article-card) {
     display: grid;
     gap: 0.5rem;
   }
 
-  .article-card h3 {
+  #article-results :global(.cover) {
+    height: 132px;
+    border: 1px solid var(--brand-border);
+    border-radius: var(--radius-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-family: var(--font-serif);
+    color: rgba(29, 43, 50, 0.75);
+    background: linear-gradient(135deg, #f8f4ea 0%, #efe5d2 100%);
+  }
+
+  #article-results :global(.cover-redaction) {
+    background: linear-gradient(135deg, #f6efe6 0%, #ece0cf 100%);
+  }
+
+  #article-results :global(.cover-biblio) {
+    background: linear-gradient(135deg, #eaf3f4 0%, #d8e8ea 100%);
+  }
+
+  #article-results :global(.cover-admin) {
+    background: linear-gradient(135deg, #f2efe8 0%, #e8e2d4 100%);
+  }
+
+  #article-results :global(.cover-focus) {
+    background: linear-gradient(135deg, #eef6f3 0%, #dcefe8 100%);
+  }
+
+  #article-results :global(.cover-outils) {
+    background: linear-gradient(135deg, #f3f2f9 0%, #e7e4f2 100%);
+  }
+
+  #article-results :global(.category-pill) {
+    margin: 0;
+    width: fit-content;
+    border: 1px solid var(--brand-border);
+    border-radius: var(--radius-pill);
+    padding: 0.18rem 0.55rem;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--brand-accent);
+    font-weight: 700;
+    background: #fff;
+  }
+
+  #article-results :global(.article-card h3) {
     margin: 0;
   }
 
-  .article-card a {
+  #article-results :global(.article-card a) {
     text-decoration: none;
   }
 
@@ -235,7 +359,11 @@ const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : with
     flex-wrap: wrap;
   }
 
-  @media (max-width: 960px) {
+  .top-tools-articles {
+    padding-top: 0;
+  }
+
+  @media (max-width: 980px) {
     .cards-grid {
       grid-template-columns: 1fr;
     }
