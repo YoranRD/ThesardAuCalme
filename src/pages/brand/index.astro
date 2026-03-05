@@ -1,0 +1,89 @@
+---
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { withBase } from "../../lib/links";
+---
+
+<BaseLayout
+  canonicalPath="/brand/"
+  title="Brand & transparence | Thésard Au Calme"
+  description="Principes éditoriaux, usage des templates et cadre de transparence de Thésard Au Calme."
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Brand" }]} />
+      <p class="eyebrow">Brand</p>
+      <h1>Ton éditorial et transparence</h1>
+      <p>
+        Thésard Au Calme privilégie un ton méthodique, factuel et calme. Le contenu vise la progression réelle d'un doctorat,
+        sans promesse irréaliste ni rhétorique anxiogène.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid brand-grid">
+      <article class="surface block">
+        <h2>Ton éditorial</h2>
+        <ul>
+          <li>Priorité aux checklists actionnables et à l'ordre des décisions.</li>
+          <li>Explications courtes, sans jargon inutile.</li>
+          <li>Positionnement pédagogique: aider à exécuter, pas à consommer du contenu.</li>
+        </ul>
+      </article>
+
+      <article class="surface block">
+        <h2>Usage des templates</h2>
+        <ul>
+          <li>Adapter les modèles au contexte du labo, sans copier-coller aveugle.</li>
+          <li>Conserver les preuves utiles (mails, échéances, décisions).</li>
+          <li>Réviser les templates toutes les 2 à 4 semaines selon les retours terrain.</li>
+        </ul>
+        <a class="button button-secondary" href={withBase("/templates/")}>Voir les templates</a>
+      </article>
+
+      <article class="surface block">
+        <h2>Transparence & affiliation</h2>
+        <p>
+          Les liens d'affiliation restent explicitement signalés. Les recommandations sont choisies pour leur utilité pratique,
+          pas pour le taux de commission.
+        </p>
+        <a class="button button-secondary" href={withBase("/legal/affiliation/")}>Lire la politique d'affiliation</a>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface block">
+      <h2>Ajout futur du logo ou de la mascotte</h2>
+      <p>
+        Déposer un logo sous <code>src/assets/brand/logo.svg</code> active automatiquement le slot visuel en en-tête. Sans ce
+        fichier, le nom texte reste affiché. Le même principe s'applique pour la mascotte et l'icône de site.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .brand-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .block {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .block ul {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text-soft);
+  }
+
+  @media (max-width: 980px) {
+    .brand-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

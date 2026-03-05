@@ -1,0 +1,56 @@
+---
+interface Props {
+  label: string;
+  variant?: "featured" | "deal" | "new" | "verified" | "best";
+}
+
+const { label, variant = "best" } = Astro.props;
+---
+
+<span class={`badge-pill badge-${variant}`}>{label}</span>
+
+<style>
+  .badge-pill {
+    display: inline-flex;
+    align-items: center;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--brand-border);
+    padding: 0.2rem 0.55rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.1;
+    white-space: nowrap;
+    background: #fff;
+    color: var(--brand-muted);
+  }
+
+  .badge-featured {
+    background: #fff4da;
+    border-color: #d7b57a;
+    color: #7e5b1f;
+  }
+
+  .badge-deal {
+    background: #fde9e4;
+    border-color: #d9a195;
+    color: #863f2d;
+  }
+
+  .badge-new {
+    background: #e8f4ee;
+    border-color: #9bbda7;
+    color: #2f5d45;
+  }
+
+  .badge-verified {
+    background: #e7f0fa;
+    border-color: #9db6d3;
+    color: #355070;
+  }
+
+  .badge-best {
+    background: #efebe2;
+    border-color: #c8bcaa;
+    color: #4f463b;
+  }
+</style>

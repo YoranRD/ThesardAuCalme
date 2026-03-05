@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import Breadcrumbs from "../components/Breadcrumbs.astro";
 import CtaBlock from "../components/CtaBlock.astro";
+import TopToolsStrip from "../components/TopToolsStrip.astro";
 import { withBase } from "../lib/links";
 import { resourceByKey } from "../lib/resources";
 import BaseLayout from "../layouts/BaseLayout.astro";
@@ -100,6 +101,16 @@ const profiles = [
     </div>
   </section>
 
+  <section class="section top-tools-start">
+    <div class="container">
+      <TopToolsStrip
+        title="Top outils pour lancer une routine doctorale"
+        description="Sélection courte pour déployer un système de travail simple en moins d'une heure."
+        limit={8}
+      />
+    </div>
+  </section>
+
   <section class="section">
     <div class="container grid">
       {
@@ -162,6 +173,10 @@ const profiles = [
     padding: 1.2rem;
     display: grid;
     gap: 0.5rem;
+  }
+
+  .top-tools-start {
+    padding-top: 0;
   }
 
   .profile-card ul {

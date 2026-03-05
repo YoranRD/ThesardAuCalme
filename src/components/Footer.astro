@@ -7,6 +7,7 @@ import {
   youtubeUrl
 } from "../config/identity";
 import { withBase } from "../lib/links";
+import { featuredResources, resourcesCatalog } from "../lib/resources";
 
 const year = new Date().getFullYear();
 
@@ -16,6 +17,18 @@ const socialLinks = [
   { label: "TikTok", url: tiktokUrl },
   { label: "Instagram", url: instagramUrl }
 ];
+
+const rankedResources = [...resourcesCatalog].sort((a, b) => {
+  if (a.wizardScore !== b.wizardScore) {
+    return b.wizardScore - a.wizardScore;
+  }
+  if (a.isFeatured !== b.isFeatured) {
+    return a.isFeatured ? -1 : 1;
+  }
+  return a.name.localeCompare(b.name, "fr");
+});
+
+const topTools = [...featuredResources, ...rankedResources.filter((entry) => !featuredResources.some((item) => item.key === entry.key))].slice(0, 8);
 ---
 
 <footer class="site-footer">
@@ -44,6 +57,14 @@ const socialLinks = [
         <li><a href={withBase("/communaute/")}>Communauté</a></li>
         <li><a href={withBase("/communaute/kit/")}>Kit première semaine</a></li>
         <li><a href={withBase("/youtube/")}>YouTube</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <p class="footer-title">Top outils</p>
+      <ul>
+        {topTools.map((tool) => <li><a href={withBase(`/outils/${tool.key}/`)}>{tool.name}</a></li>)}
+        <li><a href={withBase("/outils/")}>Découvrir la toolbox</a></li>
       </ul>
     </div>
 
@@ -96,7 +117,7 @@ const socialLinks = [
 
   .footer-grid {
     display: grid;
-    grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr 1fr;
     gap: 1.4rem;
   }
 

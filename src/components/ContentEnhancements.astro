@@ -1,0 +1,153 @@
+---
+interface Props {
+  contentSelector: string;
+  lang?: "fr" | "en";
+}
+
+const { contentSelector, lang = "fr" } = Astro.props;
+
+const backToTopLabel = lang === "fr" ? "Revenir en haut" : "Back to top";
+const copyLinkLabel = lang === "fr" ? "Copier le lien de cette section" : "Copy section link";
+const copiedLabel = lang === "fr" ? "Copié" : "Copied";
+const copyFallbackLabel = lang === "fr" ? "Lien prêt" : "Link ready";
+---
+
+<button class="back-to-top" type="button" data-back-to-top aria-label={backToTopLabel}>
+  ↑ {lang === "fr" ? "Haut" : "Top"}
+</button>
+
+<script
+  is:inline
+  define:vars={{
+    contentSelector,
+    copyLinkLabel,
+    copiedLabel,
+    copyFallbackLabel
+  }}
+>
+  const normalizeSelector = (value) => {
+    if (typeof value !== "string" || value.trim().length === 0) {
+      return null;
+    }
+    return value.trim();
+  };
+
+  const selector = normalizeSelector(contentSelector);
+
+  if (selector) {
+    const contentRoots = Array.from(document.querySelectorAll(selector));
+
+    contentRoots.forEach((root) => {
+      const headings = Array.from(root.querySelectorAll("h2[id], h3[id]"));
+
+      headings.forEach((heading) => {
+        if (heading.querySelector(".heading-link-copy")) {
+          return;
+        }
+
+        const slug = heading.getAttribute("id");
+        if (!slug) {
+          return;
+        }
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "heading-link-copy";
+        button.setAttribute("aria-label", copyLinkLabel);
+        button.textContent = "#";
+
+        button.addEventListener("click", async () => {
+          const sectionUrl = `${window.location.origin}${window.location.pathname}${window.location.search}#${slug}`;
+
+          try {
+            await navigator.clipboard.writeText(sectionUrl);
+            button.textContent = copiedLabel;
+            window.setTimeout(() => {
+              button.textContent = "#";
+            }, 1400);
+          } catch {
+            window.location.hash = slug;
+            button.textContent = copyFallbackLabel;
+            window.setTimeout(() => {
+              button.textContent = "#";
+            }, 1400);
+          }
+        });
+
+        heading.classList.add("heading-linkable");
+        heading.append(button);
+      });
+    });
+  }
+
+  const backToTopButton = document.querySelector("[data-back-to-top]");
+
+  if (backToTopButton instanceof HTMLButtonElement) {
+    const minScrollableHeight = 1700;
+    const shouldEnable = document.documentElement.scrollHeight >= minScrollableHeight;
+
+    const syncBackToTopVisibility = () => {
+      const visible = shouldEnable && window.scrollY > 460;
+      backToTopButton.classList.toggle("is-visible", visible);
+      backToTopButton.disabled = !visible;
+    };
+
+    syncBackToTopVisibility();
+    window.addEventListener("scroll", syncBackToTopVisibility, { passive: true });
+
+    backToTopButton.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+</script>
+
+<style>
+  :global(.heading-linkable) {
+    scroll-margin-top: 7rem;
+  }
+
+  :global(.heading-link-copy) {
+    margin-left: 0.45rem;
+    border: 0;
+    border-radius: 0.45rem;
+    background: var(--surface-muted);
+    color: var(--text-soft);
+    font: inherit;
+    line-height: 1;
+    font-size: 0.86rem;
+    padding: 0.2rem 0.35rem;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(-1px);
+    transition: opacity 120ms ease;
+  }
+
+  :global(.heading-linkable:hover .heading-link-copy),
+  :global(.heading-linkable:focus-within .heading-link-copy) {
+    opacity: 1;
+  }
+
+  .back-to-top {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.45rem 0.75rem;
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--text-soft);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px);
+    transition: opacity 150ms ease, transform 150ms ease;
+    z-index: 40;
+  }
+
+  .back-to-top.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+</style>

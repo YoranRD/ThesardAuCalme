@@ -162,3 +162,52 @@ export const getSeriesNeighbors = (
     next: index < items.length - 1 ? items[index + 1] : undefined
   };
 };
+
+export const getWatchNextVideo = (video: VideoEntry, videos: VideoEntry[]): VideoEntry | undefined => {
+  const candidates = videos.filter((candidate) => candidate.slug !== video.slug);
+
+  if (candidates.length === 0) {
+    return undefined;
+  }
+
+  if (video.data.series && video.data.seriesOrder) {
+    const sameSeriesNext = candidates
+      .filter(
+        (candidate) =>
+          candidate.data.series === video.data.series &&
+          typeof candidate.data.seriesOrder === "number" &&
+          candidate.data.seriesOrder > video.data.seriesOrder
+      )
+      .sort(
+        (a, b) =>
+          (a.data.seriesOrder as number) - (b.data.seriesOrder as number) ||
+          b.data.date.getTime() - a.data.date.getTime() ||
+          a.data.title.localeCompare(b.data.title, "fr")
+      );
+
+    if (sameSeriesNext.length > 0) {
+      return sameSeriesNext[0];
+    }
+  }
+
+  const relatedByTags = candidates
+    .map((candidate) => ({
+      candidate,
+      score: computeSharedTagScore(video.data.tags, candidate.data.tags)
+    }))
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        b.candidate.data.date.getTime() - a.candidate.data.date.getTime() ||
+        a.candidate.data.title.localeCompare(b.candidate.data.title, "fr")
+    );
+
+  const bestTaggedCandidate = relatedByTags.find((entry) => entry.score > 0);
+  if (bestTaggedCandidate) {
+    return bestTaggedCandidate.candidate;
+  }
+
+  return candidates.sort(
+    (a, b) => b.data.date.getTime() - a.data.date.getTime() || a.data.title.localeCompare(b.data.title, "fr")
+  )[0];
+};

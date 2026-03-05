@@ -8,15 +8,17 @@ interface Props {
 }
 
 const { guide } = Astro.props;
-const publicationDate = guide.data.date.toLocaleDateString("fr-FR", {
+const referenceDate = guide.data.updated ?? guide.data.date;
+const publicationDate = referenceDate.toLocaleDateString("fr-FR", {
   day: "2-digit",
   month: "long",
   year: "numeric"
 });
+const datePrefix = guide.data.updated ? "Mis à jour" : "Publié";
 ---
 
 <article class="card guide-card">
-  <p class="small muted">{publicationDate}</p>
+  <p class="small muted">{datePrefix} le {publicationDate}</p>
   <h3><a href={withBase(`/guides/${guide.slug}/`)}>{guide.data.title}</a></h3>
   <p>{guide.data.summary}</p>
   <TagList tags={guide.data.tags} />

@@ -1,18 +1,4 @@
-:root {
-  --bg: #f8f6f1;
-  --surface: #fffefc;
-  --surface-muted: #f1ece3;
-  --text: #1f1f1c;
-  --text-soft: #5f5a52;
-  --border: #d8d0c3;
-  --accent: #2f5d5a;
-  --accent-soft: #dce7e6;
-  --danger-soft: #f8e7dc;
-  --shadow: 0 10px 30px rgba(31, 31, 28, 0.07);
-  --radius: 14px;
-  --radius-sm: 10px;
-  --max-width: 1120px;
-}
+@import "./tokens.css";
 
 * {
   box-sizing: border-box;
@@ -22,8 +8,8 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: radial-gradient(circle at 10% 10%, #f4efe6 0%, #f8f6f1 40%, #f6f2ea 100%);
-  color: var(--text);
+  background: radial-gradient(circle at 10% 10%, #f4efe6 0%, var(--brand-bg) 40%, #f6f2ea 100%);
+  color: var(--brand-text);
   font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
   line-height: 1.6;
 }
@@ -52,7 +38,7 @@ h3 {
 
 p {
   margin: 0 0 1rem;
-  color: var(--text-soft);
+  color: var(--brand-muted);
 }
 
 a {
@@ -74,16 +60,16 @@ img {
 }
 
 .surface {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-border);
+  border-radius: var(--radius-3);
+  box-shadow: var(--shadow-2);
 }
 
 .muted-surface {
   background: var(--surface-muted);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border: 1px solid var(--brand-border);
+  border-radius: var(--radius-3);
 }
 
 .eyebrow {
@@ -91,16 +77,16 @@ img {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-size: 0.76rem;
-  color: var(--accent);
+  color: var(--brand-accent);
   font-weight: 700;
 }
 
 .button {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  border-radius: 999px;
-  border: 1px solid var(--accent);
+  gap: var(--space-2);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--brand-accent);
   padding: 0.62rem 1.05rem;
   text-decoration: none;
   font-weight: 600;
@@ -112,13 +98,13 @@ img {
 }
 
 .button-primary {
-  background: var(--accent);
+  background: var(--brand-accent);
   color: #f3f7f6;
 }
 
 .button-secondary {
   background: transparent;
-  color: var(--accent);
+  color: var(--brand-accent);
 }
 
 .grid {
@@ -136,18 +122,18 @@ img {
 }
 
 .meta-pill {
-  border: 1px solid var(--border);
-  border-radius: 999px;
+  border: 1px solid var(--brand-border);
+  border-radius: var(--radius-pill);
   padding: 0.24rem 0.65rem;
   font-size: 0.83rem;
-  color: var(--text-soft);
+  color: var(--brand-muted);
   background: #fff;
 }
 
 .card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-border);
+  border-radius: var(--radius-2);
   padding: 1.15rem;
 }
 
@@ -164,7 +150,7 @@ img {
 }
 
 .muted {
-  color: var(--text-soft);
+  color: var(--brand-muted);
 }
 
 .disclosure {
@@ -182,14 +168,14 @@ table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.95rem;
-  background: var(--surface);
+  background: var(--brand-surface);
 }
 
 th,
 td {
   text-align: left;
   padding: 0.72rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--brand-border);
 }
 
 thead th {
@@ -205,7 +191,7 @@ thead th {
 .prose ul,
 .prose ol {
   margin: 0 0 1rem;
-  color: var(--text-soft);
+  color: var(--brand-muted);
 }
 
 .prose li {
@@ -217,7 +203,7 @@ thead th {
   top: -200px;
   left: 0;
   background: #fff;
-  border: 1px solid var(--border);
+  border: 1px solid var(--brand-border);
   padding: 0.5rem 0.8rem;
   z-index: 100;
 }

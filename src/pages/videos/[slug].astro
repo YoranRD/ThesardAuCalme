@@ -1,12 +1,15 @@
 ---
 import { getCollection, render, type CollectionEntry } from "astro:content";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import ContentEnhancements from "../../components/ContentEnhancements.astro";
+import ShareButtons from "../../components/ShareButtons.astro";
 import TableOfContents from "../../components/TableOfContents.astro";
 import TagList from "../../components/TagList.astro";
 import { brandDisplayName } from "../../config/site";
 import { seriesByKey } from "../../data/series";
-import { getRelatedGuidesForVideo, getSeriesItems, getSeriesNeighbors } from "../../lib/content-relations";
+import { getRelatedGuidesForVideo, getSeriesItems, getSeriesNeighbors, getWatchNextVideo } from "../../lib/content-relations";
 import { withBase } from "../../lib/links";
+import { estimateReadingTimeMinutes } from "../../lib/reading-time";
 import { getResourceOutboundPath, resourceByKey } from "../../lib/resources";
 import { parseChapterTimeToSeconds } from "../../lib/videos";
 import BaseLayout from "../../layouts/BaseLayout.astro";
@@ -36,6 +39,13 @@ const publicationDateDisplay = video.data.date.toLocaleDateString(locale, {
   month: "long",
   year: "numeric"
 });
+const updatedDateDisplay = (video.data.updated ?? video.data.date).toLocaleDateString(locale, {
+  day: "2-digit",
+  month: "long",
+  year: "numeric"
+});
+const readingTimeMinutes = estimateReadingTimeMinutes(video.body);
+const readTimeLabel = isFrench ? `${readingTimeMinutes} min de lecture` : `${readingTimeMinutes} min read`;
 
 const chapterWithSeconds = video.data.chapters.map((chapter) => ({
   ...chapter,
@@ -65,6 +75,7 @@ const seriesItems = video.data.series
 
 const seriesNeighbors = getSeriesNeighbors(seriesItems, "video", video.slug);
 const seriesDefinition = video.data.series ? seriesByKey.get(video.data.series) : undefined;
+const watchNextVideo = getWatchNextVideo(video, allVideos);
 
 const videoStructuredData = {
   "@context": "https://schema.org",
@@ -105,10 +116,11 @@ const videoStructuredData = {
       <p class="eyebrow">{isFrench ? "Fiche vidéo" : "Video page"}</p>
       <h1>{video.data.title}</h1>
       <p class="small muted">
-        {isFrench ? "Publié le" : "Published on"} {publicationDateDisplay} · {video.data.durationMin} min
+        {isFrench ? "Publié le" : "Published on"} {publicationDateDisplay} · {isFrench ? "Mis à jour" : "Updated"} {updatedDateDisplay} · {video.data.durationMin} min · {readTimeLabel}
       </p>
       <p class="prose">{video.data.summary}</p>
       <TagList tags={video.data.tags} />
+      <ShareButtons canonicalPath={`/videos/${video.slug}/`} title={video.data.title} lang={pageLang} />
     </div>
   </section>
 
@@ -128,7 +140,7 @@ const videoStructuredData = {
 
   <section class="section">
     <div class="container grid two-columns">
-      <article class="surface block prose">
+      <article class="surface block prose enhanced-content">
         <h2>{isFrench ? "Résumé détaillé" : "Detailed summary"}</h2>
         <TableOfContents headings={headings} title={isFrench ? "Sommaire" : "Outline"} />
         <Content />
@@ -215,6 +227,26 @@ const videoStructuredData = {
   }
 
   {
+    watchNextVideo && (
+      <section class="section">
+        <div class="container surface block">
+          <h2>{isFrench ? "À regarder ensuite" : "Watch next"}</h2>
+          <article class="card related-card">
+            <p class="small muted">
+              {isFrench ? "Vidéo recommandée" : "Recommended video"} · {watchNextVideo.data.durationMin} min
+            </p>
+            <h3><a href={withBase(`/videos/${watchNextVideo.slug}/`)}>{watchNextVideo.data.title}</a></h3>
+            <p>{watchNextVideo.data.summary}</p>
+            <a class="button button-secondary" href={withBase(`/videos/${watchNextVideo.slug}/`)}>
+              {isFrench ? "Voir la vidéo suivante" : "Watch next video"}
+            </a>
+          </article>
+        </div>
+      </section>
+    )
+  }
+
+  {
     video.data.series && (
       <section class="section">
         <div class="container surface block">
@@ -252,6 +284,8 @@ const videoStructuredData = {
       </section>
     )
   }
+
+  <ContentEnhancements contentSelector=".enhanced-content" lang={pageLang} />
 </BaseLayout>
 
 <style>

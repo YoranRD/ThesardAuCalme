@@ -1,12 +1,16 @@
 ---
 import { getCollection, render, type CollectionEntry } from "astro:content";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import ContextualCtaBanner from "../../components/ContextualCtaBanner.astro";
+import ContentEnhancements from "../../components/ContentEnhancements.astro";
+import ShareButtons from "../../components/ShareButtons.astro";
 import TableOfContents from "../../components/TableOfContents.astro";
 import TagList from "../../components/TagList.astro";
 import { brandDisplayName } from "../../config/site";
 import { seriesByKey } from "../../data/series";
 import { getRelatedVideosForGuide, getSeriesItems, getSeriesNeighbors } from "../../lib/content-relations";
 import { withBase } from "../../lib/links";
+import { estimateReadingTimeMinutes } from "../../lib/reading-time";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
 export async function getStaticPaths() {
@@ -33,6 +37,13 @@ const publicationDate = guide.data.date.toLocaleDateString(locale, {
   month: "long",
   year: "numeric"
 });
+const updatedDate = (guide.data.updated ?? guide.data.date).toLocaleDateString(locale, {
+  day: "2-digit",
+  month: "long",
+  year: "numeric"
+});
+const readingTimeMinutes = estimateReadingTimeMinutes(guide.body);
+const readTimeLabel = isFrench ? `${readingTimeMinutes} min de lecture` : `${readingTimeMinutes} min read`;
 
 const allVideos = await getCollection("videos", ({ data }) => data.lang === guide.data.lang);
 const allGuides = await getCollection("guides", ({ data }) => data.lang === guide.data.lang);
@@ -69,9 +80,12 @@ const seriesDefinition = guide.data.series ? seriesByKey.get(guide.data.series) 
       />
       <p class="eyebrow">{isFrench ? "Guide" : "Guide"}</p>
       <h1>{guide.data.title}</h1>
-      <p class="small muted">{isFrench ? "Publié le" : "Published on"} {publicationDate}</p>
+      <p class="small muted">
+        {isFrench ? "Publié le" : "Published on"} {publicationDate} · {isFrench ? "Mis à jour" : "Updated"} {updatedDate} · {readTimeLabel}
+      </p>
       <p class="prose">{guide.data.summary}</p>
       <TagList tags={guide.data.tags} />
+      <ShareButtons canonicalPath={`/guides/${guide.slug}/`} title={guide.data.title} lang={pageLang} />
     </div>
   </section>
 
@@ -86,8 +100,9 @@ const seriesDefinition = guide.data.series ? seriesByKey.get(guide.data.series) 
   }
 
   <section class="section">
-    <article class="container surface guide-body prose">
+    <article class="container surface guide-body prose enhanced-content">
       <Content />
+      <ContextualCtaBanner />
     </article>
   </section>
 
@@ -150,6 +165,8 @@ const seriesDefinition = guide.data.series ? seriesByKey.get(guide.data.series) 
       </section>
     )
   }
+
+  <ContentEnhancements contentSelector=".enhanced-content" lang={pageLang} />
 </BaseLayout>
 
 <style>

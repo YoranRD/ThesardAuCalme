@@ -1,11 +1,12 @@
 ---
 import { getCollection } from "astro:content";
-import mascot from "../assets/brand/mascot.svg";
 import CtaBlock from "../components/CtaBlock.astro";
 import GuideCard from "../components/GuideCard.astro";
+import TopToolsStrip from "../components/TopToolsStrip.astro";
 import VideoCard from "../components/VideoCard.astro";
 import { communityUrl, isConfiguredExternalUrl, youtubeUrl } from "../config/identity";
 import { brandDisplayName, brandTagline, getCanonicalUrl } from "../config/site";
+import { brandMascotSrc, hasBrandMascot } from "../lib/brand";
 import { withBase } from "../lib/links";
 import { resourcesCatalog } from "../lib/resources";
 import BaseLayout from "../layouts/BaseLayout.astro";
@@ -62,7 +63,7 @@ const structuredData = {
   jsonLd={structuredData}
 >
   <section class="section">
-    <div class="container hero surface">
+    <div class:list={{ container: true, hero: true, surface: true, "hero-no-mascot": !hasBrandMascot }}>
       <div>
         <p class="eyebrow">Doctorat en France</p>
         <h1>Un cadre clair pour terminer sa thèse avec plus de calme.</h1>
@@ -76,9 +77,17 @@ const structuredData = {
           <a class="button button-secondary" href={withBase("/videos/")}>Voir les vidéos</a>
         </div>
       </div>
-      <div class="hero-art">
-        <img src={mascot.src} alt="Mascotte Thésard Au Calme" width="220" height="220" />
-      </div>
+      {hasBrandMascot && brandMascotSrc && <div class="hero-art"><img src={brandMascotSrc} alt="" width="220" height="220" loading="eager" decoding="async" aria-hidden="true" /></div>}
+    </div>
+  </section>
+
+  <section class="section top-tools-home">
+    <div class="container">
+      <TopToolsStrip
+        title="Top outils recommandés cette semaine"
+        description="Sélection compacte pour démarrer vite: outils stables, score éditorial et sortie directe via /out/."
+        limit={8}
+      />
     </div>
   </section>
 
@@ -188,6 +197,14 @@ const structuredData = {
   .hero-art {
     justify-self: center;
     width: min(100%, 260px);
+  }
+
+  .hero.hero-no-mascot {
+    grid-template-columns: 1fr;
+  }
+
+  .top-tools-home {
+    padding-top: 0;
   }
 
   .cards-3 {

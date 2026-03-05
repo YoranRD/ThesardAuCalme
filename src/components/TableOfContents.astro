@@ -24,13 +24,13 @@ const visibleHeadings = headings.filter((heading) => heading.depth >= minDepth &
 
 {
   visibleHeadings.length > 0 && (
-    <aside class="surface toc-block" aria-label={title}>
+    <aside class="surface toc-block" aria-label={title} data-toc-block>
       <p class="toc-title">{title}</p>
       <ol>
         {
           visibleHeadings.map((heading) => (
             <li class={`depth-${heading.depth}`}>
-              <a href={`#${heading.slug}`}>{heading.text}</a>
+              <a href={`#${heading.slug}`} data-toc-link={heading.slug}>{heading.text}</a>
             </li>
           ))
         }
@@ -38,6 +38,87 @@ const visibleHeadings = headings.filter((heading) => heading.depth >= minDepth &
     </aside>
   )
 }
+
+<script is:inline>
+  const tocBlocks = Array.from(document.querySelectorAll("[data-toc-block]"));
+  const desktopMediaQuery = window.matchMedia("(min-width: 1080px)");
+
+  if (desktopMediaQuery.matches) {
+    tocBlocks.forEach((tocBlock) => {
+      if (tocBlock.getAttribute("data-toc-ready") === "true") {
+        return;
+      }
+      tocBlock.setAttribute("data-toc-ready", "true");
+
+      const tocLinks = Array.from(tocBlock.querySelectorAll("[data-toc-link]"));
+      if (tocLinks.length === 0) {
+        return;
+      }
+
+      const targetEntries = tocLinks
+        .map((link) => {
+          const slug = link.getAttribute("data-toc-link");
+          if (!slug) {
+            return null;
+          }
+          const section = document.getElementById(slug);
+          if (!section) {
+            return null;
+          }
+          return { link, section, slug };
+        })
+        .filter(Boolean);
+
+      if (targetEntries.length === 0) {
+        return;
+      }
+
+      const setActiveSlug = (slug) => {
+        targetEntries.forEach((entry) => {
+          const isActive = entry.slug === slug;
+          entry.link.classList.toggle("is-active", isActive);
+          if (isActive) {
+            entry.link.setAttribute("aria-current", "true");
+          } else {
+            entry.link.removeAttribute("aria-current");
+          }
+        });
+      };
+
+      setActiveSlug(targetEntries[0].slug);
+
+      const intersectionObserver = new IntersectionObserver(
+        (entries) => {
+          const visibleEntries = entries
+            .filter((entry) => entry.isIntersecting)
+            .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+          if (visibleEntries.length > 0) {
+            setActiveSlug(visibleEntries[0].target.id);
+            return;
+          }
+
+          const passedEntries = targetEntries
+            .filter((entry) => entry.section.getBoundingClientRect().top <= 160)
+            .sort((a, b) => a.section.getBoundingClientRect().top - b.section.getBoundingClientRect().top);
+
+          if (passedEntries.length > 0) {
+            setActiveSlug(passedEntries[passedEntries.length - 1].slug);
+          }
+        },
+        {
+          root: null,
+          rootMargin: "-15% 0px -65% 0px",
+          threshold: [0, 0.25, 0.5, 1]
+        }
+      );
+
+      targetEntries.forEach((entry) => {
+        intersectionObserver.observe(entry.section);
+      });
+    });
+  }
+</script>
 
 <style>
   .toc-block {
@@ -73,5 +154,17 @@ const visibleHeadings = headings.filter((heading) => heading.depth >= minDepth &
 
   .toc-block a:hover {
     text-decoration: underline;
+  }
+
+  .toc-block a.is-active {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  @media (min-width: 1080px) {
+    .toc-block {
+      position: sticky;
+      top: 6.5rem;
+    }
   }
 </style>

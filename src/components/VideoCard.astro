@@ -8,15 +8,17 @@ interface Props {
 }
 
 const { video } = Astro.props;
-const publicationDate = video.data.date.toLocaleDateString("fr-FR", {
+const referenceDate = video.data.updated ?? video.data.date;
+const publicationDate = referenceDate.toLocaleDateString("fr-FR", {
   day: "2-digit",
   month: "long",
   year: "numeric"
 });
+const datePrefix = video.data.updated ? "Mis à jour" : "Publié";
 ---
 
 <article class="card video-card">
-  <p class="small muted">{publicationDate} • {video.data.durationMin} min</p>
+  <p class="small muted">{datePrefix} le {publicationDate} • {video.data.durationMin} min</p>
   <h3><a href={withBase(`/videos/${video.slug}/`)}>{video.data.title}</a></h3>
   <p>{video.data.summary}</p>
   <TagList tags={video.data.tags} />

@@ -37,7 +37,7 @@ const communityRel = isConfiguredExternalUrl(communityUrl) ? "noopener nofollow"
       <ol>
         <li>Lire les <a href={withBase("/communaute/regles/")}>règles</a> et vérifier l'alignement avec la posture attendue.</li>
         <li>Passer par la page <a href={withBase("/communaute/rejoindre/")}>Rejoindre</a> pour comprendre le fonctionnement.</li>
-        <li>Choisir un <a href={withBase("/communaute/defis/")}>défi hebdomadaire</a> et publier un engagement mesurable.</li>
+        <li>Ouvrir le <a href={withBase("/communaute/kit/")}>kit première semaine</a> puis publier un engagement mesurable.</li>
       </ol>
     </div>
   </section>
@@ -72,7 +72,10 @@ const communityRel = isConfiguredExternalUrl(communityUrl) ? "noopener nofollow"
         <li>Partager un blocage prioritaire avec contexte.</li>
         <li>Produire un bilan de fin de semaine.</li>
       </ul>
-      <a class="button button-secondary" href={withBase("/communaute/rejoindre/")}>Voir le parcours rejoindre</a>
+      <div class="actions">
+        <a class="button button-secondary" href={withBase("/communaute/kit/")}>Ouvrir le kit première semaine</a>
+        <a class="button button-secondary" href={withBase("/communaute/rejoindre/")}>Voir le parcours rejoindre</a>
+      </div>
     </div>
   </section>
 </BaseLayout>
@@ -97,5 +100,11 @@ const communityRel = isConfiguredExternalUrl(communityUrl) ? "noopener nofollow"
 
   .block a:hover {
     text-decoration: underline;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
   }
 </style>

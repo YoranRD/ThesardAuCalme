@@ -1,0 +1,90 @@
+---
+import { getCanonicalUrl } from "../config/site";
+
+interface Props {
+  canonicalPath: string;
+  title: string;
+  lang?: "fr" | "en";
+}
+
+const { canonicalPath, title, lang = "fr" } = Astro.props;
+
+const absoluteUrl = getCanonicalUrl(canonicalPath);
+const encodedUrl = encodeURIComponent(absoluteUrl);
+const encodedTitle = encodeURIComponent(title);
+
+const xShareUrl = `https://x.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`;
+const linkedInShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
+
+const copyLabel = lang === "fr" ? "Copier le lien" : "Copy link";
+const copiedLabel = lang === "fr" ? "Lien copié." : "Link copied.";
+const shareTitle = lang === "fr" ? "Partager" : "Share";
+const shareXLabel = lang === "fr" ? "Partager sur X" : "Share on X";
+const shareLinkedInLabel = lang === "fr" ? "Partager sur LinkedIn" : "Share on LinkedIn";
+---
+
+<section class="share-row" aria-label={shareTitle}>
+  <p class="small muted">{shareTitle}</p>
+  <div class="share-actions">
+    <button
+      class="button button-secondary"
+      type="button"
+      data-share-copy
+      data-share-url={absoluteUrl}
+      data-copy-label={copyLabel}
+      data-copied-label={copiedLabel}
+    >
+      {copyLabel}
+    </button>
+    <a class="button button-secondary" href={xShareUrl} target="_blank" rel="noopener nofollow" aria-label={shareXLabel}>
+      X
+    </a>
+    <a class="button button-secondary" href={linkedInShareUrl} target="_blank" rel="noopener nofollow" aria-label={shareLinkedInLabel}>
+      LinkedIn
+    </a>
+  </div>
+  <p class="small muted" data-share-feedback aria-live="polite"></p>
+</section>
+
+<script is:inline>
+  document.querySelectorAll("[data-share-copy]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const feedback = button.closest("[aria-label]")?.querySelector("[data-share-feedback]");
+      const shareUrl = button.getAttribute("data-share-url") || window.location.href;
+      const defaultLabel = button.getAttribute("data-copy-label") || "Copy link";
+      const copiedLabel = button.getAttribute("data-copied-label") || "Link copied.";
+
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        button.textContent = copiedLabel;
+        if (feedback) {
+          feedback.textContent = copiedLabel;
+        }
+        window.setTimeout(() => {
+          button.textContent = defaultLabel;
+        }, 1800);
+      } catch {
+        if (feedback) {
+          feedback.textContent = shareUrl;
+        }
+      }
+    });
+  });
+</script>
+
+<style>
+  .share-row {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .share-row p {
+    margin: 0;
+  }
+
+  .share-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+</style>

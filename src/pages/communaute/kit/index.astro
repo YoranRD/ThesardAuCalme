@@ -1,0 +1,112 @@
+---
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import { communityUrl, isConfiguredExternalUrl } from "../../../config/identity";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { withBase } from "../../../lib/links";
+
+const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : withBase("/contact/");
+const communityTarget = isConfiguredExternalUrl(communityUrl) ? "_blank" : undefined;
+const communityRel = isConfiguredExternalUrl(communityUrl) ? "noopener nofollow" : undefined;
+---
+
+<BaseLayout
+  canonicalPath="/communaute/kit/"
+  title="Kit première semaine communauté | Thésard Au Calme"
+  description="Kit de première semaine: 3 options de défi, template objectif hebdo et template bilan pour démarrer la communauté sans surcharge."
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs
+        items={[
+          { label: "Accueil", href: "/" },
+          { label: "Communauté", href: "/communaute/" },
+          { label: "Kit première semaine" }
+        ]}
+      />
+      <p class="eyebrow">Communauté</p>
+      <h1>Kit première semaine</h1>
+      <p>
+        Ce kit sert à démarrer avec un cadre clair: un défi réaliste, un engagement public et un bilan factuel. L'objectif est de
+        créer de la traction dès la première semaine sans saturer l'agenda.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid kit-grid">
+      <article class="surface block">
+        <h2>3 options de challenge</h2>
+        <ol>
+          <li><strong>Challenge rédaction:</strong> 5 sessions de 45 minutes, livrable minimum: 600 mots utiles.</li>
+          <li><strong>Challenge admin:</strong> fermer 2 dossiers bloquants (pièces, relances, preuves archivées).</li>
+          <li><strong>Challenge bibliographie:</strong> nettoyer 30 références avec convention de nommage stable.</li>
+        </ol>
+      </article>
+
+      <article class="surface block">
+        <h2>Template post “objectif hebdo”</h2>
+        <pre>[Objectif hebdo]
+Priorité: ...
+Livrable concret: ...
+3 créneaux planifiés: ...
+Blocage anticipé: ...
+Demande précise au groupe: ...</pre>
+      </article>
+
+      <article class="surface block">
+        <h2>Template post “bilan”</h2>
+        <pre>[Bilan de semaine]
+Objectif annoncé: ...
+Résultat réel: ...
+Ce qui a bloqué: ...
+Ajustement pour semaine suivante: ...
+Prochaine action (48h): ...</pre>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface block">
+      <h2>Passer à l'action</h2>
+      <p>Publier l'objectif hebdo, suivre le challenge choisi pendant 7 jours, puis publier le bilan.</p>
+      <a class="button button-primary" href={communityCta} target={communityTarget} rel={communityRel}>
+        Ouvrir la communauté
+      </a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .kit-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .block {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .block ol {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text-soft);
+  }
+
+  .block pre {
+    margin: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    padding: 0.72rem;
+    white-space: pre-wrap;
+    font: inherit;
+    color: var(--text-soft);
+  }
+
+  @media (max-width: 980px) {
+    .kit-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

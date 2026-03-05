@@ -1,6 +1,7 @@
 ---
 import { getCollection, render, type CollectionEntry } from "astro:content";
 import Breadcrumbs from "../components/Breadcrumbs.astro";
+import ContentEnhancements from "../components/ContentEnhancements.astro";
 import TableOfContents from "../components/TableOfContents.astro";
 import TagList from "../components/TagList.astro";
 import { brandDisplayName } from "../config/site";
@@ -126,10 +127,12 @@ for (let i = 0; i < visibleIndexes.length; i += 1) {
   }
 
   <section class="section">
-    <article class="container surface page-body prose">
+    <article class="container surface page-body prose enhanced-content">
       <Content />
     </article>
   </section>
+
+  <ContentEnhancements contentSelector=".enhanced-content" lang={pageLang} />
 </BaseLayout>
 
 <style>

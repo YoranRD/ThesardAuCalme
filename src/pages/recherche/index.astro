@@ -1,5 +1,6 @@
 ---
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import TopToolsStrip from "../../components/TopToolsStrip.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { withBase } from "../../lib/links";
 
@@ -51,6 +52,16 @@ const baseUrl = withBase("/");
 
       <p id="search-status" class="small muted">Chargement de l’index…</p>
       <div id="search-results" class="grid results-grid"></div>
+    </div>
+  </section>
+
+  <section class="section top-tools-search">
+    <div class="container">
+      <TopToolsStrip
+        title="Top outils à ouvrir après la recherche"
+        description="Une sélection rapide pour transformer les résultats trouvés en actions concrètes."
+        limit={8}
+      />
     </div>
   </section>
 
@@ -242,6 +253,10 @@ const baseUrl = withBase("/");
     padding: 1.2rem;
     display: grid;
     gap: 0.75rem;
+  }
+
+  .top-tools-search {
+    padding-top: 0;
   }
 
   .search-block input {

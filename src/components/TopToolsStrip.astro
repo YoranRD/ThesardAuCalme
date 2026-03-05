@@ -1,0 +1,232 @@
+---
+import BadgePill from "./BadgePill.astro";
+import {
+  featuredResources,
+  getResourceOutboundPath,
+  getResourceReviewPath,
+  resourceByKey,
+  resourcesCatalog,
+  type ResourceEntry
+} from "../lib/resources";
+import { withBase } from "../lib/links";
+
+interface Props {
+  title?: string;
+  description?: string;
+  limit?: number;
+  keys?: string[];
+}
+
+const { title = "Top outils", description, limit = 8, keys } = Astro.props;
+
+const rankedCatalog = [...resourcesCatalog].sort((a, b) => {
+  if (a.wizardScore !== b.wizardScore) {
+    return b.wizardScore - a.wizardScore;
+  }
+  if (a.isFeatured !== b.isFeatured) {
+    return a.isFeatured ? -1 : 1;
+  }
+  return a.name.localeCompare(b.name, "fr");
+});
+
+const pickByKeys = (inputKeys: string[]): ResourceEntry[] => {
+  const resolved = inputKeys
+    .map((key) => resourceByKey.get(key))
+    .filter((entry): entry is ResourceEntry => Boolean(entry));
+
+  const fallback = rankedCatalog.filter((resource) => !resolved.some((entry) => entry.key === resource.key));
+  return [...resolved, ...fallback].slice(0, limit);
+};
+
+const pickDefault = (): ResourceEntry[] => {
+  const prioritized = [...featuredResources]
+    .sort((a, b) => b.wizardScore - a.wizardScore)
+    .slice(0, limit);
+
+  if (prioritized.length >= limit) {
+    return prioritized;
+  }
+
+  const extra = rankedCatalog.filter((resource) => !prioritized.some((entry) => entry.key === resource.key));
+  return [...prioritized, ...extra].slice(0, limit);
+};
+
+const items = keys && keys.length > 0 ? pickByKeys(keys) : pickDefault();
+
+const getBadgeVariant = (resource: ResourceEntry): "featured" | "deal" | "new" | "verified" | "best" => {
+  if (resource.badge?.includes("#1") || resource.badge?.toLowerCase().includes("incontournable")) {
+    return "featured";
+  }
+  if (resource.perk?.code) {
+    return "deal";
+  }
+  if (resource.isFeatured) {
+    return "verified";
+  }
+  return "best";
+};
+
+const formatScore = (value: number): string => value.toFixed(1).replace(/\.0$/, "");
+const scoreFill = (value: number): string => `${Math.max(0, Math.min(100, (value / 5) * 100))}%`;
+---
+
+<section class="surface top-tools-strip" aria-label={title}>
+  <div class="strip-head">
+    <h2>{title}</h2>
+    {description && <p class="small muted">{description}</p>}
+  </div>
+
+  <div class="strip-grid" role="list">
+    {
+      items.map((resource) => (
+        <article class="tool-chip" role="listitem">
+          <div class="chip-main">
+            <a class="chip-title" href={withBase(`/outils/${resource.key}/`)}>{resource.name}</a>
+            <BadgePill label={resource.badge ?? `Score ${formatScore(resource.wizardScore)}/5`} variant={getBadgeVariant(resource)} />
+            <p class="chip-score small">
+              <span class="star-meter" aria-label={`Score ${formatScore(resource.wizardScore)} sur 5`}>
+                <span class="star-back">★★★★★</span>
+                <span class="star-front" style={`width:${scoreFill(resource.wizardScore)}`}>★★★★★</span>
+              </span>
+              <span>{formatScore(resource.wizardScore)}/5</span>
+              <span>{resource.priceTier}</span>
+            </p>
+          </div>
+          <div class="chip-actions">
+            <a class="button button-primary chip-cta" href={getResourceOutboundPath(resource.key)} rel="nofollow sponsored">Découvrir</a>
+            {
+              getResourceReviewPath(resource) && (
+                <a class="chip-link small" href={getResourceReviewPath(resource) ?? withBase(`/outils/${resource.key}/`)}>
+                  Voir l'avis
+                </a>
+              )
+            }
+          </div>
+        </article>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .top-tools-strip {
+    padding: 1rem;
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .strip-head {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .strip-head h2 {
+    margin: 0;
+    font-size: 1.28rem;
+  }
+
+  .strip-head p {
+    margin: 0;
+  }
+
+  .strip-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+
+  .tool-chip {
+    border: 1px solid var(--brand-border);
+    border-radius: var(--radius-2);
+    background: #fff;
+    padding: 0.7rem;
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .chip-main {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .chip-title {
+    text-decoration: none;
+    font-weight: 700;
+    color: var(--brand-text);
+    line-height: 1.2;
+  }
+
+  .chip-title:hover {
+    text-decoration: underline;
+  }
+
+  .chip-score {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+  }
+
+  .chip-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .chip-cta {
+    padding: 0.36rem 0.72rem;
+    font-size: 0.86rem;
+  }
+
+  .chip-link {
+    color: var(--brand-muted);
+    text-decoration: none;
+  }
+
+  .chip-link:hover {
+    text-decoration: underline;
+  }
+
+  .star-meter {
+    position: relative;
+    display: inline-flex;
+    line-height: 1;
+    font-size: 0.96rem;
+  }
+
+  .star-back {
+    color: #cfc8bc;
+    letter-spacing: 0.02em;
+  }
+
+  .star-front {
+    position: absolute;
+    left: 0;
+    top: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    color: #f2b400;
+    letter-spacing: 0.02em;
+  }
+
+  @media (max-width: 1120px) {
+    .strip-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 860px) {
+    .strip-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 560px) {
+    .strip-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

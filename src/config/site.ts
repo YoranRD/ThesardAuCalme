@@ -3,6 +3,7 @@ const placeholderPattern = /<[^>]+>/;
 export const brandName = "Thésard Au Calme";
 export const brandDisplayName = "Thésard Au Calme";
 export const brandTagline = "Des méthodes fiables pour avancer en doctorat en France, sans bruit.";
+export const defaultOgImagePath = "/og-default.svg";
 
 //export const stagingBaseUrl = "https://<user>.github.io/<repo>/";
 export const stagingBaseUrl = "https://yoranrd.github.io/ThesardAuCalme/";

@@ -1,0 +1,76 @@
+---
+import BadgePill from "./BadgePill.astro";
+import { withBase } from "../lib/links";
+
+interface Props {
+  title: string;
+  description: string;
+  href: string;
+  icon?: string;
+  badgeLabel?: string;
+  badgeVariant?: "featured" | "deal" | "new" | "verified" | "best";
+}
+
+const { title, description, href, icon = "→", badgeLabel, badgeVariant = "best" } = Astro.props;
+
+const resolvedHref = /^https?:\/\//i.test(href) ? href : withBase(href);
+---
+
+<article class="icon-card card">
+  <a class="icon-card-link" href={resolvedHref}>
+    <span class="icon-symbol" aria-hidden="true">{icon}</span>
+    <div class="icon-content">
+      {badgeLabel && <BadgePill label={badgeLabel} variant={badgeVariant} />}
+      <h3>{title}</h3>
+      <p class="small">{description}</p>
+    </div>
+  </a>
+</article>
+
+<style>
+  .icon-card {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .icon-card-link {
+    display: grid;
+    grid-template-columns: 2.2rem 1fr;
+    gap: 0.7rem;
+    padding: 0.95rem;
+    align-items: start;
+    text-decoration: none;
+  }
+
+  .icon-card-link:hover {
+    background: #faf7f1;
+  }
+
+  .icon-symbol {
+    width: 2.2rem;
+    height: 2.2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-1);
+    border: 1px solid var(--brand-border);
+    color: var(--brand-accent);
+    background: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .icon-content {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .icon-content h3 {
+    margin: 0;
+    font-size: 1.06rem;
+  }
+
+  .icon-content p {
+    margin: 0;
+  }
+</style>

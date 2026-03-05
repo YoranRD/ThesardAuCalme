@@ -1,0 +1,170 @@
+---
+import { getCollection } from "astro:content";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import IconCard from "../../components/IconCard.astro";
+import { communityUrl, isConfiguredExternalUrl } from "../../config/identity";
+import { playlists, type PlaylistDefinition } from "../../data/playlists";
+import { withBase } from "../../lib/links";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  return playlists.map((playlist) => ({
+    params: { slug: playlist.slug },
+    props: { playlist }
+  }));
+}
+
+interface Props {
+  playlist: PlaylistDefinition;
+}
+
+const { playlist } = Astro.props;
+
+const videos = await getCollection("videos", ({ data }) => data.lang === "fr");
+const articles = await getCollection("articles", ({ data }) => data.lang === "fr");
+
+const videosBySlug = new Map(videos.map((entry) => [entry.slug, entry]));
+const articlesBySlug = new Map(articles.map((entry) => [entry.slug, entry]));
+
+const communityIsExternal = isConfiguredExternalUrl(communityUrl);
+const communityHref = communityIsExternal ? communityUrl : withBase("/communaute/rejoindre/");
+
+const resolvedSteps = playlist.steps.map((step, index) => {
+  const video = step.videoSlug ? videosBySlug.get(step.videoSlug) : undefined;
+  const article = step.articleSlug ? articlesBySlug.get(step.articleSlug) : undefined;
+
+  return {
+    index: index + 1,
+    ...step,
+    video,
+    article
+  };
+});
+---
+
+<BaseLayout
+  canonicalPath={`/playlists/${playlist.slug}/`}
+  title={`${playlist.title} | Thésard Au Calme`}
+  description={playlist.summary}
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Playlists", href: "/playlists/" }, { label: playlist.title }]} />
+      <p class="eyebrow">Playlist</p>
+      <h1>{playlist.title}</h1>
+      <p>{playlist.summary}</p>
+      <p class="small muted"><strong>Pour qui:</strong> {playlist.audience}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid steps-grid">
+      {
+        resolvedSteps.map((step) => (
+          <article class="surface playlist-step">
+            <p class="small muted">Étape {step.index}</p>
+            <h2>{step.title}</h2>
+            <p>{step.goal}</p>
+            <div class="step-links">
+              {
+                step.video ? (
+                  <IconCard
+                    title="Vidéo"
+                    description={step.video.data.title}
+                    href={`/videos/${step.video.slug}/`}
+                    icon="▶"
+                    badgeLabel="Vidéo"
+                    badgeVariant="verified"
+                  />
+                ) : (
+                  <IconCard
+                    title="Vidéo à venir"
+                    description={step.placeholder ?? "Épisode en préparation"}
+                    href="/youtube/"
+                    icon="⌛"
+                    badgeLabel="Placeholder"
+                    badgeVariant="new"
+                  />
+                )
+              }
+
+              {
+                step.article ? (
+                  <IconCard
+                    title="Article"
+                    description={step.article.data.title}
+                    href={`/articles/${step.article.slug}/`}
+                    icon="✍"
+                    badgeLabel="Article"
+                    badgeVariant="best"
+                  />
+                ) : (
+                  <IconCard
+                    title="Article complémentaire"
+                    description="Section en préparation, utiliser la vidéo et la checklist de la semaine."
+                    href="/articles/"
+                    icon="↗"
+                    badgeLabel="Fallback"
+                    badgeVariant="verified"
+                  />
+                )
+              }
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface next-action">
+      <h2>Next action</h2>
+      <p>{playlist.nextAction}</p>
+      <div class="actions">
+        <a class="button button-primary" href={withBase("/downloads/")}>Pack gratuit</a>
+        <a class="button button-secondary" href={communityHref} target={communityIsExternal ? "_blank" : undefined} rel={communityIsExternal ? "noopener nofollow" : undefined}>Rejoindre la communauté</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .steps-grid {
+    gap: 0.9rem;
+  }
+
+  .playlist-step {
+    padding: 1rem;
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .playlist-step h2 {
+    margin: 0;
+    font-size: 1.32rem;
+  }
+
+  .step-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+  }
+
+  .next-action {
+    padding: 1.2rem;
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 900px) {
+    .step-links {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,137 @@
+---
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import BadgePill from "../../components/BadgePill.astro";
+import { stacks, type StackDefinition } from "../../data/stacks";
+import { withBase } from "../../lib/links";
+import {
+  getResourceOutboundPath,
+  getResourceReviewPath,
+  resourceByKey,
+  type ResourceEntry
+} from "../../lib/resources";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  return stacks.map((stack) => ({
+    params: { slug: stack.slug },
+    props: { stack }
+  }));
+}
+
+interface Props {
+  stack: StackDefinition;
+}
+
+const { stack } = Astro.props;
+
+const resolvedItems = stack.items.map((item) => {
+  const resource = resourceByKey.get(item.key);
+  if (!resource) {
+    throw new Error(`Unknown resource key in stack ${stack.slug}: ${item.key}`);
+  }
+  return {
+    resource,
+    reason: item.reason
+  };
+});
+
+const countByTier = resolvedItems.reduce(
+  (acc, current) => {
+    acc[current.resource.priceTier] += 1;
+    return acc;
+  },
+  {
+    "€": 0,
+    "€€": 0,
+    "€€€": 0
+  }
+);
+
+const budgetMix = `Mix prix: ${countByTier["€"]} outil(s) € · ${countByTier["€€"]} outil(s) €€ · ${countByTier["€€€"]} outil(s) €€€`;
+
+const getBadgeVariant = (resource: ResourceEntry): "featured" | "deal" | "new" | "verified" | "best" => {
+  if (resource.isFeatured) {
+    return "featured";
+  }
+  if (resource.perk?.code) {
+    return "deal";
+  }
+  return "best";
+};
+---
+
+<BaseLayout
+  canonicalPath={`/stacks/${stack.slug}/`}
+  title={`${stack.title} | Thésard Au Calme`}
+  description={stack.summary}
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Stacks", href: "/stacks/" }, { label: stack.title }]} />
+      <p class="eyebrow">Stack outils</p>
+      <h1>{stack.title}</h1>
+      <p>{stack.summary}</p>
+      <p class="small muted"><strong>{stack.budgetLine}</strong></p>
+      <p class="small muted">{budgetMix}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid stack-grid">
+      {
+        resolvedItems.map(({ resource, reason }) => (
+          <article class="surface stack-card">
+            <div class="card-head">
+              <h2>{resource.name}</h2>
+              <BadgePill label={resource.badge ?? `Score ${resource.wizardScore.toFixed(1).replace(/\.0$/, "")}/5`} variant={getBadgeVariant(resource)} />
+            </div>
+            <p class="small muted">{resource.priceTier} · {resource.bestFor.join(" · ")}</p>
+            <p>{reason}</p>
+            <div class="actions">
+              <a class="button button-secondary" href={getResourceReviewPath(resource) ?? withBase(`/outils/${resource.key}/`)}>Voir l'avis</a>
+              <a class="button button-primary" href={getResourceOutboundPath(resource.key)} rel="nofollow sponsored">Découvrir</a>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container disclosure">
+      <strong>Transparence:</strong> les boutons “Découvrir” utilisent les redirections <code>/out/[key]/</code>. Cela ne
+      modifie pas les prix affichés. Politique complète: <a href={withBase("/legal/affiliation/")}>affiliation</a>.
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .stack-grid {
+    gap: 0.9rem;
+  }
+
+  .stack-card {
+    padding: 1rem;
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+
+  .stack-card h2 {
+    margin: 0;
+    font-size: 1.28rem;
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+</style>

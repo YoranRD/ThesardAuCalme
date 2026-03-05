@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import TopToolsStrip from "../../components/TopToolsStrip.astro";
 import { communityUrl, isConfiguredExternalUrl, youtubeUrl } from "../../config/identity";
 import { withBase } from "../../lib/links";
 import BaseLayout from "../../layouts/BaseLayout.astro";
@@ -55,6 +56,16 @@ const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : with
 
       <p id="article-status" class="small muted">{articles.length} article(s) disponibles.</p>
       <div id="article-results" class="grid cards-grid"></div>
+    </div>
+  </section>
+
+  <section class="section top-tools-articles">
+    <div class="container">
+      <TopToolsStrip
+        title="Top outils reliés aux articles"
+        description="Les ressources les plus utiles pour passer du contenu à l'action."
+        limit={8}
+      />
     </div>
   </section>
 
@@ -158,6 +169,10 @@ const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : with
     padding: 1.2rem;
     display: grid;
     gap: 0.75rem;
+  }
+
+  .top-tools-articles {
+    padding-top: 0;
   }
 
   .article-filters input {
