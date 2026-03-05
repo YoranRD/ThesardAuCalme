@@ -1,21 +1,42 @@
 import { getCollection } from "astro:content";
+import type { SearchEntry } from "../lib/search-client";
 import { assertPageRoutesAreUnique } from "../lib/pages";
-
-interface SearchEntry {
-  type: "guide" | "video" | "page" | "article" | "tool-review";
-  lang: "fr" | "en";
-  title: string;
-  summary: string;
-  tags: string[];
-  date?: string;
-  path: string;
-}
 
 const byMostRecent = (a: SearchEntry, b: SearchEntry): number => {
   const aTime = a.date ? new Date(a.date).getTime() : 0;
   const bTime = b.date ? new Date(b.date).getTime() : 0;
   return bTime - aTime;
 };
+
+const staticHubEntries: SearchEntry[] = [
+  {
+    type: "page",
+    lang: "fr",
+    title: "Hub YouTube",
+    summary:
+      "Parcours vidéo par piliers, playlists et étapes d'application pour transformer le visionnage en actions doctorales concrètes.",
+    tags: ["youtube", "playlists", "doctorat", "progression"],
+    path: "/youtube/"
+  },
+  {
+    type: "page",
+    lang: "fr",
+    title: "Rejoindre la communauté",
+    summary:
+      "Hub de conversion éthique: pack gratuit, newsletter, communauté, chaîne YouTube et prochaines actions recommandées.",
+    tags: ["communaute", "newsletter", "pack", "youtube"],
+    path: "/communaute/rejoindre/"
+  },
+  {
+    type: "page",
+    lang: "fr",
+    title: "Toolbox doctorat",
+    summary:
+      "Sélection d'outils classés par objectif, score éditorial, avis détaillés et redirections trackées via /out/.",
+    tags: ["toolbox", "outils", "stack", "avis"],
+    path: "/outils/"
+  }
+];
 
 export async function GET() {
   const guides = await getCollection("guides");
@@ -74,7 +95,24 @@ export async function GET() {
     path: `/outils/avis/${review.slug}/`
   }));
 
-  const payload = [...guideEntries, ...videoEntries, ...pageEntries, ...articleEntries, ...reviewEntries].sort(byMostRecent);
+  const mergedEntries = [...guideEntries, ...videoEntries, ...pageEntries, ...articleEntries, ...reviewEntries, ...staticHubEntries];
+
+  const dedupedByPath = new Map<string, SearchEntry>();
+  mergedEntries.forEach((entry) => {
+    const existing = dedupedByPath.get(entry.path);
+    if (!existing) {
+      dedupedByPath.set(entry.path, entry);
+      return;
+    }
+
+    const existingHasDate = Boolean(existing.date);
+    const incomingHasDate = Boolean(entry.date);
+    if (!existingHasDate && incomingHasDate) {
+      dedupedByPath.set(entry.path, entry);
+    }
+  });
+
+  const payload = [...dedupedByPath.values()].sort(byMostRecent);
 
   return new Response(JSON.stringify(payload), {
     headers: {

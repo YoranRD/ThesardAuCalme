@@ -25,7 +25,12 @@ const baseUrl = withBase("/");
   </section>
 
   <section class="section search-main-section">
-    <div class="container surface search-block">
+    <div
+      class="container surface search-block"
+      data-search-root
+      data-search-index-url={searchIndexUrl}
+      data-base-url={baseUrl}
+    >
       <label for="search-input">Rechercher par mot-clé, tag ou thème</label>
       <input id="search-input" name="q" type="search" placeholder="ex: zotero, soutenance, visa, stack" autocomplete="off" />
 
@@ -66,271 +71,267 @@ const baseUrl = withBase("/");
   </section>
 </BaseLayout>
 
-<script is:inline define:vars={{ searchIndexUrl, baseUrl }}>
-  const searchInput = document.getElementById("search-input");
-  const searchStatus = document.getElementById("search-status");
-  const searchResults = document.getElementById("search-results");
-  const typeButtons = Array.from(document.querySelectorAll('[data-filter="type"]'));
-  const langButtons = Array.from(document.querySelectorAll('[data-filter="lang"]'));
+<script type="module">
+  import {
+    groupMatchesByType,
+    normalizeSearchValue,
+    orderedSearchTypes,
+    runSearch,
+    searchTypeLabel,
+    toBasePath
+  } from "../../lib/search-client";
 
-  const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
-
-  const toBasePath = (path) => {
-    if (/^https?:\/\//i.test(path)) {
-      return path;
+  (() => {
+    const searchRoot = document.querySelector("[data-search-root]");
+    if (!(searchRoot instanceof HTMLElement)) {
+      return;
     }
-    return `${normalizedBase}${String(path).replace(/^\/+/, "")}`;
-  };
 
-  const normalize = (value) =>
-    String(value)
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase()
-      .trim();
+    const searchIndexUrl = searchRoot.dataset.searchIndexUrl || "";
+    const baseUrl = searchRoot.dataset.baseUrl || "/";
 
-  const formatDate = (isoDate) =>
-    new Date(isoDate).toLocaleDateString("fr-FR", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric"
-    });
+    const searchInput = document.getElementById("search-input");
+    const searchStatus = document.getElementById("search-status");
+    const searchResults = document.getElementById("search-results");
+    const typeButtons = Array.from(document.querySelectorAll('[data-filter="type"]'));
+    const langButtons = Array.from(document.querySelectorAll('[data-filter="lang"]'));
 
-  const typeLabel = {
-    article: "Articles",
-    guide: "Guides",
-    video: "Vidéos",
-    page: "Pages",
-    "tool-review": "Avis outils"
-  };
+    if (!(searchInput instanceof HTMLInputElement) || !(searchStatus instanceof HTMLElement) || !(searchResults instanceof HTMLElement)) {
+      return;
+    }
 
-  const orderedTypes = ["article", "guide", "video", "tool-review", "page"];
-  const selectedTypes = new Set(orderedTypes);
-  const selectedLangs = new Set(["fr"]);
+    const typeGroupLabel = {
+      article: "Articles",
+      guide: "Guides",
+      video: "Vidéos",
+      "tool-review": "Avis outils",
+      page: "Pages"
+    };
 
-  let index = [];
-  let activeResultLinkIndex = -1;
+    const formatDate = (isoDate) =>
+      new Date(isoDate).toLocaleDateString("fr-FR", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric"
+      });
 
-  const syncButtons = (buttons, selectedSet) => {
-    buttons.forEach((button) => {
-      const value = button.dataset.value;
-      button.classList.toggle("is-active", selectedSet.has(value));
-      button.setAttribute("aria-pressed", selectedSet.has(value) ? "true" : "false");
-    });
-  };
+    const selectedTypes = new Set(orderedSearchTypes);
+    const selectedLangs = new Set(["fr"]);
+    let index = [];
+    let activeResultLinkIndex = -1;
 
-  const toggleSelectedValue = (selectedSet, value) => {
-    if (selectedSet.has(value)) {
-      if (selectedSet.size > 1) {
-        selectedSet.delete(value);
+    const syncButtons = (buttons, selectedSet) => {
+      buttons.forEach((button) => {
+        const value = button.dataset.value;
+        button.classList.toggle("is-active", selectedSet.has(value));
+        button.setAttribute("aria-pressed", selectedSet.has(value) ? "true" : "false");
+      });
+    };
+
+    const toggleSelectedValue = (selectedSet, value) => {
+      if (selectedSet.has(value)) {
+        if (selectedSet.size > 1) {
+          selectedSet.delete(value);
+        }
+      } else {
+        selectedSet.add(value);
       }
-    } else {
-      selectedSet.add(value);
-    }
-  };
+    };
 
-  const updateUrlQuery = (query) => {
-    const url = new URL(window.location.href);
-    if (query) {
-      url.searchParams.set("q", query);
-    } else {
-      url.searchParams.delete("q");
-    }
-    window.history.replaceState({}, "", url);
-  };
-
-  const buildCard = (entry) => {
-    const article = document.createElement("article");
-    article.className = "card result-card";
-
-    const metaBits = [entry.type ? typeLabel[entry.type] : "Contenu"];
-    if (entry.date) {
-      metaBits.push(formatDate(entry.date));
-    }
-
-    const tags = entry.tags.length > 0 ? entry.tags.map((tag) => `#${tag}`).join(" · ") : "";
-
-    article.innerHTML = `
-      <p class="small muted">${metaBits.join(" · ")}</p>
-      <h3><a href="${toBasePath(entry.path)}" data-result-link>${entry.title}</a></h3>
-      <p>${entry.summary}</p>
-      ${tags ? `<p class="small muted">${tags}</p>` : ""}
-    `;
-
-    return article;
-  };
-
-  const updateActiveLink = (nextIndex) => {
-    const links = [...searchResults.querySelectorAll("a[data-result-link]")];
-    if (links.length === 0) {
-      activeResultLinkIndex = -1;
-      return;
-    }
-
-    activeResultLinkIndex = Math.max(0, Math.min(links.length - 1, nextIndex));
-
-    links.forEach((link, index) => {
-      link.classList.toggle("is-active-result", index === activeResultLinkIndex);
-    });
-
-    const activeLink = links[activeResultLinkIndex];
-    if (activeLink instanceof HTMLElement) {
-      activeLink.focus();
-      activeLink.scrollIntoView({ block: "nearest" });
-    }
-  };
-
-  const renderResults = (entries, query) => {
-    searchResults.innerHTML = "";
-    activeResultLinkIndex = -1;
-
-    if (!query) {
-      searchStatus.textContent = "Entrer au moins 2 caractères pour lancer la recherche.";
-      return;
-    }
-
-    if (entries.length === 0) {
-      searchStatus.textContent = "Aucun résultat. Essayer une formulation plus large.";
-      return;
-    }
-
-    const groupedEntries = Object.fromEntries(orderedTypes.map((type) => [type, []]));
-    entries.forEach((entry) => {
-      if (groupedEntries[entry.type]) {
-        groupedEntries[entry.type].push(entry);
+    const updateUrlQuery = (query) => {
+      const url = new URL(window.location.href);
+      if (query) {
+        url.searchParams.set("q", query);
+      } else {
+        url.searchParams.delete("q");
       }
-    });
+      window.history.replaceState({}, "", url);
+    };
 
-    let renderedCount = 0;
+    const buildCard = (match) => {
+      const entry = match.entry;
+      const article = document.createElement("article");
+      article.className = "card result-card";
 
-    orderedTypes.forEach((type) => {
-      const groupItems = groupedEntries[type];
-      if (!groupItems || groupItems.length === 0) {
+      const metaBits = [searchTypeLabel[entry.type] ?? "Contenu"];
+      if (entry.date) {
+        metaBits.push(formatDate(entry.date));
+      }
+
+      const tags = entry.tags.length > 0 ? entry.tags.map((tag) => `#${tag}`).join(" · ") : "";
+
+      article.innerHTML = `
+        <p class="small muted">${metaBits.join(" · ")}</p>
+        <h3><a href="${toBasePath(baseUrl, entry.path)}" data-result-link>${entry.title}</a></h3>
+        <p>${entry.summary}</p>
+        ${tags ? `<p class="small muted">${tags}</p>` : ""}
+      `;
+
+      return article;
+    };
+
+    const updateActiveLink = (nextIndex) => {
+      const links = [...searchResults.querySelectorAll("a[data-result-link]")];
+      if (links.length === 0) {
+        activeResultLinkIndex = -1;
         return;
       }
 
-      const groupSection = document.createElement("section");
-      groupSection.className = "result-group";
+      activeResultLinkIndex = Math.max(0, Math.min(links.length - 1, nextIndex));
 
-      const heading = document.createElement("h2");
-      heading.textContent = `${typeLabel[type]} (${groupItems.length})`;
-      groupSection.appendChild(heading);
+      links.forEach((link, indexValue) => {
+        link.classList.toggle("is-active-result", indexValue === activeResultLinkIndex);
+      });
 
-      const groupGrid = document.createElement("div");
-      groupGrid.className = "grid result-group-grid";
-      groupItems.forEach((entry) => groupGrid.appendChild(buildCard(entry)));
+      const activeLink = links[activeResultLinkIndex];
+      if (activeLink instanceof HTMLElement) {
+        activeLink.focus();
+        activeLink.scrollIntoView({ block: "nearest" });
+      }
+    };
 
-      groupSection.appendChild(groupGrid);
-      searchResults.appendChild(groupSection);
-      renderedCount += groupItems.length;
-    });
+    const renderResults = (matches, query) => {
+      searchResults.innerHTML = "";
+      activeResultLinkIndex = -1;
 
-    searchStatus.textContent = `${renderedCount} résultat(s) trouvés.`;
-  };
-
-  const applySearch = () => {
-    const query = normalize(searchInput.value);
-    updateUrlQuery(query);
-
-    if (query.length < 2) {
-      renderResults([], "");
-      return;
-    }
-
-    const terms = query.split(/\s+/).filter(Boolean);
-
-    const matches = index.filter((entry) => {
-      if (!selectedTypes.has(entry.type) || !selectedLangs.has(entry.lang)) {
-        return false;
+      if (!query) {
+        searchStatus.textContent = "Entrer au moins 2 caractères pour lancer la recherche.";
+        return;
       }
 
-      const haystack = normalize(`${entry.title} ${entry.summary} ${entry.tags.join(" ")}`);
-      return terms.every((term) => haystack.includes(term));
-    });
-
-    renderResults(matches.slice(0, 60), query);
-  };
-
-  typeButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      toggleSelectedValue(selectedTypes, button.dataset.value);
-      syncButtons(typeButtons, selectedTypes);
-      applySearch();
-    });
-  });
-
-  langButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      toggleSelectedValue(selectedLangs, button.dataset.value);
-      syncButtons(langButtons, selectedLangs);
-      applySearch();
-    });
-  });
-
-  fetch(searchIndexUrl)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+      if (matches.length === 0) {
+        searchStatus.textContent = "Aucun résultat. Essayer une formulation plus large.";
+        return;
       }
-      return response.json();
-    })
-    .then((entries) => {
-      index = entries;
-      syncButtons(typeButtons, selectedTypes);
-      syncButtons(langButtons, selectedLangs);
 
-      const initialQuery = normalize(new URL(window.location.href).searchParams.get("q") || "");
-      if (initialQuery) {
-        searchInput.value = initialQuery;
+      const groupedEntries = groupMatchesByType(matches);
+
+      let renderedCount = 0;
+
+      orderedSearchTypes.forEach((type) => {
+        const groupItems = groupedEntries[type];
+        if (!groupItems || groupItems.length === 0) {
+          return;
+        }
+
+        const groupSection = document.createElement("section");
+        groupSection.className = "result-group";
+
+        const heading = document.createElement("h2");
+        heading.textContent = `${typeGroupLabel[type]} (${groupItems.length})`;
+        groupSection.appendChild(heading);
+
+        const groupGrid = document.createElement("div");
+        groupGrid.className = "grid result-group-grid";
+        groupItems.forEach((match) => groupGrid.appendChild(buildCard(match)));
+
+        groupSection.appendChild(groupGrid);
+        searchResults.appendChild(groupSection);
+        renderedCount += groupItems.length;
+      });
+
+      searchStatus.textContent = `${renderedCount} résultat(s) trouvés.`;
+    };
+
+    const applySearch = () => {
+      const query = normalizeSearchValue(searchInput.value);
+      updateUrlQuery(query);
+
+      if (query.length < 2) {
+        renderResults([], "");
+        return;
       }
-      applySearch();
-    })
-    .catch(() => {
-      searchStatus.textContent = "Impossible de charger l’index de recherche.";
+
+      const matches = runSearch(index, query, {
+        types: selectedTypes,
+        langs: selectedLangs,
+        limit: 80
+      });
+
+      renderResults(matches, query);
+    };
+
+    typeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        toggleSelectedValue(selectedTypes, button.dataset.value);
+        syncButtons(typeButtons, selectedTypes);
+        applySearch();
+      });
     });
 
-  searchInput.addEventListener("input", applySearch);
+    langButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        toggleSelectedValue(selectedLangs, button.dataset.value);
+        syncButtons(langButtons, selectedLangs);
+        applySearch();
+      });
+    });
 
-  searchInput.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowDown") {
-      event.preventDefault();
-      updateActiveLink(activeResultLinkIndex + 1);
-    }
+    fetch(searchIndexUrl)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((entries) => {
+        index = entries;
+        syncButtons(typeButtons, selectedTypes);
+        syncButtons(langButtons, selectedLangs);
 
-    if (event.key === "ArrowUp") {
-      event.preventDefault();
-      updateActiveLink(activeResultLinkIndex - 1);
-    }
-  });
+        const initialQuery = normalizeSearchValue(new URL(window.location.href).searchParams.get("q") || "");
+        if (initialQuery) {
+          searchInput.value = initialQuery;
+        }
+        applySearch();
+      })
+      .catch(() => {
+        searchStatus.textContent = "Impossible de charger l’index de recherche.";
+      });
 
-  searchResults.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowDown") {
-      event.preventDefault();
-      updateActiveLink(activeResultLinkIndex + 1);
-    }
+    searchInput.addEventListener("input", applySearch);
 
-    if (event.key === "ArrowUp") {
-      event.preventDefault();
-      updateActiveLink(activeResultLinkIndex - 1);
-    }
-  });
+    searchInput.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        updateActiveLink(activeResultLinkIndex + 1);
+      }
 
-  document.addEventListener("keydown", (event) => {
-    const target = event.target;
-    if (!(target instanceof HTMLElement)) {
-      return;
-    }
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        updateActiveLink(activeResultLinkIndex - 1);
+      }
+    });
 
-    const isTypingContext =
-      target.tagName === "INPUT" ||
-      target.tagName === "TEXTAREA" ||
-      target.isContentEditable;
+    searchResults.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        updateActiveLink(activeResultLinkIndex + 1);
+      }
 
-    if (!isTypingContext && event.key === "/") {
-      event.preventDefault();
-      searchInput.focus();
-    }
-  });
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        updateActiveLink(activeResultLinkIndex - 1);
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
+
+      const isTypingContext =
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable;
+
+      if (!isTypingContext && event.key === "/") {
+        event.preventDefault();
+        searchInput.focus();
+      }
+    });
+  })();
 </script>
 
 <style>

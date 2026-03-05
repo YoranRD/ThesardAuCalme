@@ -1,0 +1,233 @@
+---
+import { getCollection } from "astro:content";
+import BadgePill from "../../components/BadgePill.astro";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import IconCard from "../../components/IconCard.astro";
+import VideoCard from "../../components/VideoCard.astro";
+import { isConfiguredExternalUrl, youtubeUrl } from "../../config/identity";
+import { playlists } from "../../data/playlists";
+import { withBase } from "../../lib/links";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const latestVideos = (await getCollection("videos", ({ data }) => data.lang === "fr"))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 6);
+
+const subscribeHref = isConfiguredExternalUrl(youtubeUrl) ? youtubeUrl : withBase("/contact/");
+const subscribeIsExternal = isConfiguredExternalUrl(youtubeUrl);
+
+const pillars = [
+  {
+    title: "Démarrer",
+    description: "Installer un cadre de travail réaliste sur 30 jours.",
+    href: "/playlists/demarrer/",
+    badge: "Fondations"
+  },
+  {
+    title: "Rédaction",
+    description: "Passer des notes aux sections finalisées sans dérive.",
+    href: "/playlists/redaction/",
+    badge: "Production"
+  },
+  {
+    title: "International",
+    description: "Sécuriser les démarches administratives en France.",
+    href: "/playlists/international-france/",
+    badge: "Procédures"
+  },
+  {
+    title: "Soutenance",
+    description: "Préparer la phase finale avec des jalons vérifiables.",
+    href: "/playlists/soutenance/",
+    badge: "Finalisation"
+  }
+];
+---
+
+<BaseLayout
+  canonicalPath="/youtube/"
+  title="Hub YouTube doctorat | Thésard Au Calme"
+  description="Hub YouTube Thésard Au Calme: piliers éditoriaux, playlists de progression et dernières vidéos pour transformer le visionnage en actions concrètes."
+>
+  <section class="section">
+    <div class="container surface-hero youtube-hero">
+      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "YouTube" }]} />
+      <p class="eyebrow">Hub YouTube</p>
+      <h1>Regarder moins, appliquer mieux</h1>
+      <p>
+        Ce hub transforme la chaîne en parcours d’exécution: choisir un pilier, suivre une playlist, appliquer une étape,
+        puis mesurer une sortie concrète sur la semaine.
+      </p>
+      <div class="hero-actions">
+        <a class="button button-primary" href={withBase("/playlists/")}>Voir les playlists</a>
+        <a class="button button-secondary" href={withBase("/downloads/")}>Pack gratuit</a>
+        <a class="button button-ghost" href={subscribeHref} target={subscribeIsExternal ? "_blank" : undefined} rel={subscribeIsExternal ? "noopener nofollow" : undefined}>S’abonner YouTube</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section pillars-section">
+    <div class="container">
+      <div class="section-head">
+        <h2>4 piliers pour naviguer vite</h2>
+        <p class="small muted">Chaque pilier mène vers un parcours structuré en étapes courtes.</p>
+      </div>
+      <div class="grid pillars-grid">
+        {
+          pillars.map((pillar) => (
+            <article class="surface pillar-card">
+              <BadgePill label={pillar.badge} variant="verified" />
+              <h3>{pillar.title}</h3>
+              <p>{pillar.description}</p>
+              <a class="button button-secondary" href={withBase(pillar.href)}>Ouvrir le parcours</a>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section playlists-section">
+    <div class="container">
+      <div class="section-head">
+        <h2>Playlists de progression</h2>
+        <p class="small muted">Routes statiques: 5 à 8 étapes par thème, sans dépendance API.</p>
+      </div>
+      <div class="grid playlists-grid">
+        {
+          playlists.map((playlist) => (
+            <IconCard
+              title={playlist.title}
+              description={playlist.summary}
+              href={`/playlists/${playlist.slug}/`}
+              icon="▶"
+              badgeLabel="Playlist"
+              badgeVariant="best"
+            />
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section latest-videos">
+    <div class="container">
+      <div class="section-head">
+        <h2>Dernières vidéos</h2>
+        <p class="small muted">Entrée directe vers les épisodes les plus récents.</p>
+      </div>
+      <div class="grid videos-grid">
+        {latestVideos.map((video) => <VideoCard video={video} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container surface usage-callout">
+      <h2>Comment utiliser ce hub</h2>
+      <ul>
+        <li>Choisir un seul pilier pour la semaine.</li>
+        <li>Suivre la prochaine étape de playlist en moins de 30 minutes.</li>
+        <li>Terminer par une action mesurable avant de passer à une autre vidéo.</li>
+      </ul>
+      <a class="button button-secondary" href={withBase("/communaute/rejoindre/")}>Partager la prochaine action en communauté</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .youtube-hero {
+    padding: clamp(1.15rem, 3vw, 2rem);
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .youtube-hero p {
+    max-width: 78ch;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .section-head {
+    display: grid;
+    gap: 0.3rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .section-head h2,
+  .section-head p {
+    margin: 0;
+  }
+
+  .pillars-section,
+  .playlists-section,
+  .latest-videos {
+    padding-top: 0;
+  }
+
+  .pillars-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.8rem;
+  }
+
+  .pillar-card {
+    padding: 0.95rem;
+    display: grid;
+    gap: 0.48rem;
+    align-content: start;
+  }
+
+  .pillar-card h3,
+  .pillar-card p {
+    margin: 0;
+  }
+
+  .playlists-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+  }
+
+  .videos-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .usage-callout {
+    padding: 1.1rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .usage-callout h2,
+  .usage-callout ul {
+    margin: 0;
+  }
+
+  .usage-callout ul {
+    padding-left: 1.2rem;
+    color: var(--brand-muted);
+    display: grid;
+    gap: 0.32rem;
+  }
+
+  @media (max-width: 1080px) {
+    .pillars-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .videos-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 760px) {
+    .pillars-grid,
+    .playlists-grid,
+    .videos-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

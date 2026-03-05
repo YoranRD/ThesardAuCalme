@@ -1,16 +1,18 @@
 ---
 import { getCollection, render, type CollectionEntry } from "astro:content";
+import AuthorCard from "../../components/AuthorCard.astro";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import CalloutBox from "../../components/CalloutBox.astro";
 import ContextualCtaBanner from "../../components/ContextualCtaBanner.astro";
 import ContentEnhancements from "../../components/ContentEnhancements.astro";
+import RelatedTools from "../../components/RelatedTools.astro";
 import ShareButtons from "../../components/ShareButtons.astro";
 import TableOfContents from "../../components/TableOfContents.astro";
 import TagList from "../../components/TagList.astro";
+import TopToolsStrip from "../../components/TopToolsStrip.astro";
 import { getArticleCategory, getArticleKeyTakeaways, getRelatedToolsForArticle } from "../../lib/article-meta";
 import { brandDisplayName } from "../../config/site";
 import {
-  communityUrl,
-  contactEmail,
   isConfiguredExternalUrl,
   youtubeUrl
 } from "../../config/identity";
@@ -77,9 +79,7 @@ const linkedVideo = article.data.linkedVideoSlug
   : undefined;
 
 const canLinkYoutube = isConfiguredExternalUrl(youtubeUrl);
-const canLinkCommunity = isConfiguredExternalUrl(communityUrl);
 const youtubeButtonHref = canLinkYoutube ? youtubeUrl : withBase("/contact/");
-const communityButtonHref = canLinkCommunity ? communityUrl : withBase("/communaute/");
 
 const tocHeadings = headings.filter((heading) => heading.depth >= 2 && heading.depth <= 3);
 const articleCategory = getArticleCategory(article.data.tags);
@@ -107,24 +107,21 @@ const getToolSecondaryPath = (resourceKey: string): string => {
   return withBase(`/outils/${resourceKey}/`);
 };
 
-const hookLines = [
-  `${article.data.title}: la version exécutable, sans surcharge de théorie.`,
-  "Objectif: sortir avec une checklist claire et une action faisable aujourd'hui."
-];
+const relatedToolItems = relatedTools.map((tool) => ({
+  key: tool.key,
+  name: tool.name,
+  description: tool.description,
+  badge: tool.badge,
+  priceTier: tool.priceTier,
+  wizardScore: tool.wizardScore,
+  bestFor: tool.bestFor,
+  primaryHref: getResourceOutboundPath(tool.key),
+  secondaryHref: getToolSecondaryPath(tool.key),
+  secondaryLabel: reviewByResourceKey.has(tool.key) ? "Voir l’avis" : "Voir la fiche"
+}));
 
-const outlineItems =
-  tocHeadings.length >= 5
-    ? tocHeadings.slice(0, 5).map((heading) => heading.text)
-    : [
-        ...tocHeadings.map((heading) => heading.text),
-        ...article.data.tags
-          .slice(0, Math.max(0, 5 - tocHeadings.length))
-          .map((tag) => `Point clé: ${tag}`)
-      ].slice(0, 5);
-
-const ctaLine = canLinkYoutube
-  ? "CTA: pour la version vidéo dès publication, s'abonner à la chaîne YouTube puis appliquer la checklist en 30 minutes."
-  : `CTA: pour la version vidéo dès publication, écrire à ${contactEmail} et demander la notification.`;
+const sidebarToolItems = relatedToolItems.slice(0, 4);
+const topToolsKeys = miniTopTools.map((tool) => tool.key);
 ---
 
 <BaseLayout
@@ -134,302 +131,245 @@ const ctaLine = canLinkYoutube
   type="article"
   lang={article.data.lang}
 >
-  <div class="article-shell" id="article-shell">
-    <section class="section">
-      <div class="container surface-hero article-hero">
-        <Breadcrumbs
-          items={[
-            { label: isFrench ? "Accueil" : "Home", href: isFrench ? "/" : "/en/" },
-            { label: "Blog", href: "/articles/" },
-            { label: article.data.title }
-          ]}
-        />
+  <section class="section">
+    <div class="container surface-hero article-hero">
+      <Breadcrumbs
+        items={[
+          { label: isFrench ? "Accueil" : "Home", href: isFrench ? "/" : "/en/" },
+          { label: "Blog", href: "/articles/" },
+          { label: article.data.title }
+        ]}
+      />
 
-        <p class="eyebrow">{articleCategory.label}</p>
-        <h1>{article.data.title}</h1>
-        <p class="hero-deck">{article.data.summary}</p>
+      <p class="eyebrow">{articleCategory.label}</p>
+      <h1>{article.data.title}</h1>
+      <p class="hero-deck">{article.data.summary}</p>
 
-        <p class="small muted">
-          {publicationDate} · {isFrench ? "Mis à jour" : "Updated"} {updatedDate} · {readingTimeLabel} · {article.data.status === "published" ? (isFrench ? "Publié" : "Published") : "Coming soon"}
-        </p>
+      <p class="small muted">
+        {publicationDate} · {isFrench ? "Mis à jour" : "Updated"} {updatedDate} · {readingTimeLabel} · {article.data.status === "published" ? (isFrench ? "Publié" : "Published") : "Coming soon"}
+      </p>
 
-        <TagList tags={article.data.tags} />
+      <TagList tags={article.data.tags} />
 
-        <div class="hero-actions">
-          <button id="script-mode-toggle" type="button" class="button button-secondary" aria-pressed="false">
-            {isFrench ? "Activer Script mode" : "Enable script mode"}
-          </button>
-          <button type="button" class="button button-ghost" data-open-search-palette>{isFrench ? "Rechercher" : "Search"}</button>
-        </div>
-
-        <ShareButtons canonicalPath={`/articles/${article.slug}/`} title={article.data.title} lang={article.data.lang} />
-
-        <div class="takeaways callout">
-          <h2>L’essentiel à retenir</h2>
-          <ul>
-            {takeaways.map((item) => <li>{item}</li>)}
-          </ul>
-        </div>
+      <div class="hero-actions">
+        <button type="button" class="button button-ghost" data-open-search-palette>{isFrench ? "Rechercher" : "Search"}</button>
+        <a class="button button-secondary" href={withBase("/downloads/")}>{isFrench ? "Pack gratuit" : "Free pack"}</a>
       </div>
-    </section>
 
-    {
-      tocHeadings.length >= 4 && (
-        <section class="section toc-mobile-section script-collapsible">
-          <div class="container toc-mobile-wrap">
-            <TableOfContents headings={tocHeadings} title={isFrench ? "Sommaire" : "Outline"} />
-          </div>
-        </section>
-      )
-    }
+      <ShareButtons canonicalPath={`/articles/${article.slug}/`} title={article.data.title} lang={article.data.lang} />
 
-    <section class="section script-collapsible">
-      <div class="container surface video-block">
-        <h2>{isFrench ? "Bloc vidéo" : "Video block"}</h2>
-        {
-          article.data.youtubeId ? (
-            <>
-              <iframe
-                src={`https://www.youtube-nocookie.com/embed/${article.data.youtubeId}`}
-                title={article.data.title}
-                loading="lazy"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowfullscreen
-              />
-              <a
-                class="button button-secondary"
-                href={`https://www.youtube.com/watch?v=${article.data.youtubeId}`}
-                target="_blank"
-                rel="noopener nofollow"
-              >
-                {isFrench ? "Voir la vidéo" : "Watch video"}
-              </a>
-            </>
-          ) : (
-            <>
-              <p class="small muted">{isFrench ? "Vidéo à venir" : "Video coming soon"}</p>
-              <a
-                class="button button-secondary"
-                href={youtubeButtonHref}
-                target={canLinkYoutube ? "_blank" : undefined}
-                rel={canLinkYoutube ? "noopener nofollow" : undefined}
-              >
-                {isFrench ? "S’abonner sur YouTube" : "Subscribe on YouTube"}
-              </a>
-              {
-                linkedVideo && (
-                  <p class="small muted">
-                    {isFrench ? "Vidéo liée déjà disponible:" : "Related video already available:"} <a href={withBase(`/videos/${linkedVideo.slug}/`)}>{linkedVideo.data.title}</a>
-                  </p>
-                )
-              }
-            </>
-          )
-        }
-      </div>
-    </section>
+      <CalloutBox title="L’essentiel à retenir" variant="key-takeaways" items={takeaways} />
+    </div>
+  </section>
 
-    <section class="section article-content-section">
-      <div class="container article-content-grid">
-        {
-          tocHeadings.length >= 4 && (
-            <aside class="toc-desktop script-collapsible">
-              <TableOfContents headings={tocHeadings} title={isFrench ? "Sommaire" : "Outline"} />
-            </aside>
-          )
-        }
-
-        <article class="surface article-body prose enhanced-content">
-          <Content />
-          <ContextualCtaBanner />
-        </article>
-      </div>
-    </section>
-
-    <section class="section script-collapsible">
-      <div class="container surface related-tools-block">
-        <div class="related-tools-head">
-          <h2>Outils liés à cet article</h2>
-          <a class="button button-secondary" href={withBase("/outils/")}>Ouvrir la toolbox</a>
-        </div>
-        <p class="small muted">Sélection automatique basée sur le sujet, les tags et les objectifs de l’article.</p>
-        <div class="grid related-tools-grid">
-          {
-            relatedTools.map((tool) => (
-              <article class="card related-tool-card">
-                <p class="small muted">{tool.badge ?? `Score ${tool.wizardScore.toFixed(1).replace(/\.0$/, "")}/5`} · {tool.priceTier}</p>
-                <h3>{tool.name}</h3>
-                <p>{tool.description}</p>
-                <p class="small muted">{tool.bestFor.slice(0, 3).join(" · ")}</p>
-                <div class="actions">
-                  <a class="button button-primary" href={getResourceOutboundPath(tool.key)} rel="nofollow sponsored">Découvrir</a>
-                  <a class="button button-secondary" href={getToolSecondaryPath(tool.key)}>{reviewByResourceKey.has(tool.key) ? "Voir l’avis" : "Voir la fiche"}</a>
-                </div>
-              </article>
-            ))
-          }
-        </div>
-      </div>
-    </section>
-
-    <section class="section script-collapsible">
-      <div class="container surface script-block">
-        <h2>{isFrench ? "Bloc script YouTube (copier-coller)" : "YouTube script block"}</h2>
-        <h3>{isFrench ? "Hook (2 lignes)" : "Hook (2 lines)"}</h3>
-        <pre>{hookLines.join("\n")}</pre>
-        <h3>{isFrench ? "Outline (5 points)" : "Outline (5 bullets)"}</h3>
-        <ul>
-          {outlineItems.map((item) => <li>{item}</li>)}
-        </ul>
-        <h3>CTA</h3>
-        <pre>{ctaLine}</pre>
-      </div>
-    </section>
-
-    {(relatedArticles.length > 0 || relatedGuides.length > 0 || relatedVideos.length > 0) && (
-      <section class="section related-section script-collapsible">
-        <div class="container grid related-grid">
-          {
-            relatedArticles.length > 0 && (
-              <article class="surface related-block">
-                <h2>{isFrench ? "Articles liés" : "Related articles"}</h2>
-                <ul>
-                  {relatedArticles.map((entry) => <li><a href={withBase(`/articles/${entry.slug}/`)}>{entry.data.title}</a></li>)}
-                </ul>
-              </article>
-            )
-          }
-
-          {
-            relatedGuides.length > 0 && (
-              <article class="surface related-block">
-                <h2>{isFrench ? "Guides liés" : "Related guides"}</h2>
-                <ul>
-                  {relatedGuides.map((entry) => <li><a href={withBase(`/guides/${entry.slug}/`)}>{entry.data.title}</a></li>)}
-                </ul>
-              </article>
-            )
-          }
-
-          {
-            relatedVideos.length > 0 && (
-              <article class="surface related-block">
-                <h2>{isFrench ? "Vidéos liées" : "Related videos"}</h2>
-                <ul>
-                  {relatedVideos.map((entry) => <li><a href={withBase(`/videos/${entry.slug}/`)}>{entry.data.title}</a></li>)}
-                </ul>
-              </article>
-            )
-          }
+  {
+    tocHeadings.length >= 3 && (
+      <section class="section mobile-toc-wrap">
+        <div class="container mobile-toc-shell">
+          <TableOfContents headings={tocHeadings} title={isFrench ? "Sommaire" : "Outline"} mobileCollapsible={true} />
         </div>
       </section>
-    )}
+    )
+  }
 
-    <section class="section script-collapsible">
-      <div class="container grid author-grid">
-        <article class="surface author-box">
-          <p class="eyebrow">Auteur</p>
-          <h2>Thésard Au Calme</h2>
-          <p>
-            Ligne éditoriale: contenus doctoraux exécutables, structurés et vérifiables, sans promesse marketing.
-          </p>
-          <div class="actions">
-            <a class="button button-secondary" href={youtubeButtonHref} target={canLinkYoutube ? "_blank" : undefined} rel={canLinkYoutube ? "noopener nofollow" : undefined}>Chaîne YouTube</a>
-            <a class="button button-secondary" href={communityButtonHref} target={canLinkCommunity ? "_blank" : undefined} rel={canLinkCommunity ? "noopener nofollow" : undefined}>Communauté</a>
+  <section class="section article-content-section">
+    <div class="container article-layout">
+      <article class="surface article-body prose enhanced-content">
+        <Content />
+        <ContextualCtaBanner />
+      </article>
+
+      <aside class="article-aside">
+        {
+          tocHeadings.length >= 3 && <TableOfContents headings={tocHeadings} title={isFrench ? "Sommaire" : "Outline"} />
+        }
+
+        <div class="surface aside-tools">
+          <RelatedTools
+            title="Top outils liés"
+            description="Sélection rapide pour appliquer les points de l’article."
+            items={sidebarToolItems}
+            compact={true}
+          />
+          <div class="aside-cta-row">
+            <a class="button button-primary" href={withBase("/outils/")}>Toolbox</a>
+            <a class="button button-secondary" href={withBase("/downloads/")}>Pack gratuit</a>
           </div>
-        </article>
+        </div>
+      </aside>
+    </div>
+  </section>
 
-        <article class="surface top-tools-mini">
-          <p class="eyebrow">Top outils</p>
-          <h2>Raccourci depuis cet article</h2>
-          <ul>
+  <section class="section">
+    <div class="container surface video-block">
+      <h2>{isFrench ? "Bloc vidéo" : "Video block"}</h2>
+      {
+        article.data.youtubeId ? (
+          <>
+            <iframe
+              src={`https://www.youtube-nocookie.com/embed/${article.data.youtubeId}`}
+              title={article.data.title}
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+            />
+            <a
+              class="button button-secondary"
+              href={`https://www.youtube.com/watch?v=${article.data.youtubeId}`}
+              target="_blank"
+              rel="noopener nofollow"
+            >
+              {isFrench ? "Voir la vidéo" : "Watch video"}
+            </a>
+          </>
+        ) : (
+          <>
+            <p class="small muted">{isFrench ? "Vidéo à venir" : "Video coming soon"}</p>
+            <a
+              class="button button-secondary"
+              href={youtubeButtonHref}
+              target={canLinkYoutube ? "_blank" : undefined}
+              rel={canLinkYoutube ? "noopener nofollow" : undefined}
+            >
+              {isFrench ? "S’abonner sur YouTube" : "Subscribe on YouTube"}
+            </a>
             {
-              miniTopTools.map((tool) => (
-                <li>
-                  <a href={withBase(`/outils/${tool.key}/`)}>{tool.name}</a>
-                  <span class="small muted">{tool.priceTier} · {tool.wizardScore.toFixed(1).replace(/\.0$/, "")}/5</span>
-                </li>
-              ))
+              linkedVideo && (
+                <p class="small muted">
+                  {isFrench ? "Vidéo liée déjà disponible:" : "Related video already available:"} <a href={withBase(`/videos/${linkedVideo.slug}/`)}>{linkedVideo.data.title}</a>
+                </p>
+              )
             }
-          </ul>
-          <a class="button button-secondary" href={withBase("/outils/")}>Voir toute la toolbox</a>
-        </article>
+          </>
+        )
+      }
+    </div>
+  </section>
+
+  <section class="section related-tools-section">
+    <div class="container surface related-tools-wrap">
+      <RelatedTools
+        title="Outils liés à cet article"
+        description="Sélection automatique basée sur le sujet, les tags et les objectifs de l’article."
+        items={relatedToolItems}
+      />
+    </div>
+  </section>
+
+  {(relatedArticles.length > 0 || relatedGuides.length > 0 || relatedVideos.length > 0) && (
+    <section class="section related-section">
+      <div class="container grid related-grid">
+        {
+          relatedArticles.length > 0 && (
+            <article class="surface related-block">
+              <h2>{isFrench ? "Articles recommandés" : "Recommended articles"}</h2>
+              <ul>
+                {relatedArticles.map((entry) => <li><a href={withBase(`/articles/${entry.slug}/`)}>{entry.data.title}</a></li>)}
+              </ul>
+            </article>
+          )
+        }
+
+        {
+          relatedGuides.length > 0 && (
+            <article class="surface related-block">
+              <h2>{isFrench ? "Guides complémentaires" : "Related guides"}</h2>
+              <ul>
+                {relatedGuides.map((entry) => <li><a href={withBase(`/guides/${entry.slug}/`)}>{entry.data.title}</a></li>)}
+              </ul>
+            </article>
+          )
+        }
+
+        {
+          relatedVideos.length > 0 && (
+            <article class="surface related-block">
+              <h2>{isFrench ? "Vidéos à enchaîner" : "Related videos"}</h2>
+              <ul>
+                {relatedVideos.map((entry) => <li><a href={withBase(`/videos/${entry.slug}/`)}>{entry.data.title}</a></li>)}
+              </ul>
+            </article>
+          )
+        }
       </div>
     </section>
-  </div>
+  )}
+
+  <section class="section article-bottom">
+    <div class="container article-bottom-grid">
+      <AuthorCard lang={article.data.lang} />
+      <TopToolsStrip
+        title="Top outils"
+        description="Version courte pour passer de la lecture à l’action."
+        limit={4}
+        keys={topToolsKeys}
+      />
+    </div>
+  </section>
 
   <ContentEnhancements contentSelector=".article-body" lang={article.data.lang} />
-
-  <script is:inline define:vars={{ isFrench }}>
-    const scriptModeToggle = document.getElementById("script-mode-toggle");
-    const articleShell = document.getElementById("article-shell");
-
-    const setScriptMode = (enabled) => {
-      if (!(scriptModeToggle instanceof HTMLButtonElement) || !(articleShell instanceof HTMLElement)) {
-        return;
-      }
-
-      articleShell.classList.toggle("script-mode", enabled);
-      scriptModeToggle.setAttribute("aria-pressed", enabled ? "true" : "false");
-      scriptModeToggle.textContent = enabled
-        ? isFrench
-          ? "Quitter Script mode"
-          : "Exit script mode"
-        : isFrench
-          ? "Activer Script mode"
-          : "Enable script mode";
-    };
-
-    if (scriptModeToggle instanceof HTMLButtonElement && articleShell instanceof HTMLElement) {
-      scriptModeToggle.addEventListener("click", () => {
-        const isEnabled = articleShell.classList.contains("script-mode");
-        setScriptMode(!isEnabled);
-      });
-    }
-  </script>
 </BaseLayout>
 
 <style>
   .article-hero {
-    padding: clamp(1rem, 3vw, 1.7rem);
+    padding: clamp(1.1rem, 3vw, 2rem);
     display: grid;
-    gap: 0.65rem;
+    gap: 0.75rem;
   }
 
   .hero-deck {
-    max-width: 70ch;
-    font-size: 1.08rem;
+    max-width: 80ch;
+    font-size: clamp(1.08rem, 1.5vw, 1.2rem);
+    line-height: 1.6;
   }
 
   .hero-actions {
     display: flex;
-    gap: 0.45rem;
+    gap: 0.5rem;
     flex-wrap: wrap;
   }
 
-  .takeaways {
-    display: grid;
-    gap: 0.4rem;
-    margin-top: 0.3rem;
-  }
-
-  .takeaways h2 {
-    margin: 0;
-    font-size: 1.2rem;
-  }
-
-  .takeaways ul {
-    margin: 0;
-    padding-left: 1.1rem;
-  }
-
-  .toc-mobile-section {
+  .mobile-toc-wrap {
     padding-top: 0;
     display: none;
   }
 
-  .toc-mobile-wrap {
-    max-width: var(--content-max);
+  .mobile-toc-shell {
+    max-width: var(--content-wide);
+  }
+
+  .article-content-section {
+    padding-top: 0;
+  }
+
+  .article-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(270px, 320px);
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .article-body {
+    padding: clamp(1.35rem, 3vw, 2.3rem);
+    min-width: 0;
+  }
+
+  .article-aside {
+    display: grid;
+    gap: 0.8rem;
+    align-self: start;
+  }
+
+  .aside-tools {
+    padding: 0.85rem;
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .aside-cta-row {
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
   }
 
   .video-block {
@@ -445,71 +385,12 @@ const ctaLine = canLinkYoutube
     border-radius: var(--radius-2);
   }
 
-  .article-content-section {
+  .related-tools-section {
     padding-top: 0;
   }
 
-  .article-content-grid {
-    display: grid;
-    grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
-    gap: 1rem;
-    align-items: start;
-  }
-
-  .article-body {
-    padding: clamp(1.2rem, 3vw, 2rem);
-    min-width: 0;
-  }
-
-  .toc-desktop {
-    position: sticky;
-    top: 6.2rem;
-  }
-
-  .related-tools-block,
-  .script-block {
-    padding: 1.2rem;
-    display: grid;
-    gap: 0.75rem;
-  }
-
-  .related-tools-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.6rem;
-    flex-wrap: wrap;
-  }
-
-  .related-tools-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.75rem;
-  }
-
-  .related-tool-card {
-    display: grid;
-    gap: 0.45rem;
-  }
-
-  .related-tool-card h3 {
-    margin: 0;
-  }
-
-  .script-block pre {
-    margin: 0;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: #fff;
-    padding: 0.7rem;
-    white-space: pre-wrap;
-    font: inherit;
-    color: var(--text-soft);
-  }
-
-  .script-block ul {
-    margin: 0;
-    padding-left: 1.1rem;
-    color: var(--text-soft);
+  .related-tools-wrap {
+    padding: 1rem;
   }
 
   .related-grid {
@@ -521,6 +402,11 @@ const ctaLine = canLinkYoutube
     padding: 1rem;
     display: grid;
     gap: 0.4rem;
+  }
+
+  .related-block h2 {
+    margin: 0;
+    font-size: 1.35rem;
   }
 
   .related-block ul {
@@ -537,88 +423,32 @@ const ctaLine = canLinkYoutube
     text-decoration: underline;
   }
 
-  .author-grid {
-    grid-template-columns: 1.3fr 1fr;
+  .article-bottom {
+    padding-top: 0;
+  }
+
+  .article-bottom-grid {
+    display: grid;
     gap: 0.8rem;
   }
 
-  .author-box,
-  .top-tools-mini {
-    padding: 1rem;
-    display: grid;
-    gap: 0.55rem;
-  }
-
-  .top-tools-mini ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: grid;
-    gap: 0.45rem;
-  }
-
-  .top-tools-mini li {
-    display: grid;
-    gap: 0.05rem;
-  }
-
-  .top-tools-mini a {
-    color: var(--brand-text);
-    text-decoration: none;
-    font-weight: 600;
-  }
-
-  .top-tools-mini a:hover {
-    text-decoration: underline;
-    color: var(--brand-accent);
-  }
-
-  .actions {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-
-  .article-shell.script-mode .script-collapsible {
-    display: none;
-  }
-
-  .article-shell.script-mode .article-body {
-    font-size: 1.07rem;
-    line-height: 1.75;
-  }
-
-  .article-shell.script-mode .article-body :where(p, ul, ol, table, blockquote, pre, details, img, hr) {
-    display: none;
-  }
-
-  .article-shell.script-mode .article-body :where(h2, h3) {
-    display: block;
-    margin-top: 0.9rem;
-  }
-
-  .article-shell.script-mode .share-row {
-    display: none;
-  }
-
   @media (max-width: 1080px) {
-    .article-content-grid {
+    .article-layout {
       grid-template-columns: 1fr;
     }
 
-    .toc-desktop {
+    .article-aside {
+      position: static;
       display: none;
     }
 
-    .toc-mobile-section {
+    .mobile-toc-wrap {
       display: block;
     }
   }
 
   @media (max-width: 980px) {
-    .related-grid,
-    .related-tools-grid,
-    .author-grid {
+    .related-grid {
       grid-template-columns: 1fr;
     }
   }

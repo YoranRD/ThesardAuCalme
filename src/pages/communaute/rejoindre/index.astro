@@ -1,21 +1,48 @@
 ---
 import Breadcrumbs from "../../../components/Breadcrumbs.astro";
-import { communityUrl, isConfiguredExternalUrl } from "../../../config/identity";
+import BadgePill from "../../../components/BadgePill.astro";
+import {
+  communityUrl,
+  contactEmail,
+  isConfiguredExternalUrl,
+  newsletterFormUrl,
+  youtubeUrl
+} from "../../../config/identity";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { withBase } from "../../../lib/links";
+import {
+  featuredResources,
+  getResourceOutboundPath,
+  getResourceReviewPath,
+  resourcesCatalog
+} from "../../../lib/resources";
 
-const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : withBase("/contact/");
-const communityTarget = isConfiguredExternalUrl(communityUrl) ? "_blank" : undefined;
-const communityRel = isConfiguredExternalUrl(communityUrl) ? "noopener nofollow" : undefined;
+const communityIsExternal = isConfiguredExternalUrl(communityUrl);
+const communityHref = communityIsExternal ? communityUrl : withBase("/contact/");
+
+const youtubeIsExternal = isConfiguredExternalUrl(youtubeUrl);
+const youtubeHref = youtubeIsExternal ? youtubeUrl : withBase("/contact/");
+
+const formIsExternal = isConfiguredExternalUrl(newsletterFormUrl);
+const formHref = formIsExternal ? newsletterFormUrl : null;
+const mailtoHref = `mailto:${contactEmail}?subject=${encodeURIComponent("Pack gratuit Thésard Au Calme")}&body=${encodeURIComponent("Bonjour,\n\nJe souhaite recevoir le pack gratuit Thésard Au Calme.\n\nMerci.")}`;
+
+const rankedFeatured = [...featuredResources]
+  .sort((a, b) => b.wizardScore - a.wizardScore)
+  .slice(0, 4);
+
+const toolboxPreview = [...resourcesCatalog]
+  .sort((a, b) => b.wizardScore - a.wizardScore)
+  .slice(0, 3);
 ---
 
 <BaseLayout
   canonicalPath="/communaute/rejoindre/"
   title="Rejoindre la communauté | Thésard Au Calme"
-  description="Mode d'emploi pour rejoindre la communauté Thésard Au Calme: fonctionnement, attentes, premier message et cadence recommandée."
+  description="Hub de prochaines actions: pack gratuit, communauté, YouTube, toolbox recommandée et transparence sur les liens d'affiliation."
 >
   <section class="section">
-    <div class="container prose">
+    <div class="container surface-hero join-hero">
       <Breadcrumbs
         items={[
           { label: "Accueil", href: "/" },
@@ -24,70 +51,203 @@ const communityRel = isConfiguredExternalUrl(communityUrl) ? "noopener nofollow"
         ]}
       />
       <p class="eyebrow">Communauté</p>
-      <h1>Rejoindre: simple, concret, orienté action</h1>
+      <h1>Choisir la prochaine étape, sans surcharge</h1>
       <p>
-        L'objectif de ce canal n'est pas d'ajouter une notification de plus. L'objectif est de créer une boucle utile:
-        engagement court, retour précis, ajustement, progression visible. La qualité d'un espace de travail se mesure à la
-        clarté des sorties produites, pas au volume de messages.
+        Cette page centralise les points d’entrée utiles: recevoir le pack, rejoindre la communauté,
+        suivre la chaîne et ouvrir la toolbox avec une logique d’action claire.
       </p>
     </div>
   </section>
 
-  <section class="section">
-    <div class="container surface block">
-      <h2>Comment ça fonctionne</h2>
-      <ol>
-        <li>Arrivée: lecture du canal règles et présentation en 5 lignes.</li>
-        <li>Semaine 1: publication d'un objectif réaliste + un livrable attendu.</li>
-        <li>Suivi: check-in en milieu de semaine, bilan en fin de semaine.</li>
-        <li>Itération: ajustement du plan selon ce qui bloque réellement.</li>
-      </ol>
+  <section class="section cards-section">
+    <div class="container grid cards-grid">
+      <article class="surface action-card">
+        <BadgePill label="Étape 1" variant="featured" />
+        <h2>Recevoir le pack</h2>
+        <p>Checklist de démarrage + raccourcis vers les pages clés.</p>
+        <div class="actions">
+          <a class="button button-primary" href={withBase("/downloads/")}>Ouvrir le pack</a>
+          {
+            formHref ? (
+              <a class="button button-secondary" href={formHref} target="_blank" rel="noopener nofollow">Formulaire</a>
+            ) : (
+              <a class="button button-secondary" href={mailtoHref}>Demande par email</a>
+            )
+          }
+        </div>
+        {!formHref && <p class="small muted">Formulaire externe à configurer: URL TODO dans `identity.ts`.</p>}
+      </article>
 
-      <h2>Message de départ recommandé</h2>
-      <ul>
-        <li>Contexte: année de thèse, discipline, phase actuelle.</li>
-        <li>Objectif 7 jours: une sortie mesurable.</li>
-        <li>Blocage principal: une question claire.</li>
-        <li>Besoin de la semaine: relecture, méthode, admin, routine, etc.</li>
-      </ul>
+      <article class="surface action-card">
+        <BadgePill label="Étape 2" variant="verified" />
+        <h2>Rejoindre Discord / communauté</h2>
+        <p>Canal de suivi hebdo: objectifs, blocages et prochaine action.</p>
+        <div class="actions">
+          <a class="button button-primary" href={communityHref} target={communityIsExternal ? "_blank" : undefined} rel={communityIsExternal ? "noopener nofollow" : undefined}>Accéder</a>
+          <a class="button button-secondary" href={withBase("/communaute/")}>Voir le hub</a>
+        </div>
+      </article>
 
-      <h2>Ce qui maximise l'utilité</h2>
-      <ul>
-        <li>Poster peu mais avec un objectif explicite.</li>
-        <li>Demander un retour ciblé plutôt qu'un avis général.</li>
-        <li>Partager ce qui a été testé, y compris ce qui n'a pas marché.</li>
-        <li>Rester sur des cycles courts et répétables.</li>
-      </ul>
+      <article class="surface action-card">
+        <BadgePill label="Étape 3" variant="new" />
+        <h2>Suivre YouTube</h2>
+        <p>Rythme éditorial no-face: vidéos + checklists pour exécuter en continu.</p>
+        <div class="actions">
+          <a class="button button-primary" href={youtubeHref} target={youtubeIsExternal ? "_blank" : undefined} rel={youtubeIsExternal ? "noopener nofollow" : undefined}>S’abonner</a>
+          <a class="button button-secondary" href={withBase("/youtube/")}>Hub YouTube</a>
+        </div>
+      </article>
 
-      <a class="button button-primary" href={communityCta} target={communityTarget} rel={communityRel}>Accéder à la communauté</a>
+      <article class="surface action-card">
+        <BadgePill label="Étape 4" variant="best" />
+        <h2>Boîte à outils recommandée</h2>
+        <p>Version compacte des outils les mieux notés pour passer à l’action rapidement.</p>
+        <ul>
+          {
+            toolboxPreview.map((tool) => (
+              <li><a href={withBase(`/outils/${tool.key}/`)}>{tool.name}</a> <span class="small muted">{tool.priceTier}</span></li>
+            ))
+          }
+        </ul>
+        <div class="actions">
+          <a class="button button-primary" href={withBase("/outils/")}>Ouvrir la toolbox</a>
+          <a class="button button-secondary" href={withBase("/outils/avis/")}>Lire les avis</a>
+        </div>
+      </article>
     </div>
   </section>
-  <section class="section">
-    <div class="container surface block">
-      <h2>Checklist d'intégration en 20 minutes</h2>
-      <p>Cette checklist évite les inscriptions passives. L'idée est d'entrer dans la communauté avec un objectif et une méthode de suivi. Un membre qui publie un objectif clair dès l'arrivée reçoit généralement des retours plus utiles qu'un message général sans contexte.</p>
-      <ul>
-        <li>Rédiger une présentation en 5 lignes maximum.</li>
-        <li>Choisir un défi concret pour la semaine.</li>
-        <li>Préparer un modèle de bilan hebdo.</li>
-        <li>Planifier une revue personnelle le dimanche.</li>
-      </ul>
-      <a class="button button-secondary" href={withBase("/communaute/defis/")}>Voir les défis</a>
+
+  <section class="section support-section">
+    <div class="container surface support-wrap">
+      <div class="support-head">
+        <p class="eyebrow">Transparence</p>
+        <h2>Outils qui financent le projet</h2>
+        <p>
+          Si un achat passe via ces liens, cela soutient le projet sans surcoût.
+          Les alternatives gratuites restent indiquées quand elles existent.
+        </p>
+        <a class="small" href={withBase("/legal/affiliation/")}>Lire la politique d’affiliation</a>
+      </div>
+
+      <div class="grid support-tools-grid">
+        {
+          rankedFeatured.map((tool) => (
+            <article class="card support-tool-card">
+              <p class="small muted">{tool.badge ?? "Recommandé"}</p>
+              <h3>{tool.name}</h3>
+              <p>{tool.description}</p>
+              <p class="small muted">{tool.priceTier} · {tool.wizardScore.toFixed(1).replace(/\.0$/, "")}/5</p>
+              <div class="actions">
+                <a class="button button-primary" href={getResourceOutboundPath(tool.key)} rel="nofollow sponsored">Découvrir</a>
+                <a class="button button-secondary" href={getResourceReviewPath(tool) ?? withBase(`/outils/${tool.key}/`)}>
+                  {getResourceReviewPath(tool) ? "Voir l’avis" : "Voir la fiche"}
+                </a>
+              </div>
+            </article>
+          ))
+        }
+      </div>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .block {
-    padding: 1.2rem;
+  .join-hero {
+    padding: clamp(1.15rem, 3vw, 2rem);
     display: grid;
     gap: 0.65rem;
   }
 
-  .block ul,
-  .block ol {
+  .join-hero p {
+    max-width: 78ch;
+  }
+
+  .cards-section,
+  .support-section {
+    padding-top: 0;
+  }
+
+  .cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+  }
+
+  .action-card {
+    padding: 1rem;
+    display: grid;
+    gap: 0.55rem;
+    align-content: start;
+  }
+
+  .action-card h2,
+  .action-card p,
+  .action-card ul {
     margin: 0;
-    padding-left: 1.2rem;
-    color: var(--text-soft);
+  }
+
+  .action-card h2 {
+    font-size: 1.38rem;
+  }
+
+  .action-card ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.28rem;
+  }
+
+  .action-card li a {
+    text-decoration: none;
+    font-weight: 600;
+    color: var(--brand-text);
+  }
+
+  .action-card li a:hover {
+    text-decoration: underline;
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+
+  .support-wrap {
+    padding: 1.1rem;
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .support-head {
+    display: grid;
+    gap: 0.34rem;
+    max-width: 78ch;
+  }
+
+  .support-head p,
+  .support-head h2 {
+    margin: 0;
+  }
+
+  .support-tools-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .support-tool-card {
+    display: grid;
+    gap: 0.44rem;
+  }
+
+  .support-tool-card h3,
+  .support-tool-card p {
+    margin: 0;
+  }
+
+  @media (max-width: 960px) {
+    .cards-grid,
+    .support-tools-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

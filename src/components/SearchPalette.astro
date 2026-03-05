@@ -6,7 +6,13 @@ const searchPageHref = withBase("/recherche/");
 const baseUrl = withBase("/");
 ---
 
-<div class="search-palette-root" data-search-palette-root>
+<div
+  class="search-palette-root"
+  data-search-palette-root
+  data-search-index-url={searchIndexUrl}
+  data-search-page-href={searchPageHref}
+  data-base-url={baseUrl}
+>
   <div class="search-palette-layer" data-search-palette-layer hidden>
     <button class="search-palette-backdrop" type="button" data-search-palette-close aria-label="Fermer la recherche"></button>
 
@@ -29,12 +35,18 @@ const baseUrl = withBase("/");
   </div>
 </div>
 
-<script is:inline define:vars={{ searchIndexUrl, searchPageHref, baseUrl }}>
+<script type="module">
+  import { normalizeSearchValue, runSearch, searchTypeLabel, toBasePath } from "../lib/search-client";
+
   (() => {
     const root = document.querySelector("[data-search-palette-root]");
     if (!(root instanceof HTMLElement)) {
       return;
     }
+
+    const searchIndexUrl = root.dataset.searchIndexUrl || "";
+    const searchPageHref = root.dataset.searchPageHref || "/recherche/";
+    const baseUrl = root.dataset.baseUrl || "/";
 
     const layer = root.querySelector("[data-search-palette-layer]");
     const input = root.querySelector("[data-search-palette-input]");
@@ -46,32 +58,9 @@ const baseUrl = withBase("/");
       return;
     }
 
-    const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
-    const toBasePath = (path) => {
-      if (/^https?:\/\//i.test(path)) {
-        return path;
-      }
-      return `${normalizedBase}${String(path).replace(/^\/+/, "")}`;
-    };
-
     let searchIndex = null;
     let previousFocused = null;
     let activeResultIndex = -1;
-
-    const normalize = (value) =>
-      String(value)
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .trim();
-
-    const typeLabel = {
-      guide: "Guide",
-      video: "Vidéo",
-      page: "Page",
-      article: "Article",
-      "tool-review": "Avis"
-    };
 
     const closePalette = () => {
       layer.hidden = true;
@@ -118,8 +107,8 @@ const baseUrl = withBase("/");
     };
 
     const renderResults = (query) => {
-      const normalizedQuery = normalize(query);
-      if (!normalizedQuery) {
+      const normalizedQuery = normalizeSearchValue(query);
+      if (normalizedQuery.length < 2) {
         renderEmptyState("");
         return;
       }
@@ -129,13 +118,7 @@ const baseUrl = withBase("/");
         return;
       }
 
-      const terms = normalizedQuery.split(/\s+/).filter(Boolean);
-      const matches = searchIndex
-        .filter((entry) => {
-          const haystack = normalize(`${entry.title} ${entry.summary} ${entry.tags.join(" ")}`);
-          return terms.every((term) => haystack.includes(term));
-        })
-        .slice(0, 10);
+      const matches = runSearch(searchIndex, normalizedQuery, { limit: 10 });
 
       if (matches.length === 0) {
         renderEmptyState(normalizedQuery);
@@ -144,11 +127,11 @@ const baseUrl = withBase("/");
 
       results.innerHTML = matches
         .map(
-          (entry, index) => `
-            <a href="${toBasePath(entry.path)}" data-result-link class="palette-result${index === 0 ? " active" : ""}">
-              <span class="small muted">${typeLabel[entry.type] ?? "Contenu"}</span>
-              <strong>${entry.title}</strong>
-              <span class="small muted">${entry.summary}</span>
+          (match, index) => `
+            <a href="${toBasePath(baseUrl, match.entry.path)}" data-result-link class="palette-result${index === 0 ? " active" : ""}">
+              <span class="small muted">${searchTypeLabel[match.entry.type] ?? "Contenu"}</span>
+              <strong>${match.entry.title}</strong>
+              <span class="small muted">${match.entry.summary}</span>
             </a>
           `
         )

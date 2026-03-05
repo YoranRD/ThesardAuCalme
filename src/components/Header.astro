@@ -174,10 +174,77 @@ const isExplorerActive = explorerPaths.some((href) => isActive(href));
     }
 
     const summary = details.querySelector("summary");
+    const desktopMediaQuery = window.matchMedia("(min-width: 981px)");
+    let closeTimer = null;
 
     const closeExplorer = () => {
+      if (closeTimer !== null) {
+        window.clearTimeout(closeTimer);
+        closeTimer = null;
+      }
       details.open = false;
     };
+
+    const openExplorer = () => {
+      if (closeTimer !== null) {
+        window.clearTimeout(closeTimer);
+        closeTimer = null;
+      }
+      details.open = true;
+    };
+
+    const scheduleClose = () => {
+      if (closeTimer !== null) {
+        window.clearTimeout(closeTimer);
+      }
+      closeTimer = window.setTimeout(() => {
+        if (!details.matches(":focus-within") && !details.matches(":hover")) {
+          details.open = false;
+        }
+      }, 170);
+    };
+
+    if (summary instanceof HTMLElement) {
+      summary.addEventListener("click", (event) => {
+        if (!desktopMediaQuery.matches) {
+          return;
+        }
+        event.preventDefault();
+        if (details.open) {
+          closeExplorer();
+        } else {
+          openExplorer();
+        }
+      });
+    }
+
+    details.addEventListener("mouseenter", () => {
+      if (!desktopMediaQuery.matches) {
+        return;
+      }
+      openExplorer();
+    });
+
+    details.addEventListener("mouseleave", () => {
+      if (!desktopMediaQuery.matches) {
+        return;
+      }
+      scheduleClose();
+    });
+
+    details.addEventListener("focusin", () => {
+      if (!desktopMediaQuery.matches) {
+        return;
+      }
+      openExplorer();
+    });
+
+    details.addEventListener("focusout", () => {
+      if (!desktopMediaQuery.matches) {
+        return;
+      }
+      scheduleClose();
+    });
 
     document.addEventListener("click", (event) => {
       if (!details.open) {
@@ -343,6 +410,19 @@ const isExplorerActive = explorerPaths.some((href) => isActive(href));
     background: var(--brand-surface);
     box-shadow: var(--shadow-3);
     padding: 0.9rem;
+    transform-origin: top right;
+    animation: explorer-in 180ms ease;
+  }
+
+  @keyframes explorer-in {
+    from {
+      opacity: 0;
+      transform: translateY(-6px) scale(0.985);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
 
   .explorer-desktop-grid {

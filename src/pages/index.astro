@@ -1,21 +1,16 @@
 ---
 import { getCollection } from "astro:content";
-import CtaBlock from "../components/CtaBlock.astro";
-import GuideCard from "../components/GuideCard.astro";
+import IconCard from "../components/IconCard.astro";
 import TopToolsStrip from "../components/TopToolsStrip.astro";
 import VideoCard from "../components/VideoCard.astro";
 import { communityUrl, isConfiguredExternalUrl, youtubeUrl } from "../config/identity";
 import { brandDisplayName, brandTagline, getCanonicalUrl } from "../config/site";
+import { playlists } from "../data/playlists";
 import { brandMascotSrc, hasBrandMascot } from "../lib/brand";
 import { withBase } from "../lib/links";
-import { resourcesCatalog } from "../lib/resources";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
 const videos = (await getCollection("videos", ({ data }) => data.lang === "fr")).sort(
-  (a, b) => b.data.date.getTime() - a.data.date.getTime()
-);
-
-const guides = (await getCollection("guides", ({ data }) => data.lang === "fr")).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime()
 );
 
@@ -24,12 +19,11 @@ const articles = (await getCollection("articles", ({ data }) => data.lang === "f
 );
 
 const featuredVideos = videos.slice(0, 3);
-const featuredGuides = guides.slice(0, 2);
 const featuredArticles = articles.slice(0, 3);
-const featuredResources = resourcesCatalog.slice(0, 4);
+const featuredPlaylists = playlists.slice(0, 3);
 
-const youtubeCta = isConfiguredExternalUrl(youtubeUrl) ? youtubeUrl : withBase("/contact/");
-const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : withBase("/contact/");
+const youtubeCta = isConfiguredExternalUrl(youtubeUrl) ? youtubeUrl : withBase("/youtube/");
+const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : withBase("/communaute/rejoindre/");
 
 const structuredData = {
   "@context": "https://schema.org",
@@ -48,7 +42,7 @@ const structuredData = {
       inLanguage: "fr",
       potentialAction: {
         "@type": "SearchAction",
-        target: `${getCanonicalUrl("/")}guides/?q={search_term_string}`,
+        target: `${getCanonicalUrl("/")}recherche/?q={search_term_string}`,
         "query-input": "required name=search_term_string"
       }
     }
@@ -63,117 +57,134 @@ const structuredData = {
   jsonLd={structuredData}
 >
   <section class="section">
-    <div class:list={{ container: true, hero: true, surface: true, "hero-no-mascot": !hasBrandMascot }}>
-      <div>
+    <div class:list={{ container: true, hero: true, "surface-hero": true, "hero-no-mascot": !hasBrandMascot }}>
+      <div class="hero-copy">
         <p class="eyebrow">Doctorat en France</p>
-        <h1>Un cadre clair pour terminer sa thèse avec plus de calme.</h1>
+        <h1>Un système calme pour avancer chaque semaine.</h1>
         <p>
-          {brandDisplayName} publie des vidéos et des guides orientés exécution: organisation hebdomadaire,
-          rédaction, bibliographie et préparation de soutenance.
+          {brandDisplayName} relie vidéos, articles, playlists et outils dans un parcours orienté exécution.
+          L’objectif: produire des sorties mesurables sans surcharge cognitive.
         </p>
-        <p>{brandTagline}</p>
+        <p class="small muted">{brandTagline}</p>
         <div class="hero-actions">
           <a class="button button-primary" href={withBase("/start/")}>Commencer ici</a>
-          <a class="button button-secondary" href={withBase("/videos/")}>Voir les vidéos</a>
+          <a class="button button-secondary" href={withBase("/youtube/")}>Explorer le hub YouTube</a>
+          <a class="button button-ghost" href={withBase("/downloads/")}>Pack gratuit</a>
         </div>
       </div>
-      {hasBrandMascot && brandMascotSrc && <div class="hero-art"><img src={brandMascotSrc} alt="" width="220" height="220" loading="eager" decoding="async" aria-hidden="true" /></div>}
+
+      {
+        hasBrandMascot && brandMascotSrc && (
+          <div class="hero-art">
+            <img src={brandMascotSrc} alt="" width="280" height="280" loading="eager" decoding="async" aria-hidden="true" />
+            <p class="small muted">Cadence sobre, livrables concrets, transparence totale.</p>
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <section class="section features-section">
+    <div class="container grid features-grid">
+      <IconCard
+        title="Parcours Start"
+        description="Priorités semaine 1, checklist et feuille de route doctorale."
+        href="/start/"
+        icon="→"
+        badgeLabel="Démarrer"
+        badgeVariant="featured"
+      />
+      <IconCard
+        title="Blog & scripts"
+        description="Articles lisibles avec essentiel à retenir, TOC et outils liés."
+        href="/articles/"
+        icon="✍"
+        badgeLabel="Lire"
+        badgeVariant="best"
+      />
+      <IconCard
+        title="Communauté"
+        description="Hub rejoindre: pack, réseau, chaîne et prochaines actions."
+        href="/communaute/rejoindre/"
+        icon="◎"
+        badgeLabel="Cadence"
+        badgeVariant="verified"
+      />
     </div>
   </section>
 
   <section class="section top-tools-home">
     <div class="container">
       <TopToolsStrip
-        title="Top outils recommandés cette semaine"
-        description="Sélection compacte pour démarrer vite: outils stables, score éditorial et sortie directe via /out/."
+        title="Top outils recommandés"
+        description="Sélection courte et durable: score éditorial, avis détaillés et sortie directe via /out/."
         limit={8}
       />
     </div>
   </section>
 
-  <section class="section">
-    <div class="container">
-      <p class="eyebrow">Vidéos récentes</p>
-      <div class="grid cards-3">
-        {featuredVideos.map((video) => <VideoCard video={video} />)}
-      </div>
+  <section class="section latest-section">
+    <div class="container latest-grid">
+      <article class="surface latest-block">
+        <div class="block-head">
+          <p class="eyebrow">Vidéos récentes</p>
+          <a class="small" href={withBase("/videos/")}>Tout voir</a>
+        </div>
+        <div class="grid cards-3">
+          {featuredVideos.map((video) => <VideoCard video={video} />)}
+        </div>
+      </article>
+
+      <article class="surface latest-block">
+        <div class="block-head">
+          <p class="eyebrow">Articles du moment</p>
+          <a class="small" href={withBase("/articles/")}>Tout voir</a>
+        </div>
+        <div class="grid article-cards">
+          {
+            featuredArticles.map((article) => (
+              <article class="card article-card">
+                <p class="small muted">{article.data.date.toLocaleDateString("fr-FR")}</p>
+                <h3><a href={withBase(`/articles/${article.slug}/`)}>{article.data.title}</a></h3>
+                <p>{article.data.summary}</p>
+              </article>
+            ))
+          }
+        </div>
+      </article>
+
+      <article class="surface latest-block playlists-block">
+        <div class="block-head">
+          <p class="eyebrow">Playlists</p>
+          <a class="small" href={withBase("/playlists/")}>Toutes les routes</a>
+        </div>
+        <div class="grid playlist-cards">
+          {
+            featuredPlaylists.map((playlist) => (
+              <article class="card playlist-card">
+                <h3><a href={withBase(`/playlists/${playlist.slug}/`)}>{playlist.title}</a></h3>
+                <p>{playlist.summary}</p>
+                <a class="button button-secondary" href={withBase(`/playlists/${playlist.slug}/`)}>Suivre les étapes</a>
+              </article>
+            ))
+          }
+        </div>
+      </article>
     </div>
   </section>
 
-  <section class="section">
-    <div class="container">
-      <p class="eyebrow">Guides approfondis</p>
-      <div class="grid cards-2">
-        {featuredGuides.map((guide) => <GuideCard guide={guide} />)}
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container surface article-preview">
-      <p class="eyebrow">Articles vidéo-ready</p>
-      <h2>Script d'abord, vidéo ensuite</h2>
-      <p>
-        Les nouveaux articles servent de base script pour les prochaines vidéos. Chaque publication contient des checklists
-        et des exemples directement réutilisables.
-      </p>
-      <div class="grid cards-3">
-        {
-          featuredArticles.map((article) => (
-            <article class="card article-card">
-              <p class="small muted">{article.data.status === "published" ? "Publié" : "Coming soon"}</p>
-              <h3><a href={withBase(`/articles/${article.slug}/`)}>{article.data.title}</a></h3>
-              <p>{article.data.summary}</p>
-            </article>
-          ))
-        }
-      </div>
-      <a class="button button-secondary" href={withBase("/articles/")}>Voir tous les articles</a>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container resources-preview surface">
-      <div>
-        <p class="eyebrow">Ressources sélectionnées</p>
-        <h2>Des recommandations expliquées, pas des liens jetés.</h2>
-      </div>
-      <ul>
-        {featuredResources.map((resource) => <li><a href={withBase(`/ressources/#${resource.key}`)}>{resource.name}</a></li>)}
-      </ul>
-      <a class="button button-secondary" href={withBase("/ressources/")}>Explorer toutes les ressources</a>
-    </div>
-  </section>
-
-  <section class="section">
+  <section class="section community-cta-section">
     <div class="container surface community-cta">
-      <h2>Chaîne + communauté</h2>
+      <h2>Chaîne + communauté + toolbox</h2>
       <p>
-        Pour garder la cadence: contenus YouTube no-face, défis hebdo et retours d\'exécution en communauté.
+        Chaque contenu renvoie vers une action faisable immédiatement. Le hub communauté centralise les prochaines étapes
+        et la toolbox garde les recommandations lisibles.
       </p>
       <div class="hero-actions">
         <a class="button button-secondary" href={youtubeCta} target={isConfiguredExternalUrl(youtubeCta) ? "_blank" : undefined} rel={isConfiguredExternalUrl(youtubeCta) ? "noopener nofollow" : undefined}>Chaîne YouTube</a>
         <a class="button button-secondary" href={communityCta} target={isConfiguredExternalUrl(communityCta) ? "_blank" : undefined} rel={isConfiguredExternalUrl(communityCta) ? "noopener nofollow" : undefined}>Rejoindre la communauté</a>
+        <a class="button button-secondary" href={withBase("/outils/")}>Ouvrir la toolbox</a>
       </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container disclosure">
-      <strong>Note affiliation:</strong>
-      Certains liens de la page ressources passent par des redirections internes `/out/` pour mesurer les clics.
-      Le critère prioritaire reste l'utilité académique, avec alternatives gratuites quand elles existent.
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container">
-      <CtaBlock
-        title="Démarrage guidé"
-        body="La page Commencer ici propose trois parcours rapides: début de thèse, phase de rédaction, préparation de soutenance."
-        href={withBase("/start/")}
-        label="Ouvrir Commencer ici"
-      />
     </div>
   </section>
 </BaseLayout>
@@ -181,63 +192,114 @@ const structuredData = {
 <style>
   .hero {
     display: grid;
-    grid-template-columns: 1.35fr minmax(180px, 280px);
+    grid-template-columns: 1.2fr minmax(220px, 320px);
     gap: 1.2rem;
-    padding: clamp(1.2rem, 3vw, 2rem);
+    padding: clamp(1.25rem, 3.2vw, 2.2rem);
     align-items: center;
+  }
+
+  .hero-copy {
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .hero-copy p {
+    margin: 0;
+    max-width: 78ch;
   }
 
   .hero-actions {
     display: flex;
-    gap: 0.6rem;
+    gap: 0.55rem;
     flex-wrap: wrap;
-    margin-top: 1.15rem;
+    margin-top: 0.35rem;
   }
 
   .hero-art {
-    justify-self: center;
-    width: min(100%, 260px);
+    border: 1px solid var(--brand-border);
+    border-radius: var(--radius-3);
+    background: linear-gradient(140deg, #f8fbfd 0%, #e9f2f6 100%);
+    padding: 0.8rem;
+    display: grid;
+    gap: 0.5rem;
+    justify-items: center;
+  }
+
+  .hero-art p {
+    margin: 0;
+    text-align: center;
   }
 
   .hero.hero-no-mascot {
     grid-template-columns: 1fr;
   }
 
-  .top-tools-home {
+  .features-section,
+  .top-tools-home,
+  .latest-section,
+  .community-cta-section {
     padding-top: 0;
+  }
+
+  .features-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.8rem;
+  }
+
+  .latest-grid {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .latest-block {
+    padding: 1rem;
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .block-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .block-head p {
+    margin: 0;
   }
 
   .cards-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .cards-2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .resources-preview {
-    display: grid;
+  .article-cards,
+  .playlist-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.7rem;
-    padding: 1.4rem;
   }
 
-  .article-preview {
-    display: grid;
-    gap: 0.7rem;
-    padding: 1.4rem;
-  }
-
-  .article-card {
+  .article-card,
+  .playlist-card {
     display: grid;
     gap: 0.45rem;
   }
 
-  .article-card h3 {
+  .article-card p,
+  .playlist-card p,
+  .article-card h3,
+  .playlist-card h3 {
     margin: 0;
   }
 
-  .article-card a {
+  .article-card a,
+  .playlist-card a {
     text-decoration: none;
+  }
+
+  .article-card a:hover,
+  .playlist-card a:hover {
+    text-decoration: underline;
   }
 
   .community-cta {
@@ -246,29 +308,17 @@ const structuredData = {
     gap: 0.55rem;
   }
 
-  .resources-preview ul {
+  .community-cta p,
+  .community-cta h2 {
     margin: 0;
-    padding-left: 1.1rem;
-    color: var(--text-soft);
-    columns: 2;
   }
 
-  .resources-preview a {
-    text-decoration: none;
-  }
-
-  .resources-preview a:hover,
-  .article-card a:hover {
-    text-decoration: underline;
-  }
-
-  @media (max-width: 980px) {
+  @media (max-width: 1080px) {
+    .hero,
+    .features-grid,
     .cards-3,
-    .cards-2 {
-      grid-template-columns: 1fr;
-    }
-
-    .hero {
+    .article-cards,
+    .playlist-cards {
       grid-template-columns: 1fr;
     }
   }

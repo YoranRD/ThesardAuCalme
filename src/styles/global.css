@@ -9,8 +9,8 @@ body {
   margin: 0;
   padding: 0;
   background:
-    radial-gradient(circle at 5% 10%, #f1ebe1 0%, transparent 34%),
-    radial-gradient(circle at 90% 0%, #efe7d8 0%, transparent 30%),
+    radial-gradient(circle at 8% 6%, #e8f1f6 0%, transparent 34%),
+    radial-gradient(circle at 92% 0%, #f5ecdf 0%, transparent 28%),
     var(--brand-bg);
   color: var(--brand-text);
   font-family: var(--font-sans);
@@ -24,7 +24,7 @@ h1,
 h2,
 h3,
 h4 {
-  margin: 0 0 0.58em;
+  margin: 0 0 0.62em;
   font-family: var(--font-serif);
   letter-spacing: -0.01em;
   color: var(--brand-text);
@@ -92,7 +92,7 @@ img {
 
 .surface {
   background: var(--surface-1);
-  box-shadow: var(--shadow-2);
+  box-shadow: var(--shadow-1);
 }
 
 .surface-muted,
@@ -102,7 +102,7 @@ img {
 
 .surface-hero {
   background: var(--surface-hero);
-  box-shadow: var(--shadow-3);
+  box-shadow: var(--shadow-2);
 }
 
 .eyebrow {
@@ -194,6 +194,7 @@ img {
   border: 1px solid var(--brand-border);
   border-radius: var(--radius-2);
   padding: var(--space-5);
+  box-shadow: 0 7px 20px rgba(22, 28, 31, 0.04);
 }
 
 .callout {
@@ -257,12 +258,32 @@ thead th {
 
 .prose :where(h2, h3, h4) {
   margin-top: var(--space-7);
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-4);
   scroll-margin-top: 6.8rem;
 }
 
 .prose :where(h2 + p, h3 + p, h4 + p) {
   margin-top: 0;
+}
+
+.prose :where(h2) {
+  position: relative;
+  padding-bottom: 0.34rem;
+}
+
+.prose :where(h2)::after {
+  content: "";
+  display: block;
+  width: 4.6rem;
+  height: 3px;
+  margin-top: 0.48rem;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--brand-accent) 0%, color-mix(in srgb, var(--brand-accent) 35%, #d7e3ea) 100%);
+}
+
+.prose :where(h3) {
+  border-left: 3px solid color-mix(in srgb, var(--brand-accent) 30%, var(--brand-border));
+  padding-left: 0.7rem;
 }
 
 .prose p {
@@ -283,8 +304,9 @@ thead th {
 .prose blockquote {
   margin: var(--space-6) 0;
   padding: var(--space-4) var(--space-5);
+  border: 1px solid color-mix(in srgb, var(--brand-accent) 24%, var(--brand-border));
   border-left: 4px solid var(--brand-accent);
-  background: #f5f8f9;
+  background: linear-gradient(135deg, #f5f9fb 0%, #edf4f7 100%);
   border-radius: var(--radius-1);
 }
 
@@ -295,9 +317,9 @@ thead th {
 
 .prose pre {
   margin: var(--space-6) 0;
-  border: 1px solid #d6dce0;
+  border: 1px solid #d0dbe2;
   border-radius: var(--radius-2);
-  background: #f9fbfc;
+  background: #f4f9fc;
   padding: var(--space-4);
   overflow-x: auto;
   color: #213139;
@@ -307,9 +329,9 @@ thead th {
 .prose :where(code):not(pre code) {
   font-family: var(--font-mono);
   font-size: 0.9em;
-  background: #edf3f5;
+  background: #eaf2f7;
   color: #24464f;
-  border: 1px solid #c9dae0;
+  border: 1px solid #c0d1dc;
   padding: 0.08rem 0.35rem;
   border-radius: 0.35rem;
 }
@@ -335,7 +357,7 @@ thead th {
 .prose a {
   color: color-mix(in srgb, var(--brand-accent) 84%, #113f44);
   text-decoration-line: underline;
-  text-decoration-color: color-mix(in srgb, var(--brand-accent) 35%, transparent);
+  text-decoration-color: color-mix(in srgb, var(--brand-accent) 44%, transparent);
   text-underline-offset: 0.14em;
 }
 

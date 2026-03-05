@@ -1,0 +1,142 @@
+---
+interface RelatedToolItem {
+  key: string;
+  name: string;
+  description: string;
+  badge?: string;
+  priceTier: string;
+  wizardScore: number;
+  bestFor: string[];
+  primaryHref: string;
+  secondaryHref: string;
+  secondaryLabel: string;
+}
+
+interface Props {
+  title?: string;
+  description?: string;
+  items: RelatedToolItem[];
+  compact?: boolean;
+}
+
+const {
+  title = "Top outils liés",
+  description = "Sélection alignée sur les tags et objectifs de cette page.",
+  items,
+  compact = false
+} = Astro.props;
+
+const renderScore = (score: number): string => score.toFixed(1).replace(/\.0$/, "");
+const scoreFill = (score: number): string => `${Math.max(0, Math.min(100, (score / 5) * 100))}%`;
+---
+
+<section class:list={{ "related-tools": true, compact }}>
+  <div class="related-tools-head">
+    <h2>{title}</h2>
+    {description && <p class="small muted">{description}</p>}
+  </div>
+
+  <div class:list={{ "related-tools-grid": true, compact }}>
+    {
+      items.map((tool) => (
+        <article class="card related-tool-card">
+          <p class="small muted">{tool.badge ?? "Recommandé"}</p>
+          <h3>{tool.name}</h3>
+          <p>{tool.description}</p>
+          <p class="small muted">{tool.bestFor.slice(0, compact ? 2 : 3).join(" · ")}</p>
+          <p class="small muted score-line">
+            <span class="star-meter" aria-label={`Score ${renderScore(tool.wizardScore)} sur 5`}>
+              <span class="star-back">★★★★★</span>
+              <span class="star-front" style={`width:${scoreFill(tool.wizardScore)}`}>★★★★★</span>
+            </span>
+            <span>{renderScore(tool.wizardScore)}/5</span>
+            <span>{tool.priceTier}</span>
+          </p>
+          <div class="actions">
+            <a class="button button-primary" href={tool.primaryHref} rel="nofollow sponsored">Découvrir</a>
+            <a class="button button-secondary" href={tool.secondaryHref}>{tool.secondaryLabel}</a>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .related-tools {
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .related-tools-head {
+    display: grid;
+    gap: 0.28rem;
+  }
+
+  .related-tools-head h2,
+  .related-tools-head p {
+    margin: 0;
+  }
+
+  .related-tools-grid {
+    display: grid;
+    gap: 0.7rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .related-tools-grid.compact {
+    grid-template-columns: 1fr;
+  }
+
+  .related-tool-card {
+    display: grid;
+    gap: 0.42rem;
+    padding: 0.85rem;
+  }
+
+  .related-tool-card h3,
+  .related-tool-card p {
+    margin: 0;
+  }
+
+  .score-line {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.32rem;
+  }
+
+  .star-meter {
+    position: relative;
+    display: inline-flex;
+    line-height: 1;
+    font-size: 0.94rem;
+  }
+
+  .star-back {
+    color: #cec8ba;
+    letter-spacing: 0.02em;
+  }
+
+  .star-front {
+    position: absolute;
+    left: 0;
+    top: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    color: #f2b400;
+    letter-spacing: 0.02em;
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 980px) {
+    .related-tools-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

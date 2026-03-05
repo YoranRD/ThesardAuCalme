@@ -1,20 +1,20 @@
 :root {
-  --brand-bg: #f7f4ee;
-  --brand-surface: #fffdf9;
-  --brand-text: #1f2326;
-  --brand-muted: #5f6266;
-  --brand-accent: #1f5e64;
-  --brand-border: #d7d0c2;
+  --brand-bg: #f3f6f8;
+  --brand-surface: #ffffff;
+  --brand-text: #1a242b;
+  --brand-muted: #55636b;
+  --brand-accent: #1d6c75;
+  --brand-border: #d5dde3;
 
   --font-sans: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
   --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
   --font-mono: "SFMono-Regular", Menlo, Consolas, monospace;
 
-  --fs-h1: clamp(2.15rem, 4.4vw, 3.75rem);
-  --fs-h2: clamp(1.7rem, 2.8vw, 2.5rem);
-  --fs-h3: clamp(1.3rem, 2vw, 1.7rem);
-  --fs-h4: clamp(1.1rem, 1.5vw, 1.25rem);
-  --fs-body: 1.02rem;
+  --fs-h1: clamp(2.35rem, 4.9vw, 4.1rem);
+  --fs-h2: clamp(1.85rem, 3.1vw, 2.8rem);
+  --fs-h3: clamp(1.4rem, 2.2vw, 1.95rem);
+  --fs-h4: clamp(1.15rem, 1.6vw, 1.3rem);
+  --fs-body: 1.04rem;
   --fs-small: 0.9rem;
 
   --lh-tight: 1.15;
@@ -27,11 +27,11 @@
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
-  --space-5: 1.5rem;
+  --space-5: 1.35rem;
   --space-6: 2rem;
-  --space-7: 2.75rem;
-  --space-8: 3.75rem;
-  --space-9: 5rem;
+  --space-7: 2.85rem;
+  --space-8: 3.9rem;
+  --space-9: 5.2rem;
 
   --radius-1: 8px;
   --radius-2: 12px;
@@ -42,13 +42,13 @@
   --shadow-2: 0 14px 36px rgba(27, 30, 32, 0.08);
   --shadow-3: 0 22px 58px rgba(27, 30, 32, 0.12);
 
-  --max-width: 1160px;
-  --content-max: 74ch;
-  --content-wide: 92ch;
+  --max-width: 1180px;
+  --content-max: 84ch;
+  --content-wide: 104ch;
 
   --surface-1: var(--brand-surface);
-  --surface-2: #f2ece1;
-  --surface-hero: linear-gradient(145deg, #fffdf8 0%, #f8f1e6 100%);
+  --surface-2: #edf2f6;
+  --surface-hero: linear-gradient(140deg, #fdfefe 0%, #edf4f7 72%, #f6efe6 100%);
 
   --button-padding-y: 0.62rem;
   --button-padding-x: 1.05rem;

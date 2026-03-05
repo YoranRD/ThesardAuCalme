@@ -1,0 +1,97 @@
+---
+import {
+  communityUrl,
+  contactEmail,
+  isConfiguredExternalUrl,
+  youtubeUrl
+} from "../config/identity";
+import { withBase } from "../lib/links";
+
+interface Props {
+  lang?: "fr" | "en";
+}
+
+const { lang = "fr" } = Astro.props;
+const isFrench = lang === "fr";
+
+const canLinkYoutube = isConfiguredExternalUrl(youtubeUrl);
+const canLinkCommunity = isConfiguredExternalUrl(communityUrl);
+const youtubeHref = canLinkYoutube ? youtubeUrl : withBase("/contact/");
+const communityHref = canLinkCommunity ? communityUrl : withBase("/communaute/rejoindre/");
+---
+
+<article class="surface author-card">
+  <div class="author-badge" aria-hidden="true">TAC</div>
+  <div class="author-content">
+    <p class="eyebrow">{isFrench ? "Auteur" : "Author"}</p>
+    <h2>Thésard Au Calme</h2>
+    <p>
+      {isFrench
+        ? "Ligne éditoriale: méthodes doctorales reproductibles, contenus vérifiables et progression sans bruit marketing."
+        : "Editorial direction: reproducible doctoral methods, verifiable content, and steady progress without noise."}
+    </p>
+    <p class="small muted">
+      {isFrench
+        ? `Contact: ${contactEmail}`
+        : `Contact: ${contactEmail}`}
+    </p>
+    <div class="actions">
+      <a class="button button-secondary" href={youtubeHref} target={canLinkYoutube ? "_blank" : undefined} rel={canLinkYoutube ? "noopener nofollow" : undefined}>
+        {isFrench ? "Chaîne YouTube" : "YouTube"}
+      </a>
+      <a class="button button-secondary" href={communityHref} target={canLinkCommunity ? "_blank" : undefined} rel={canLinkCommunity ? "noopener nofollow" : undefined}>
+        {isFrench ? "Communauté" : "Community"}
+      </a>
+    </div>
+  </div>
+</article>
+
+<style>
+  .author-card {
+    padding: 1rem;
+    display: grid;
+    gap: 0.9rem;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+  }
+
+  .author-badge {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.7rem;
+    border: 1px solid var(--brand-border);
+    background: linear-gradient(135deg, #eff4f7 0%, #dfe9ee 100%);
+    color: var(--brand-accent);
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .author-content {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .author-content p,
+  .author-content h2,
+  .author-content .eyebrow {
+    margin: 0;
+  }
+
+  .author-content h2 {
+    font-size: clamp(1.2rem, 2vw, 1.5rem);
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 680px) {
+    .author-card {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

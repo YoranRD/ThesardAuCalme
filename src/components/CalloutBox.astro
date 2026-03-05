@@ -1,0 +1,77 @@
+---
+interface Props {
+  title: string;
+  variant?: "key-takeaways" | "warning" | "tip";
+  items?: string[];
+}
+
+const { title, variant = "tip", items = [] } = Astro.props;
+
+const variantIcon: Record<"key-takeaways" | "warning" | "tip", string> = {
+  "key-takeaways": "◆",
+  warning: "▲",
+  tip: "✦"
+};
+---
+
+<section class={`callout-box callout-${variant}`}>
+  <p class="callout-title"><span aria-hidden="true">{variantIcon[variant]}</span> {title}</p>
+  {
+    items.length > 0 && (
+      <ul>
+        {items.slice(0, 3).map((item) => <li>{item}</li>)}
+      </ul>
+    )
+  }
+  <slot />
+</section>
+
+<style>
+  .callout-box {
+    border: 1px solid color-mix(in srgb, var(--brand-accent) 26%, var(--brand-border));
+    border-radius: var(--radius-2);
+    padding: 0.95rem;
+    display: grid;
+    gap: 0.5rem;
+    background: color-mix(in srgb, var(--brand-surface) 72%, #eef4f6 28%);
+  }
+
+  .callout-title {
+    margin: 0;
+    font-weight: 700;
+    color: var(--brand-text);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .callout-box ul {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--brand-muted);
+    display: grid;
+    gap: 0.32rem;
+  }
+
+  .callout-warning {
+    background: color-mix(in srgb, #f7d9c8 30%, var(--brand-surface));
+    border-color: #e2ad92;
+  }
+
+  .callout-warning .callout-title {
+    color: #7c3f29;
+  }
+
+  .callout-tip {
+    background: color-mix(in srgb, #dcece2 35%, var(--brand-surface));
+    border-color: #9cc0aa;
+  }
+
+  .callout-tip .callout-title {
+    color: #2f6048;
+  }
+
+  .callout-key-takeaways {
+    background: linear-gradient(135deg, #f7fafb 0%, #e9f1f4 100%);
+  }
+</style>

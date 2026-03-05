@@ -2,7 +2,7 @@
 title: "YouTube doctorat: hub chaîne et protocole d'usage"
 summary: "Hub YouTube Thésard Au Calme: stratégie éditoriale, parcours d'exploration, méthode d'application et tunnel éthique vers playlists, toolbox et communauté."
 lang: fr
-route: /youtube/
+route: /hubs/youtube-guide/
 tags:
   - youtube
   - doctorat

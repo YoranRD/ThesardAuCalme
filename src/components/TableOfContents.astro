@@ -10,13 +10,15 @@ interface Props {
   title?: string;
   minDepth?: number;
   maxDepth?: number;
+  mobileCollapsible?: boolean;
 }
 
 const {
   headings,
   title = "Sommaire",
   minDepth = 2,
-  maxDepth = 3
+  maxDepth = 3,
+  mobileCollapsible = false
 } = Astro.props;
 
 const visibleHeadings = headings.filter((heading) => heading.depth >= minDepth && heading.depth <= maxDepth);
@@ -24,17 +26,51 @@ const visibleHeadings = headings.filter((heading) => heading.depth >= minDepth &
 
 {
   visibleHeadings.length > 0 && (
-    <aside class="surface toc-block" aria-label={title} data-toc-block>
-      <p class="toc-title">{title}</p>
-      <ol>
-        {
-          visibleHeadings.map((heading) => (
-            <li class={`depth-${heading.depth}`}>
-              <a href={`#${heading.slug}`} data-toc-link={heading.slug}>{heading.text}</a>
-            </li>
-          ))
-        }
-      </ol>
+    <aside class:list={{ surface: true, "toc-block": true, "toc-mobile-collapsible": mobileCollapsible }} aria-label={title} data-toc-block>
+      {
+        mobileCollapsible ? (
+          <>
+            <div class="toc-desktop-shell">
+              <p class="toc-title">{title}</p>
+              <ol>
+                {
+                  visibleHeadings.map((heading) => (
+                    <li class={`depth-${heading.depth}`}>
+                      <a href={`#${heading.slug}`} data-toc-link={heading.slug}>{heading.text}</a>
+                    </li>
+                  ))
+                }
+              </ol>
+            </div>
+
+            <details class="toc-mobile-shell">
+              <summary>{title}</summary>
+              <ol>
+                {
+                  visibleHeadings.map((heading) => (
+                    <li class={`depth-${heading.depth}`}>
+                      <a href={`#${heading.slug}`} data-toc-link={heading.slug}>{heading.text}</a>
+                    </li>
+                  ))
+                }
+              </ol>
+            </details>
+          </>
+        ) : (
+          <>
+            <p class="toc-title">{title}</p>
+            <ol>
+              {
+                visibleHeadings.map((heading) => (
+                  <li class={`depth-${heading.depth}`}>
+                    <a href={`#${heading.slug}`} data-toc-link={heading.slug}>{heading.text}</a>
+                  </li>
+                ))
+              }
+            </ol>
+          </>
+        )
+      }
     </aside>
   )
 }
@@ -55,32 +91,33 @@ const visibleHeadings = headings.filter((heading) => heading.depth >= minDepth &
         return;
       }
 
-      const targetEntries = tocLinks
-        .map((link) => {
-          const slug = link.getAttribute("data-toc-link");
-          if (!slug) {
-            return null;
-          }
-          const section = document.getElementById(slug);
-          if (!section) {
-            return null;
-          }
-          return { link, section, slug };
-        })
-        .filter(Boolean);
+      const uniqueTargetEntries = new Map();
 
+      tocLinks.forEach((link) => {
+        const slug = link.getAttribute("data-toc-link");
+        if (!slug || uniqueTargetEntries.has(slug)) {
+          return;
+        }
+        const section = document.getElementById(slug);
+        if (!section) {
+          return;
+        }
+        uniqueTargetEntries.set(slug, { section, slug });
+      });
+
+      const targetEntries = [...uniqueTargetEntries.values()];
       if (targetEntries.length === 0) {
         return;
       }
 
       const setActiveSlug = (slug) => {
-        targetEntries.forEach((entry) => {
-          const isActive = entry.slug === slug;
-          entry.link.classList.toggle("is-active", isActive);
+        tocLinks.forEach((link) => {
+          const isActive = link.getAttribute("data-toc-link") === slug;
+          link.classList.toggle("is-active", isActive);
           if (isActive) {
-            entry.link.setAttribute("aria-current", "true");
+            link.setAttribute("aria-current", "true");
           } else {
-            entry.link.removeAttribute("aria-current");
+            link.removeAttribute("aria-current");
           }
         });
       };
@@ -159,6 +196,30 @@ const visibleHeadings = headings.filter((heading) => heading.depth >= minDepth &
   .toc-block a.is-active {
     color: var(--accent);
     font-weight: 600;
+  }
+
+  .toc-mobile-shell {
+    display: none;
+  }
+
+  .toc-mobile-shell summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--brand-text);
+  }
+
+  .toc-mobile-shell[open] summary {
+    margin-bottom: 0.6rem;
+  }
+
+  @media (max-width: 1079px) {
+    .toc-mobile-collapsible .toc-desktop-shell {
+      display: none;
+    }
+
+    .toc-mobile-collapsible .toc-mobile-shell {
+      display: block;
+    }
   }
 
   @media (min-width: 1080px) {
