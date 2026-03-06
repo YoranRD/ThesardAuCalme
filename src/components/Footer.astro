@@ -37,7 +37,7 @@ const topTools = [...featuredResources, ...rankedResources.filter((entry) => !fe
     <p class="small muted">Recherche rapide</p>
     <form class="footer-search-form" action={withBase("/recherche/")} method="get">
       <label class="sr-only" for="footer-search-input">Rechercher sur le site</label>
-      <input id="footer-search-input" type="search" name="q" placeholder="Rechercher un article, guide, vidéo ou outil" />
+      <input id="footer-search-input" data-footer-search-input type="search" name="q" placeholder="Rechercher un article, guide, vidéo ou outil" />
       <button class="button button-primary" type="submit">Rechercher</button>
     </form>
   </div>
@@ -71,6 +71,7 @@ const topTools = [...featuredResources, ...rankedResources.filter((entry) => !fe
         <li><a href={withBase("/outils/avis/")}>Avis outils</a></li>
         <li><a href={withBase("/stacks/")}>Stacks</a></li>
         <li><a href={withBase("/playlists/")}>Playlists</a></li>
+        <li><a href={withBase("/classements/outils-doctorat/")}>Classements</a></li>
         <li><a href={withBase("/ressources/")}>Ressources</a></li>
       </ul>
     </div>
@@ -124,12 +125,32 @@ const topTools = [...featuredResources, ...rankedResources.filter((entry) => !fe
   </div>
 </footer>
 
+<script is:inline>
+  (() => {
+    const searchInput = document.querySelector("[data-footer-search-input]");
+    if (!(searchInput instanceof HTMLInputElement)) {
+      return;
+    }
+
+    searchInput.addEventListener("focus", () => {
+      if (!window.matchMedia("(min-width: 980px)").matches) {
+        return;
+      }
+
+      const trigger = document.querySelector("[data-open-search-palette]");
+      if (trigger instanceof HTMLElement) {
+        trigger.click();
+      }
+    });
+  })();
+</script>
+
 <style>
   .site-footer {
     border-top: 1px solid var(--border);
     margin-top: var(--space-8);
     padding-top: var(--space-6);
-    background: #f0ebe1;
+    background: linear-gradient(180deg, #f2ece2 0%, #eee9df 100%);
   }
 
   .footer-search-bar {

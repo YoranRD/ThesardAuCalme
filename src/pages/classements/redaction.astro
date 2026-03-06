@@ -1,0 +1,40 @@
+---
+import { getCollection } from "astro:content";
+import ClassementPage from "../../components/ClassementPage.astro";
+import { withBase } from "../../lib/links";
+import { pickRankedResources } from "../../lib/rankings";
+import { getResourceObjectiveKey, getResourceReviewPath } from "../../lib/resources";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const toolReviews = await getCollection("toolReviews", ({ data }) => data.lang === "fr");
+const reviewSlugSet = new Set(toolReviews.map((entry) => entry.slug));
+
+const rankedResources = pickRankedResources((resource) => {
+  const objective = getResourceObjectiveKey(resource);
+  return objective === "ecrire" || objective === "focus-routine";
+}, 14);
+
+const items = rankedResources.map((resource) => {
+  const reviewPath = getResourceReviewPath(resource);
+  const canUseReviewPath = reviewPath && resource.reviewSlug && reviewSlugSet.has(resource.reviewSlug);
+
+  return {
+    resource,
+    secondaryHref: canUseReviewPath ? reviewPath : withBase(`/outils/${resource.key}/`),
+    secondaryLabel: canUseReviewPath ? "Lire l’avis" : "Voir la fiche"
+  };
+});
+---
+
+<BaseLayout
+  canonicalPath="/classements/redaction/"
+  title="Classement rédaction | Thésard Au Calme"
+  description="Top 5 outils rédaction doctorat: écrire, relire, maintenir la cadence et transformer les notes en livrables."
+>
+  <ClassementPage
+    title="Classement rédaction"
+    eyebrow="Classements"
+    summary="Un classement orienté production de texte: rédaction, relecture, focus et routine pour livrer de façon régulière."
+    items={items}
+  />
+</BaseLayout>

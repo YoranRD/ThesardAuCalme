@@ -1,14 +1,15 @@
 :root {
-  --brand-bg: #f3f6f8;
-  --brand-surface: #ffffff;
-  --brand-text: #1a242b;
-  --brand-muted: #55636b;
-  --brand-accent: #1d6c75;
-  --brand-border: #d5dde3;
+  --brand-bg: #f6f2e9;
+  --brand-surface: #fdfbf7;
+  --brand-text: #1b2328;
+  --brand-muted: #526067;
+  --brand-accent: #2d6259;
+  --brand-accent-2: #b44a42;
+  --brand-border: #d8d0c2;
 
-  --font-sans: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
-  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
-  --font-mono: "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
 
   --fs-h1: clamp(2.35rem, 4.9vw, 4.1rem);
   --fs-h2: clamp(1.85rem, 3.1vw, 2.8rem);
@@ -17,9 +18,9 @@
   --fs-body: 1.04rem;
   --fs-small: 0.9rem;
 
-  --lh-tight: 1.15;
+  --lh-tight: 1.14;
   --lh-title: 1.25;
-  --lh-body: 1.7;
+  --lh-body: 1.72;
   --lh-relaxed: 1.85;
 
   --space-0: 0;
@@ -38,17 +39,17 @@
   --radius-3: 18px;
   --radius-pill: 999px;
 
-  --shadow-1: 0 8px 22px rgba(27, 30, 32, 0.06);
-  --shadow-2: 0 14px 36px rgba(27, 30, 32, 0.08);
-  --shadow-3: 0 22px 58px rgba(27, 30, 32, 0.12);
+  --shadow-1: 0 7px 22px rgba(24, 28, 31, 0.07);
+  --shadow-2: 0 14px 36px rgba(24, 28, 31, 0.1);
+  --shadow-3: 0 24px 56px rgba(24, 28, 31, 0.14);
 
   --max-width: 1180px;
   --content-max: 84ch;
   --content-wide: 104ch;
 
   --surface-1: var(--brand-surface);
-  --surface-2: #edf2f6;
-  --surface-hero: linear-gradient(140deg, #fdfefe 0%, #edf4f7 72%, #f6efe6 100%);
+  --surface-2: #f2eee5;
+  --surface-hero: linear-gradient(140deg, #fffefb 0%, #f3eee3 70%, #e8f0ea 100%);
 
   --button-padding-y: 0.62rem;
   --button-padding-x: 1.05rem;
@@ -60,8 +61,9 @@
   --text-soft: var(--brand-muted);
   --border: var(--brand-border);
   --accent: var(--brand-accent);
-  --accent-soft: #dcebee;
-  --danger-soft: #f8e7dc;
+  --accent-2: var(--brand-accent-2);
+  --accent-soft: #e0ebe5;
+  --danger-soft: #f7ebe8;
   --radius-sm: var(--radius-2);
   --radius: var(--radius-3);
   --shadow: var(--shadow-2);

@@ -28,12 +28,13 @@ const variantIcon: Record<"key-takeaways" | "warning" | "tip", string> = {
 
 <style>
   .callout-box {
-    border: 1px solid color-mix(in srgb, var(--brand-accent) 26%, var(--brand-border));
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
     border-radius: var(--radius-2);
-    padding: 0.95rem;
+    padding: 1rem;
     display: grid;
     gap: 0.5rem;
-    background: color-mix(in srgb, var(--brand-surface) 72%, #eef4f6 28%);
+    background: linear-gradient(145deg, #f8f5ee 0%, #eeefe6 100%);
+    box-shadow: 0 8px 20px rgba(26, 31, 33, 0.08);
   }
 
   .callout-title {
@@ -48,14 +49,14 @@ const variantIcon: Record<"key-takeaways" | "warning" | "tip", string> = {
   .callout-box ul {
     margin: 0;
     padding-left: 1.2rem;
-    color: var(--brand-muted);
+    color: var(--text-soft);
     display: grid;
     gap: 0.32rem;
   }
 
   .callout-warning {
-    background: color-mix(in srgb, #f7d9c8 30%, var(--brand-surface));
-    border-color: #e2ad92;
+    background: color-mix(in srgb, var(--accent-2) 10%, #fff8f5);
+    border-color: color-mix(in srgb, var(--accent-2) 36%, var(--border));
   }
 
   .callout-warning .callout-title {
@@ -63,8 +64,8 @@ const variantIcon: Record<"key-takeaways" | "warning" | "tip", string> = {
   }
 
   .callout-tip {
-    background: color-mix(in srgb, #dcece2 35%, var(--brand-surface));
-    border-color: #9cc0aa;
+    background: color-mix(in srgb, var(--accent-soft) 62%, #fff);
+    border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
   }
 
   .callout-tip .callout-title {
@@ -72,6 +73,11 @@ const variantIcon: Record<"key-takeaways" | "warning" | "tip", string> = {
   }
 
   .callout-key-takeaways {
-    background: linear-gradient(135deg, #f7fafb 0%, #e9f1f4 100%);
+    border-left: 4px solid var(--accent);
+    background: linear-gradient(135deg, #f9f7f0 0%, #e8efe8 62%, #efe6da 100%);
+  }
+
+  .callout-key-takeaways .callout-title {
+    color: color-mix(in srgb, var(--accent) 75%, var(--accent-2));
   }
 </style>

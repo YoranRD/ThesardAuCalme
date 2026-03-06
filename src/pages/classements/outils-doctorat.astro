@@ -1,0 +1,37 @@
+---
+import { getCollection } from "astro:content";
+import ClassementPage from "../../components/ClassementPage.astro";
+import { withBase } from "../../lib/links";
+import { pickRankedResources } from "../../lib/rankings";
+import { getResourceReviewPath } from "../../lib/resources";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const toolReviews = await getCollection("toolReviews", ({ data }) => data.lang === "fr");
+const reviewSlugSet = new Set(toolReviews.map((entry) => entry.slug));
+
+const rankedResources = pickRankedResources(() => true, 18);
+
+const items = rankedResources.map((resource) => {
+  const reviewPath = getResourceReviewPath(resource);
+  const canUseReviewPath = reviewPath && resource.reviewSlug && reviewSlugSet.has(resource.reviewSlug);
+
+  return {
+    resource,
+    secondaryHref: canUseReviewPath ? reviewPath : withBase(`/outils/${resource.key}/`),
+    secondaryLabel: canUseReviewPath ? "Lire l’avis" : "Voir la fiche"
+  };
+});
+---
+
+<BaseLayout
+  canonicalPath="/classements/outils-doctorat/"
+  title="Classement outils doctorat | Thésard Au Calme"
+  description="Top 5 et classement complet des outils doctorat selon score éditorial, niveau de prix, cas d’usage et limites explicites."
+>
+  <ClassementPage
+    title="Classement outils doctorat"
+    eyebrow="Classements"
+    summary="Un classement lisible pour choisir rapidement les outils les plus utiles selon la phase de thèse, sans effet vitrine."
+    items={items}
+  />
+</BaseLayout>

@@ -68,6 +68,18 @@ const featured = sections
     </div>
   </section>
 
+  <section class="section rankings-strip-section">
+    <div class="container surface rankings-strip">
+      <p class="eyebrow">Classements rapides</p>
+      <h2>Top 5 par usage</h2>
+      <div class="rankings-links">
+        <a class="button button-secondary" href={withBase("/classements/outils-doctorat/")}>Outils doctorat</a>
+        <a class="button button-secondary" href={withBase("/classements/bibliographie/")}>Bibliographie</a>
+        <a class="button button-secondary" href={withBase("/classements/redaction/")}>Rédaction</a>
+      </div>
+    </div>
+  </section>
+
   <section class="section featured-section">
     <div class="container">
       <div class="section-head">
@@ -313,6 +325,27 @@ const featured = sections
   .toolbox-hero {
     display: grid;
     gap: 0.7rem;
+  }
+
+  .rankings-strip-section {
+    padding-top: 0;
+  }
+
+  .rankings-strip {
+    padding: 1rem;
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .rankings-strip h2,
+  .rankings-strip p {
+    margin: 0;
+  }
+
+  .rankings-links {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
   }
 
   .transparency-inline {

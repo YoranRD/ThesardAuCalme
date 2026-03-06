@@ -40,6 +40,7 @@ const explorerGroups = [
     items: [
       { href: "/outils/", label: "Toolbox" },
       { href: "/outils/avis/", label: "Avis outils" },
+      { href: "/classements/outils-doctorat/", label: "Classements" },
       { href: "/stacks/", label: "Stacks" },
       { href: "/ressources/", label: "Ressources" },
       { href: "/outils/#top-categories", label: "Top catégories" }
@@ -115,7 +116,7 @@ const isExplorerActive = explorerPaths.some((href) => isActive(href));
 
         <li>
           <button class="button button-ghost palette-trigger" type="button" data-open-search-palette>
-            Rechercher
+            Rechercher…
             <span class="palette-kbd"><kbd>⌘</kbd><kbd>K</kbd></span>
           </button>
         </li>
@@ -368,7 +369,14 @@ const isExplorerActive = explorerPaths.some((href) => isActive(href));
   .palette-trigger {
     gap: 0.42rem;
     padding-inline: 0.7rem;
-    border-color: var(--brand-border);
+    border-color: color-mix(in srgb, var(--brand-accent) 26%, var(--brand-border));
+    background: #fff;
+    color: var(--brand-accent);
+  }
+
+  .palette-trigger:hover {
+    border-color: color-mix(in srgb, var(--brand-accent) 42%, var(--brand-border));
+    background: color-mix(in srgb, var(--accent-soft) 50%, #ffffff);
   }
 
   .palette-kbd {

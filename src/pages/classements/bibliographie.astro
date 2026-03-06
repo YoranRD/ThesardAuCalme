@@ -1,0 +1,40 @@
+---
+import { getCollection } from "astro:content";
+import ClassementPage from "../../components/ClassementPage.astro";
+import { withBase } from "../../lib/links";
+import { pickRankedResources } from "../../lib/rankings";
+import { getResourceObjectiveKey, getResourceReviewPath } from "../../lib/resources";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const toolReviews = await getCollection("toolReviews", ({ data }) => data.lang === "fr");
+const reviewSlugSet = new Set(toolReviews.map((entry) => entry.slug));
+
+const rankedResources = pickRankedResources((resource) => {
+  const objective = getResourceObjectiveKey(resource);
+  return objective === "citer-bibliographie" || objective === "lire-pdf-annoter";
+}, 14);
+
+const items = rankedResources.map((resource) => {
+  const reviewPath = getResourceReviewPath(resource);
+  const canUseReviewPath = reviewPath && resource.reviewSlug && reviewSlugSet.has(resource.reviewSlug);
+
+  return {
+    resource,
+    secondaryHref: canUseReviewPath ? reviewPath : withBase(`/outils/${resource.key}/`),
+    secondaryLabel: canUseReviewPath ? "Lire l’avis" : "Voir la fiche"
+  };
+});
+---
+
+<BaseLayout
+  canonicalPath="/classements/bibliographie/"
+  title="Classement bibliographie | Thésard Au Calme"
+  description="Top 5 bibliographie: outils pour citations, références, PDF et traçabilité des sources en doctorat."
+>
+  <ClassementPage
+    title="Classement bibliographie"
+    eyebrow="Classements"
+    summary="Top 5 pour citations, gestion de références et lecture PDF annotée, avec un cadrage clair des forces et limites."
+    items={items}
+  />
+</BaseLayout>

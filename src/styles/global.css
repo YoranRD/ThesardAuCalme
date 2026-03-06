@@ -9,8 +9,8 @@ body {
   margin: 0;
   padding: 0;
   background:
-    radial-gradient(circle at 8% 6%, #e8f1f6 0%, transparent 34%),
-    radial-gradient(circle at 92% 0%, #f5ecdf 0%, transparent 28%),
+    radial-gradient(circle at 6% 4%, #ece8de 0%, transparent 33%),
+    radial-gradient(circle at 88% 0%, #dfe9e3 0%, transparent 30%),
     var(--brand-bg);
   color: var(--brand-text);
   font-family: var(--font-sans);
@@ -50,13 +50,30 @@ h4 {
   line-height: var(--lh-title);
 }
 
+.section-head h2,
+.all-head h2 {
+  position: relative;
+  padding-bottom: 0.26rem;
+}
+
+.section-head h2::after,
+.all-head h2::after {
+  content: "";
+  display: block;
+  width: 3.8rem;
+  height: 3px;
+  margin-top: 0.42rem;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--accent) 0%, color-mix(in srgb, var(--accent-2) 48%, #dbcdb8) 100%);
+}
+
 p {
   margin: 0 0 var(--space-5);
   color: var(--brand-muted);
 }
 
 a {
-  color: inherit;
+  color: color-mix(in srgb, var(--accent) 76%, #102f2b);
   text-decoration-thickness: 1px;
   text-underline-offset: 0.12em;
 }
@@ -110,7 +127,7 @@ img {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-size: 0.74rem;
-  color: var(--brand-accent);
+  color: color-mix(in srgb, var(--accent) 82%, #102f2b);
   font-weight: 700;
 }
 
@@ -134,24 +151,25 @@ img {
 }
 
 .button-primary {
-  border-color: var(--brand-accent);
-  background: var(--brand-accent);
-  color: #f4fbfb;
+  border-color: color-mix(in srgb, var(--accent) 70%, #1e2e2a);
+  background: color-mix(in srgb, var(--accent) 88%, #0f201b);
+  color: #f5f7f5;
+  box-shadow: 0 10px 20px rgba(18, 33, 30, 0.18);
 }
 
 .button-primary:hover {
-  background: color-mix(in srgb, var(--brand-accent) 88%, #000000);
+  background: color-mix(in srgb, var(--accent) 78%, #101c19);
 }
 
 .button-secondary {
-  border-color: var(--brand-border);
-  background: #fff;
-  color: var(--brand-accent);
+  border-color: color-mix(in srgb, var(--accent) 26%, var(--border));
+  background: #fffefb;
+  color: color-mix(in srgb, var(--accent) 88%, #1b2f2b);
 }
 
 .button-secondary:hover {
-  border-color: color-mix(in srgb, var(--brand-accent) 40%, var(--brand-border));
-  background: #f7fbfb;
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
+  background: color-mix(in srgb, var(--accent-soft) 58%, #fffefb);
 }
 
 .button-ghost {
@@ -162,7 +180,7 @@ img {
 
 .button-ghost:hover {
   border-color: var(--brand-border);
-  background: #fff;
+  background: #fefcf8;
   color: var(--brand-text);
 }
 
@@ -198,11 +216,12 @@ img {
 }
 
 .callout {
-  background: var(--accent-soft);
+  background: linear-gradient(140deg, color-mix(in srgb, var(--accent-soft) 68%, #fff) 0%, #f6f3eb 100%);
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--border));
   border-left: 4px solid var(--accent);
   border-radius: var(--radius-sm);
   padding: var(--space-4);
-  color: #1c3133;
+  color: #1d3130;
 }
 
 .small {
@@ -215,7 +234,7 @@ img {
 
 .disclosure {
   background: var(--danger-soft);
-  border: 1px solid #e8b792;
+  border: 1px solid color-mix(in srgb, var(--accent-2) 40%, #d7b6b1);
   border-radius: var(--radius-sm);
   padding: var(--space-4);
 }
@@ -241,7 +260,7 @@ td {
 thead th {
   color: var(--text);
   font-weight: 700;
-  background: #f8f4ec;
+  background: #f4efe5;
 }
 
 .prose {
@@ -278,11 +297,11 @@ thead th {
   height: 3px;
   margin-top: 0.48rem;
   border-radius: var(--radius-pill);
-  background: linear-gradient(90deg, var(--brand-accent) 0%, color-mix(in srgb, var(--brand-accent) 35%, #d7e3ea) 100%);
+  background: linear-gradient(90deg, var(--accent) 0%, color-mix(in srgb, var(--accent-2) 42%, #e0d7c6) 100%);
 }
 
 .prose :where(h3) {
-  border-left: 3px solid color-mix(in srgb, var(--brand-accent) 30%, var(--brand-border));
+  border-left: 3px solid color-mix(in srgb, var(--accent) 36%, var(--border));
   padding-left: 0.7rem;
 }
 
@@ -301,12 +320,16 @@ thead th {
   padding-left: 0.1rem;
 }
 
+.prose li::marker {
+  color: color-mix(in srgb, var(--accent) 74%, #2b3a38);
+}
+
 .prose blockquote {
   margin: var(--space-6) 0;
   padding: var(--space-4) var(--space-5);
-  border: 1px solid color-mix(in srgb, var(--brand-accent) 24%, var(--brand-border));
-  border-left: 4px solid var(--brand-accent);
-  background: linear-gradient(135deg, #f5f9fb 0%, #edf4f7 100%);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
+  border-left: 4px solid var(--accent);
+  background: linear-gradient(135deg, #f6f4ed 0%, #ecebe3 100%);
   border-radius: var(--radius-1);
 }
 
@@ -317,21 +340,21 @@ thead th {
 
 .prose pre {
   margin: var(--space-6) 0;
-  border: 1px solid #d0dbe2;
+  border: 1px solid #d8d2c6;
   border-radius: var(--radius-2);
-  background: #f4f9fc;
+  background: #f6f2eb;
   padding: var(--space-4);
   overflow-x: auto;
-  color: #213139;
+  color: #25353a;
   line-height: 1.5;
 }
 
 .prose :where(code):not(pre code) {
   font-family: var(--font-mono);
   font-size: 0.9em;
-  background: #eaf2f7;
-  color: #24464f;
-  border: 1px solid #c0d1dc;
+  background: #efe8dd;
+  color: #314749;
+  border: 1px solid #d4cabc;
   padding: 0.08rem 0.35rem;
   border-radius: 0.35rem;
 }
@@ -351,18 +374,18 @@ thead th {
 .prose hr {
   margin: var(--space-7) 0;
   border: 0;
-  border-top: 1px solid var(--brand-border);
+  border-top: 1px solid color-mix(in srgb, var(--accent) 20%, var(--border));
 }
 
 .prose a {
-  color: color-mix(in srgb, var(--brand-accent) 84%, #113f44);
+  color: color-mix(in srgb, var(--accent) 86%, #11322f);
   text-decoration-line: underline;
-  text-decoration-color: color-mix(in srgb, var(--brand-accent) 44%, transparent);
+  text-decoration-color: color-mix(in srgb, var(--accent-2) 52%, transparent);
   text-underline-offset: 0.14em;
 }
 
 .prose a:hover {
-  text-decoration-color: color-mix(in srgb, var(--brand-accent) 78%, transparent);
+  text-decoration-color: color-mix(in srgb, var(--accent-2) 75%, transparent);
 }
 
 .skip-link {

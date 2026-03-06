@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import Breadcrumbs from "../components/Breadcrumbs.astro";
 import CtaBlock from "../components/CtaBlock.astro";
+import Mascot from "../components/Mascot.astro";
 import TopToolsStrip from "../components/TopToolsStrip.astro";
 import { withBase } from "../lib/links";
 import { resourceByKey } from "../lib/resources";
@@ -90,14 +91,17 @@ const profiles = [
   description="Parcours guidé pour doctorants: débuts, rédaction et préparation de soutenance avec vidéos, guides et shortlist ressources."
 >
   <section class="section">
-    <div class="container">
-      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Commencer ici" }]} />
-      <p class="eyebrow">Onboarding</p>
-      <h1>Commencer ici</h1>
-      <p class="prose">
-        Cette page propose un chemin court selon la phase actuelle du doctorat. Chaque profil rassemble
-        3 vidéos, 2 guides et 1 shortlist de ressources pour démarrer sans surcharge.
-      </p>
+    <div class="container surface-hero start-hero">
+      <div>
+        <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Commencer ici" }]} />
+        <p class="eyebrow">Onboarding</p>
+        <h1>Commencer ici</h1>
+        <p class="prose">
+          Cette page propose un chemin court selon la phase actuelle du doctorat. Chaque profil rassemble
+          3 vidéos, 2 guides et 1 shortlist de ressources pour démarrer sans surcharge.
+        </p>
+      </div>
+      <Mascot action="work" size="md" />
     </div>
   </section>
 
@@ -169,6 +173,14 @@ const profiles = [
 </BaseLayout>
 
 <style>
+  .start-hero {
+    padding: clamp(1rem, 3vw, 1.7rem);
+    display: grid;
+    gap: 0.8rem;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+
   .profile-card {
     padding: 1.2rem;
     display: grid;
@@ -203,5 +215,11 @@ const profiles = [
     display: flex;
     flex-wrap: wrap;
     gap: 0.6rem;
+  }
+
+  @media (max-width: 860px) {
+    .start-hero {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

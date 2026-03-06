@@ -1,12 +1,13 @@
 ---
 import { getCollection } from "astro:content";
 import IconCard from "../components/IconCard.astro";
+import Mascot from "../components/Mascot.astro";
 import TopToolsStrip from "../components/TopToolsStrip.astro";
 import VideoCard from "../components/VideoCard.astro";
 import { communityUrl, isConfiguredExternalUrl, youtubeUrl } from "../config/identity";
 import { brandDisplayName, brandTagline, getCanonicalUrl } from "../config/site";
 import { playlists } from "../data/playlists";
-import { brandMascotSrc, hasBrandMascot } from "../lib/brand";
+import { getMascotSrc } from "../lib/brand-mascots";
 import { withBase } from "../lib/links";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
@@ -21,6 +22,7 @@ const articles = (await getCollection("articles", ({ data }) => data.lang === "f
 const featuredVideos = videos.slice(0, 3);
 const featuredArticles = articles.slice(0, 3);
 const featuredPlaylists = playlists.slice(0, 3);
+const hasHeroMascot = Boolean(getMascotSrc("default"));
 
 const youtubeCta = isConfiguredExternalUrl(youtubeUrl) ? youtubeUrl : withBase("/youtube/");
 const communityCta = isConfiguredExternalUrl(communityUrl) ? communityUrl : withBase("/communaute/rejoindre/");
@@ -57,7 +59,7 @@ const structuredData = {
   jsonLd={structuredData}
 >
   <section class="section">
-    <div class:list={{ container: true, hero: true, "surface-hero": true, "hero-no-mascot": !hasBrandMascot }}>
+    <div class:list={{ container: true, hero: true, "surface-hero": true, "hero-no-mascot": !hasHeroMascot }}>
       <div class="hero-copy">
         <p class="eyebrow">Doctorat en France</p>
         <h1>Un système calme pour avancer chaque semaine.</h1>
@@ -74,9 +76,9 @@ const structuredData = {
       </div>
 
       {
-        hasBrandMascot && brandMascotSrc && (
+        hasHeroMascot && (
           <div class="hero-art">
-            <img src={brandMascotSrc} alt="" width="280" height="280" loading="eager" decoding="async" aria-hidden="true" />
+            <Mascot action="default" size="lg" />
             <p class="small muted">Cadence sobre, livrables concrets, transparence totale.</p>
           </div>
         )
@@ -109,6 +111,14 @@ const structuredData = {
         icon="◎"
         badgeLabel="Cadence"
         badgeVariant="verified"
+      />
+      <IconCard
+        title="Classements"
+        description="Top 5 outils par usage: doctorat, bibliographie, rédaction."
+        href="/classements/outils-doctorat/"
+        icon="🏆"
+        badgeLabel="Top 5"
+        badgeVariant="deal"
       />
     </div>
   </section>
@@ -242,7 +252,7 @@ const structuredData = {
   }
 
   .features-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0.8rem;
   }
 
@@ -315,10 +325,19 @@ const structuredData = {
 
   @media (max-width: 1080px) {
     .hero,
-    .features-grid,
     .cards-3,
     .article-cards,
     .playlist-cards {
+      grid-template-columns: 1fr;
+    }
+
+    .features-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 760px) {
+    .features-grid {
       grid-template-columns: 1fr;
     }
   }

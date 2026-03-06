@@ -35,6 +35,33 @@ const staticHubEntries: SearchEntry[] = [
       "Sélection d'outils classés par objectif, score éditorial, avis détaillés et redirections trackées via /out/.",
     tags: ["toolbox", "outils", "stack", "avis"],
     path: "/outils/"
+  },
+  {
+    type: "page",
+    lang: "fr",
+    title: "Classement outils doctorat",
+    summary:
+      "Top 5 et classement complet des outils doctorat: score éditorial, prix, points forts et limites.",
+    tags: ["classement", "outils", "doctorat", "top 5"],
+    path: "/classements/outils-doctorat/"
+  },
+  {
+    type: "page",
+    lang: "fr",
+    title: "Classement bibliographie",
+    summary:
+      "Top 5 bibliographie pour citations, références et lecture PDF annotée.",
+    tags: ["classement", "bibliographie", "zotero", "citations"],
+    path: "/classements/bibliographie/"
+  },
+  {
+    type: "page",
+    lang: "fr",
+    title: "Classement rédaction",
+    summary:
+      "Top 5 rédaction doctorale pour produire plus régulièrement avec un workflow robuste.",
+    tags: ["classement", "redaction", "focus", "workflow"],
+    path: "/classements/redaction/"
   }
 ];
 

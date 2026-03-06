@@ -5,6 +5,7 @@ import Breadcrumbs from "../../components/Breadcrumbs.astro";
 import CalloutBox from "../../components/CalloutBox.astro";
 import ContextualCtaBanner from "../../components/ContextualCtaBanner.astro";
 import ContentEnhancements from "../../components/ContentEnhancements.astro";
+import Mascot from "../../components/Mascot.astro";
 import RelatedTools from "../../components/RelatedTools.astro";
 import ShareButtons from "../../components/ShareButtons.astro";
 import TableOfContents from "../../components/TableOfContents.astro";
@@ -297,7 +298,13 @@ const topToolsKeys = miniTopTools.map((tool) => tool.key);
 
   <section class="section article-bottom">
     <div class="container article-bottom-grid">
-      <AuthorCard lang={article.data.lang} />
+      <div class="author-wrap">
+        <div class="author-mascot-row">
+          <Mascot action="present" size="sm" />
+          <p class="small muted">Présence éditoriale TAC</p>
+        </div>
+        <AuthorCard lang={article.data.lang} />
+      </div>
       <TopToolsStrip
         title="Top outils"
         description="Version courte pour passer de la lecture à l’action."
@@ -344,8 +351,8 @@ const topToolsKeys = miniTopTools.map((tool) => tool.key);
 
   .article-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(270px, 320px);
-    gap: 1rem;
+    grid-template-columns: minmax(0, 1fr) minmax(290px, 340px);
+    gap: 1.05rem;
     align-items: start;
   }
 
@@ -356,14 +363,16 @@ const topToolsKeys = miniTopTools.map((tool) => tool.key);
 
   .article-aside {
     display: grid;
-    gap: 0.8rem;
+    gap: 0.85rem;
     align-self: start;
   }
 
   .aside-tools {
-    padding: 0.85rem;
+    padding: 0.9rem;
     display: grid;
     gap: 0.7rem;
+    border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--border));
+    background: linear-gradient(155deg, #fbf8f0 0%, #eff2e9 100%);
   }
 
   .aside-cta-row {
@@ -430,6 +439,21 @@ const topToolsKeys = miniTopTools.map((tool) => tool.key);
   .article-bottom-grid {
     display: grid;
     gap: 0.8rem;
+  }
+
+  .author-wrap {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .author-mascot-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .author-mascot-row p {
+    margin: 0;
   }
 
   @media (max-width: 1080px) {

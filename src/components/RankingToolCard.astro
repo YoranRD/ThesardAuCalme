@@ -1,0 +1,136 @@
+---
+import type { ResourceEntry } from "../lib/resources";
+import { getResourceOutboundPath } from "../lib/resources";
+
+interface Props {
+  resource: ResourceEntry;
+  rank: number;
+  secondaryHref: string;
+  secondaryLabel: string;
+}
+
+const { resource, rank, secondaryHref, secondaryLabel } = Astro.props;
+
+const formatScore = (value: number): string => value.toFixed(1).replace(/\.0$/, "");
+const scoreFill = (value: number): string => `${Math.max(0, Math.min(100, (value / 5) * 100))}%`;
+const medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : `#${rank}`;
+---
+
+<article class="surface ranking-card" id={`rank-${resource.key}`}>
+  <div class="ranking-head">
+    <p class="rank-label">{medal}</p>
+    <p class="small muted">{resource.badge ?? "Sélection TAC"}</p>
+  </div>
+
+  <h3>{resource.name}</h3>
+  <p class="score-line small muted">
+    <span class="star-meter" aria-label={`Score ${formatScore(resource.wizardScore)} sur 5`}>
+      <span class="star-back">★★★★★</span>
+      <span class="star-front" style={`width:${scoreFill(resource.wizardScore)}`}>★★★★★</span>
+    </span>
+    <span>{formatScore(resource.wizardScore)}/5</span>
+    <span class="meta-pill">{resource.priceTier}</span>
+  </p>
+
+  <p>{resource.description}</p>
+  <p class="small"><strong>On aime:</strong> {resource.bestFor.slice(0, 3).join(" · ")}</p>
+  {resource.avoidIf.length > 0 && <p class="small muted"><strong>On évite si:</strong> {resource.avoidIf.join(" · ")}</p>}
+
+  {
+    resource.perk && (
+      <p class="perk small">
+        <strong>{resource.perk.label}</strong>
+        {resource.perk.code && <code>{resource.perk.code}</code>}
+        {resource.perk.description && <span>{resource.perk.description}</span>}
+      </p>
+    )
+  }
+
+  <div class="actions">
+    <a class="button button-primary" href={getResourceOutboundPath(resource.key)} rel="nofollow sponsored">Découvrir</a>
+    <a class="button button-secondary" href={secondaryHref}>{secondaryLabel}</a>
+  </div>
+</article>
+
+<style>
+  .ranking-card {
+    padding: 1rem;
+    display: grid;
+    gap: 0.48rem;
+  }
+
+  .ranking-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+
+  .ranking-head p,
+  .ranking-card h3,
+  .ranking-card p {
+    margin: 0;
+  }
+
+  .rank-label {
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 1.03rem;
+  }
+
+  .score-line {
+    display: flex;
+    align-items: center;
+    gap: 0.32rem;
+    flex-wrap: wrap;
+  }
+
+  .star-meter {
+    position: relative;
+    display: inline-flex;
+    line-height: 1;
+    font-size: 0.96rem;
+  }
+
+  .star-back {
+    color: #cac4b8;
+    letter-spacing: 0.02em;
+  }
+
+  .star-front {
+    position: absolute;
+    left: 0;
+    top: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    color: #e0ab2f;
+    letter-spacing: 0.02em;
+  }
+
+  .perk {
+    background: color-mix(in srgb, var(--accent-soft) 60%, #ffffff);
+    border: 1px dashed color-mix(in srgb, var(--accent) 30%, var(--border));
+    border-radius: var(--radius-1);
+    padding: 0.42rem 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    width: fit-content;
+    flex-wrap: wrap;
+  }
+
+  .perk code {
+    font-family: var(--font-mono);
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 0.3rem;
+    padding: 0.03rem 0.3rem;
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+</style>

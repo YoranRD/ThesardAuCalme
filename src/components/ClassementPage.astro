@@ -1,0 +1,159 @@
+---
+import type { ResourceEntry } from "../lib/resources";
+import Breadcrumbs from "./Breadcrumbs.astro";
+import RankingToolCard from "./RankingToolCard.astro";
+import { withBase } from "../lib/links";
+
+interface RankedItem {
+  resource: ResourceEntry;
+  secondaryHref: string;
+  secondaryLabel: string;
+}
+
+interface Props {
+  title: string;
+  eyebrow?: string;
+  summary: string;
+  items: RankedItem[];
+}
+
+const {
+  title,
+  eyebrow = "Classement TAC",
+  summary,
+  items
+} = Astro.props;
+
+const topItems = items.slice(0, 5);
+---
+
+<section class="section classement-hero-section">
+  <div class="container surface-hero classement-hero">
+    <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Classements", href: "/classements/outils-doctorat/" }, { label: title }]} />
+    <p class="eyebrow">{eyebrow}</p>
+    <h1>{title}</h1>
+    <p>{summary}</p>
+    <p class="small muted">Classement éditorial basé sur score, mise en avant et niveau de prix. Mise à jour statique lors des builds.</p>
+  </div>
+</section>
+
+<section class="section top-section">
+  <div class="container top-grid">
+    {
+      topItems.map((item, index) => (
+        <RankingToolCard
+          resource={item.resource}
+          rank={index + 1}
+          secondaryHref={item.secondaryHref}
+          secondaryLabel={item.secondaryLabel}
+        />
+      ))
+    }
+  </div>
+</section>
+
+<section class="section all-section">
+  <div class="container surface all-wrap">
+    <div class="all-head">
+      <h2>Index compact de tous les outils classés</h2>
+      <a class="button button-secondary" href={withBase("/outils/")}>Voir la toolbox complète</a>
+    </div>
+
+    <ol class="index-list">
+      {
+        items.map((item, index) => (
+          <li>
+            <a href={`#rank-${item.resource.key}`}>{index + 1}. {item.resource.name}</a>
+            <span class="small muted">{item.resource.priceTier} · {item.resource.wizardScore.toFixed(1).replace(/\.0$/, "")}/5</span>
+          </li>
+        ))
+      }
+    </ol>
+
+    <p class="small disclosure-line">
+      Transparence: certains liens externes passent par <code>/out/[key]/</code>.
+      <a href={withBase("/legal/affiliation/")}>Politique d’affiliation</a>.
+    </p>
+  </div>
+</section>
+
+<style>
+  .classement-hero-section,
+  .top-section,
+  .all-section {
+    padding-top: 0;
+  }
+
+  .classement-hero {
+    padding: clamp(1.1rem, 3vw, 2rem);
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .classement-hero p {
+    max-width: 78ch;
+    margin: 0;
+  }
+
+  .top-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+  }
+
+  .all-wrap {
+    padding: 1rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .all-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .all-head h2 {
+    margin: 0;
+  }
+
+  .index-list {
+    margin: 0;
+    padding-left: 1.2rem;
+    display: grid;
+    gap: 0.32rem;
+  }
+
+  .index-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+
+  .index-list a {
+    color: var(--brand-text);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .index-list a:hover {
+    text-decoration: underline;
+  }
+
+  .disclosure-line {
+    margin: 0;
+    border: 1px solid color-mix(in srgb, var(--accent-2) 30%, var(--border));
+    background: color-mix(in srgb, var(--accent-2) 7%, #fff);
+    border-radius: var(--radius-1);
+    padding: 0.6rem 0.7rem;
+  }
+
+  @media (max-width: 960px) {
+    .top-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

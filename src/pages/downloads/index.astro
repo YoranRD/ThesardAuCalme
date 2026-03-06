@@ -1,5 +1,6 @@
 ---
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import Mascot from "../../components/Mascot.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { withBase } from "../../lib/links";
 
@@ -28,14 +29,17 @@ const files = [
   description="Ressources téléchargeables gratuites: checklists doctorat, routine hebdo et template email encadrement."
 >
   <section class="section">
-    <div class="container prose">
-      <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Downloads" }]} />
-      <p class="eyebrow">Téléchargements gratuits</p>
-      <h1>Ressources directes, sans formulaire</h1>
-      <p>
-        Ces documents sont publics et sans capture d’email. Ils servent de base opérationnelle pour démarrer vite,
-        puis adapter le système au contexte doctoral.
-      </p>
+    <div class="container surface-hero downloads-hero">
+      <div class="prose">
+        <Breadcrumbs items={[{ label: "Accueil", href: "/" }, { label: "Downloads" }]} />
+        <p class="eyebrow">Téléchargements gratuits</p>
+        <h1>Ressources directes, sans formulaire</h1>
+        <p>
+          Ces documents sont publics et sans capture d’email. Ils servent de base opérationnelle pour démarrer vite,
+          puis adapter le système au contexte doctoral.
+        </p>
+      </div>
+      <Mascot action="meditate" size="md" />
     </div>
   </section>
 
@@ -57,6 +61,14 @@ const files = [
 </BaseLayout>
 
 <style>
+  .downloads-hero {
+    padding: clamp(1rem, 2.8vw, 1.7rem);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.8rem;
+    align-items: center;
+  }
+
   .download-card {
     display: grid;
     gap: 0.6rem;
@@ -68,5 +80,11 @@ const files = [
 
   .download-card a {
     width: fit-content;
+  }
+
+  @media (max-width: 860px) {
+    .downloads-hero {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
